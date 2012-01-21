@@ -151,101 +151,15 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-const int MAXN=1000;
-int n;
-short adjs[MAXN];
-short adj[MAXN][MAXN];
-bool vis[MAXN];
-short pre[MAXN],nxt[MAXN];
+const int MAXK=41;
+int k;
+lli f[MAXK]={1,1};
 
 int main()
 {
-	sf("%d",&n);
-	getchar();
-	rep(u,n)
-	{
-		lp
-		{
-			int v;
-			char nc='\n';
-			sf("%d%c",&v,&nc),--v;
-			adj[u][adjs[u]++]=v;
-			if (nc=='\n') break;
-		}
-		sort(adj[u],adj[u]+adjs[u]);
-	}
-	int head=0,tail=0,cnt=1;
-	vis[0]=true,pre[0]=-1,nxt[0]=-1;
-	lp
-	{
-		bool hfnd=false,tfnd=false;
-		rep(i,adjs[head])
-		{
-			int u=adj[head][i];
-			if (!vis[u])
-			{
-				pre[u]=-1;
-				nxt[u]=head;
-				pre[head]=u;
-				vis[u]=true;
-				hfnd=true;
-				head=u;
-				cnt++;
-				break;
-			}
-		}
-		rep(i,adjs[tail])
-		{
-			int u=adj[tail][i];
-			if (!vis[u])
-			{
-				nxt[tail]=u;
-				pre[u]=tail;
-				nxt[u]=-1;
-				vis[u]=true;
-				tfnd=true;
-				tail=u;
-				cnt++;
-				break;
-			}
-		}
-		if (!hfnd&&!tfnd)
-		{
-			for (int u=head;u!=tail;u=nxt[u])
-			{
-				int v=nxt[u];
-				if (binary_search(adj[v],adj[v]+adjs[v],head)&&binary_search(adj[u],adj[u]+adjs[u],tail))
-				{
-					for (int w=v;w!=-1;w=pre[w])
-						swap(pre[w],nxt[w]);
-					pre[head]=v;
-					nxt[v]=head;
-					pre[tail]=u;
-					nxt[u]=tail;
-					break;
-				}
-			}
-			if (cnt==n) break;
-			else
-				for (int u=0,fnd=false;!fnd;u=nxt[u])
-					rep(i,adjs[u])
-					{
-						int v=adj[u][i];
-						if (!vis[v])
-						{
-							head=v,tail=pre[u];
-							nxt[pre[u]]=-1;
-							pre[u]=v;
-							pre[v]=-1;
-							nxt[v]=u;
-							vis[v]=true;
-							fnd=true;
-							cnt++;
-							break;
-						}
-					}
-		}
-	}
-	int u=0;
-	rep(i,n+1) pf("%d%c",u+1,char(i==n?'\n':' ')),u=nxt[u];
+	cin>>k;
+	repf(i,2,k) f[i]=f[i-2]+f[i-1];
+	lli sum=0;
+	rep(i,k) sum+=f[i];
+	cout<<sum<<endl;
 }
