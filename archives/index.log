@@ -89,7 +89,7 @@ I should have solved this problem during the contest, but I got TLE because I us
 
 
 
-2012.12.2 ACME Training One - The 2012 ACM-ICPC Asia Chengdu Regional Contest[team]
+2012.12.02 ACME Training One - The 2012 ACM-ICPC Asia Chengdu Regional Contest[team]
 #TODO
 
 This is my first cooperation with my new teammates, WDP and WHD. Our team is called ACME, which can be understood as AC me, or it original meaning the peak.
@@ -108,7 +108,7 @@ We come up with a n^1.5*logn algorithm for problem C and got TLE. We also used t
 
 
 
-2012.12.3 ACME Training Two - Codeforces Round #124 (Div. 1)[individual]
+2012.12.03 ACME Training Two - Codeforces Round #124 (Div. 1)[individual]
 #A AC 6 mins
 Greedy
 #B AC 67 mins
@@ -119,7 +119,7 @@ SSP and MST
 
 
 
-2012.12.5 ACME Training Three - Graph Theory Problems[individual]
+2012.12.05 ACME Training Three - Graph Theory Problems[individual]
 
 URAL 1272 Non-Yekaterinburg Subway
 Disjoint-set
@@ -141,7 +141,7 @@ It must be a straight line, a point, a triangle or a tetrahedron.
 
 
 
-2012.12.7 Codeforces Round #153 (Div. 1)
+2012.12.07 Codeforces Round #153 (Div. 1)
 
 #A AC 5 mins
 For each index i, let f[i] be the min index satisfying x[i]-x[f[j]]<=d. The answer will be sum{(i-f[i])*(i-f[i]-1)/2;i= 1 to n}.
@@ -163,7 +163,7 @@ If ca>cb, we must go from [s] to [0], from [0] to [n-1], from [n-1] to [0] ... f
 
 
 
-2012.12.9 ACME Training Four - The 7th(2012) ACM Programming Contest of HUST - Preliminary Contest[team]
+2012.12.09 ACME Training Four - The 7th(2012) ACM Programming Contest of HUST - Preliminary Contest[team]
 
 link: http://acm.hust.edu.cn:8080/judge/contest/view.action?cid=18005
 
@@ -180,7 +180,7 @@ After do some preparations in O(n^1.5), we can response qeuries whose b<=sqrt(n)
 
 
 
-2012.12.9 Codeforces Round #155 (Div. 2)
+2012.12.09 Codeforces Round #155 (Div. 2)
 #A AC 10 mins
 #C AC 58 mins 4 wrong tries
 #B AC 69 mins
@@ -273,7 +273,7 @@ After the contest:
 
 
 
-2013.1.5 Open Ural FU Personal Contest 2012
+2013.01.05 Open Ural FU Personal Contest 2012
 #A AC 64 mins 3 wrong tries
 #B AC 108 mins 2 wrong tries
 #D AC 117 mins
@@ -292,7 +292,7 @@ Math
 
 
 
-2013.1.8 Codeforces Round #159 (Div. 2)
+2013.01.08 Codeforces Round #159 (Div. 2)
 #A AC 8 mins
 #B AC 23 mins
 #C AC 39 mins 1 wrong try
