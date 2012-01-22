@@ -131,13 +131,12 @@ template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:
 template<typename type>inline type sqr(const type& x){rtn x*x;}
 inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
 inline int sgn(const db& x){rtn dbcmp(x,0);}
-template<typename istream,typename first_type,typename second_type>istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
-template<typename ostream,typename first_type,typename second_type>ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
+template<typename ostream,typename type>ostream& operator<<(ostream& cout,const pr<type,type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
 template<typename type>pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
-template<typename type>inline type cross(const pr<type,type>& a,const pr<type,type>& b){rtn a.x*b.y-a.y*b.x;}
-template<typename type>inline type dot(const pr<type,type>& a,const pr<type,type>& b){rtn a.x*b.x+a.y*b.y;}
+template<typename type>inline type cross(const pr<type,type>& a,const pr<type,type>& b,const pr<type,type>& c){rtn (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);}
+template<typename type>inline type dot(const pr<type,type>& a,const pr<type,type>& b,const pr<type,type>& c){rtn (b.x-a.x)*(c.x-a.x)+(b.y-a.y)*(c.y-a.y);}
 template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));rtn a+b;}
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
@@ -152,94 +151,15 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//begin #include <ComputationalGeometry>
-/*
- * Package: StandardCodeLibrary.ComputationalGeometry
- * Description:
- * Ray Casting Algorithm 射线法判断点是否在简单多边形内
- * */
-//#include <Core>
-
-namespace StandardCodeLibrary
-{
-namespace ComputationalGeometry2D
-{
-
-//数据类型定义
-typedef db type;//数值类型
-typedef pr<type,type> Point;//点
-typedef Point Vector;//向量
-typedef pr<Point,Point> Segment;//线段
-typedef vec<Point> Polygon;//多边形
-
-//基本运算
-//符号函数 正数返回1 负数返回-1 0返回0
-using ::sgn;
-//比较函数 大于返回1 小于返回-1 等于返回0
-using ::dbcmp;
-//点积
-using ::dot;
-type dot(const Point& a,const Point& b,const Point& c)
-{
-	rtn dot(b-a,c-a);
-}
-//叉积
-using ::cross;
-type cross(const Point& a,const Point& b,const Point& c)
-{
-	rtn cross(b-a,c-a);
-}
-//长度
-type len(const Vector& v)
-{
-	rtn sqrt(dot(v,v));
-}
-type len(const Segment& s)
-{
-	rtn len(s.x-s.y);
-}
-//距离
-type dis(const Point& a,const Point& b)
-{
-	rtn len(b-a);
-}
-
-//判断点是否在线段上
-//如果点在线段上返回1 不在线段上但在直线上 返回-1 不在直线上返回0
-int point_on_segment(const Point& p,const Segment& s)
-{
-	if (sgn(cross(p,s.x,s.y))) rtn 0;
-	else rtn dbcmp(dis(s.x,p)+dis(s.y,p),len(s))==0?1:-1;
-}
-
-//Ray Casting Algorithm 射线法判断点是否在简单多边形内
-//在内部返回1 在外部返回-1 在边上返回0
-int point_in_polygon(const Point& p,const vec<Segment>& e)
-{
-	rep(i,sz(e)) if (point_on_segment(p,e[i])==1) rtn 0;
-	bool in=false;
-	rep(i,sz(e))
-		if ((dbcmp(e[i].x.y,p.y)>0)!=(dbcmp(e[i].y.y,p.y)>0)
-			&&dbcmp(p.x,(e[i].y.x-e[i].x.x)/(e[i].y.y-e[i].x.y)*(p.y-e[i].x.y)+e[i].x.x)<0)
-			in=!in;
-	return in?1:-1;
-}
-
-}
-}
-//end #include <ComputationalGeometry>
-
-using namespace StandardCodeLibrary::ComputationalGeometry2D;
+const int MAXK=41;
+int k;
+lli f[MAXK]={1,1};
 
 int main()
 {
-	int k;
 	cin>>k;
-	vec<Segment> e(k);
-	rep(i,k) cin>>e[i];
-	Point p;
-	cin>>p;
-	if (point_in_polygon(p,e)==1) cout<<"INSIDE"<<endl;
-	else if (point_in_polygon(p,e)==-1) cout<<"OUTSIDE"<<endl;
-	else cout<<"BORDER"<<endl;
+	repf(i,2,k) f[i]=f[i-2]+f[i-1];
+	lli sum=0;
+	rep(i,k) sum+=f[i];
+	cout<<sum<<endl;
 }
