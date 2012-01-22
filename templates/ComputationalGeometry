@@ -1,0 +1,4 @@
+#ifndef SCL_COMPUTATIONAL_GEOMETRY
+#define SCL_COMPUTATIONAL_GEOMETRY
+#include <ComputationalGeometry.h>
+#endif
