@@ -2,17 +2,17 @@
  * Package: StandardCodeLibrary.BigInteger
  * Last Update: 2012-12-21
  * Description:
- * ÓÃFFTÊµÏÖµÄO(nlogn)µÄ¶àÏîÊ½³Ë·¨;
- * ÓÃFFTÀ´ÊµÏÖ¸ß¾«¶È³Ë·¨;
- * ÓÃÅ£¶Ùµü´ú·¨ÊµÏÖ¸ß¾«¶È³ı·¨,¸ß¾«¶ÈÈ¡ÓàÊı,¸ß¾«¶È¿ªÆ½·½;
- * ÓÃ¿ìËÙÃİÊµÏÖÖ¸Êıº¯Êı;
+ * ç”¨FFTå®ç°çš„O(nlogn)çš„å¤šé¡¹å¼ä¹˜æ³•;
+ * ç”¨FFTæ¥å®ç°é«˜ç²¾åº¦ä¹˜æ³•;
+ * ç”¨ç‰›é¡¿è¿­ä»£æ³•å®ç°é«˜ç²¾åº¦é™¤æ³•,é«˜ç²¾åº¦å–ä½™æ•°,é«˜ç²¾åº¦å¼€å¹³æ–¹;
+ * ç”¨å¿«é€Ÿå¹‚å®ç°æŒ‡æ•°å‡½æ•°;
  * Usage:
  * multiply:
- * ÊäÈëvector<int> p1,p2
- * Êä³övector<double>
+ * è¾“å…¥vector<int> p1,p2
+ * è¾“å‡ºvector<double>
  * multiply(p1,p2)=p1*p2
- * p1,p2,multiply(p1,p2)·Ö±ğ±íÊ¾¶àÏîÊ½ sum{x^k*p1[k]},sum{x^k*p2[k]},sum{x^k*multiply(p1,p2)[k]}
- * Èç¹û¶àÏîÊ½µÄÏµÊı¹ı´ó»áÊ§È¥¾«¶È
+ * p1,p2,multiply(p1,p2)åˆ†åˆ«è¡¨ç¤ºå¤šé¡¹å¼ sum{x^k*p1[k]},sum{x^k*p2[k]},sum{x^k*multiply(p1,p2)[k]}
+ * å¦‚æœå¤šé¡¹å¼çš„ç³»æ•°è¿‡å¤§ä¼šå¤±å»ç²¾åº¦
  *
  * */
 #include <Core>

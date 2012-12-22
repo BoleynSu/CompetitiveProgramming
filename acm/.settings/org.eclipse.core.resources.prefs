@@ -1,3 +1,20 @@
-#Sat Dec 22 15:32:45 CST 2012
+#Sat Dec 22 15:39:24 CST 2012
 eclipse.preferences.version=1
+encoding//log/acm.log=UTF-8
+encoding//templates/BigInteger=UTF-8
+encoding//templates/BigInteger.h=UTF-8
+encoding//templates/Core=UTF-8
+encoding//templates/Core.h=UTF-8
+encoding//templates/GraphTheory=UTF-8
+encoding//templates/GraphTheory.Dinic'sAlgorithm=UTF-8
+encoding//templates/GraphTheory.Dinic'sAlgorithm.h=UTF-8
+encoding//templates/GraphTheory.Edmonds'sMatchingAlgorithm=UTF-8
+encoding//templates/GraphTheory.Edmonds'sMatchingAlgorithm.h=UTF-8
+encoding//templates/GraphTheory.MinCostMaxFlow=UTF-8
+encoding//templates/GraphTheory.MinCostMaxFlow.h=UTF-8
+encoding//templates/GraphTheory.h=UTF-8
+encoding//templates/NumberTheory=UTF-8
+encoding//templates/NumberTheory.h=UTF-8
+encoding//templates/StandardCodeLibrary=UTF-8
+encoding//templates/StringAlgorithms=UTF-8
 encoding//templates/StringAlgorithms.h=UTF-8

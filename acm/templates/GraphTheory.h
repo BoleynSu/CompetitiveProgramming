@@ -2,9 +2,9 @@
  * Package: StandardCodeLibrary.GraphTheory
  * Last Update: 2012-12-21
  * Description:
- * ´ø»¨Ê÷ÊµÏÖµÄÒ»°ãÍ¼×î´óÆ¥Åä;
- * DinicÊµÏÖµÄ×î´óÁ÷Ëã·¨;
- * SPFAÔö¹ãÊµÏÖµÄ×îĞ¡·ÑÓÃ×î´óÁ÷;
+ * å¸¦èŠ±æ ‘å®ç°çš„ä¸€èˆ¬å›¾æœ€å¤§åŒ¹é…;
+ * Dinicå®ç°çš„æœ€å¤§æµç®—æ³•;
+ * SPFAå¢å¹¿å®ç°çš„æœ€å°è´¹ç”¨æœ€å¤§æµ;
  * */
 #include <GraphTheory.Edmonds'sMatchingAlgorithm>
 #include <GraphTheory.Dinic'sAlgorithm>

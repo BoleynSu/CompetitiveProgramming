@@ -2,15 +2,15 @@
  * Package: StandardCodeLibrary.GraphTheory.Dinic'sAlgorithm
  * Last Update: 2012-12-21
  * Usage:
- * MAXV:ĞèÒªÎªµã·ÖÅä¶àÉÙ¿Õ¼ä,µãÖ»ÒªÔÚ0µ½MAXV-1¾Í¿ÉÒÔÁË£¬¼´MAXVÓ¦¸Ã´óÓÚ×î´ó±àºÅ
- * MAXE:ĞèÒªÎª±ß·ÖÅä¶àÉÙ¿Õ¼ä,Ò»Ìõ±ß¶ÔÓ¦Ò»ÌõÕıÏò±ßºÍÒ»Ìõ·´Ïò±ß£¬¼´MAXEÒªµÈÓÚÊµ¼Ê×î´ó±ßÊı*2
+ * MAXV:éœ€è¦ä¸ºç‚¹åˆ†é…å¤šå°‘ç©ºé—´,ç‚¹åªè¦åœ¨0åˆ°MAXV-1å°±å¯ä»¥äº†ï¼Œå³MAXVåº”è¯¥å¤§äºæœ€å¤§ç¼–å·
+ * MAXE:éœ€è¦ä¸ºè¾¹åˆ†é…å¤šå°‘ç©ºé—´,ä¸€æ¡è¾¹å¯¹åº”ä¸€æ¡æ­£å‘è¾¹å’Œä¸€æ¡åå‘è¾¹ï¼Œå³MAXEè¦ç­‰äºå®é™…æœ€å¤§è¾¹æ•°*2
  * add_edge:
- * ÊäÈëint u,v,c
- * add_edge(u,v,c) ¼ÓÒ»Ìõuµ½vµÄÈİÁ¿ÎªcµÄÓĞÏò±ß,¼ÓÒ»Ìõvµ½uµÄÈİÁ¿Îª0µÄÓĞÏò±ß
- * build_graph:¹¹Í¼,ÏêÏ¸¼ûº¯ÊıÄÚµÄ×¢ÊÍ
+ * è¾“å…¥int u,v,c
+ * add_edge(u,v,c) åŠ ä¸€æ¡uåˆ°vçš„å®¹é‡ä¸ºcçš„æœ‰å‘è¾¹,åŠ ä¸€æ¡våˆ°uçš„å®¹é‡ä¸º0çš„æœ‰å‘è¾¹
+ * build_graph:æ„å›¾,è¯¦ç»†è§å‡½æ•°å†…çš„æ³¨é‡Š
  * dinic:
- * Êä³öint
- * dinic()=×î´óÁ÷
+ * è¾“å‡ºint
+ * dinic()=æœ€å¤§æµ
  * */
 #include <Core>
 
@@ -51,7 +51,7 @@ bool relabel()
 	}
 	rtn false;
 }
-//µİ¹éÔö¹ã
+//é€’å½’å¢å¹¿
 int augment(int u,int e)
 {
 	if (u==T) return e;
@@ -62,7 +62,7 @@ int augment(int u,int e)
 				i->c-=df,i->b->c+=df,e-=df,f+=df;
 	return f;
 }
-//·Çµİ¹éÔö¹ã
+//éé€’å½’å¢å¹¿
 int st,us[MAXV],es[MAXV],fs[MAXV],f,df,ret;
 edge is[MAXV],cur[MAXV];
 #define push(u,e) us[st+1]=u,es[st+1]=e,fs[st+1]=0,is[st+1]=cur[u],st++
@@ -89,7 +89,7 @@ int dinic()
 void build_network()
 {
 	top=pool,clr(adj);
-	//S,T;//Ô´,»ã
+	//S,T;//æº,æ±‡
 	//add_edge(u,v,c);
 }
 

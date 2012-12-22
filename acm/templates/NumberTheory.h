@@ -2,13 +2,13 @@
  * Package: StandardCodeLibrary.NumberTheory
  * Last Update: 2012-12-21
  * Description:
- * O(n)µÄÉ¸·¨ÇóËØÊı±í;
- * Rabin-MillerËØÊı²âÊÔ;
- * Pollard's rho´óÊı·Ö½â;
- * ¼ÆËãphi;
- * À©Õ¹gcd;
- * ÖĞ¹úÊ£Óà¶¨Àí;
- * Ö¸ÊıÑ­»·½Ú;
+ * O(n)çš„ç­›æ³•æ±‚ç´ æ•°è¡¨;
+ * Rabin-Millerç´ æ•°æµ‹è¯•;
+ * Pollard's rhoå¤§æ•°åˆ†è§£;
+ * è®¡ç®—phi;
+ * æ‰©å±•gcd;
+ * ä¸­å›½å‰©ä½™å®šç†;
+ * æŒ‡æ•°å¾ªç¯èŠ‚;
  * */
 #include <Core>
 
@@ -17,14 +17,14 @@ namespace StandardCodeLibrary
 namespace NumberTheory
 {
 
-//O(n)µÄÉ¸·¨ÇóËØÊı±í
-//MAXPS=[1,MAXP]ÖĞËØÊıµÄ¸öÊı
+//O(n)çš„ç­›æ³•æ±‚ç´ æ•°è¡¨
+//MAXPS=[1,MAXP]ä¸­ç´ æ•°çš„ä¸ªæ•°
 enum{MAXP=10000000,MAXPS=664579};
-bool isp[MAXP+1];//isp[x]=xÊÇ·ñÎªËØÊı
-int pp[MAXP+1];//pp[x]=xÔÚËØÊı±íÖĞµÄÎ»ÖÃ(´Ó0¿ªÊ¼)
-int fac[MAXP+1];//fax[x]=x×îĞ¡µÄÖÊÒò×Ó(x<=1Ê±ÎŞÒâÒå)
-int ps;//ËØÊı±íµÄ´óĞ¡
-int p[MAXPS];//ËØÊı±í
+bool isp[MAXP+1];//isp[x]=xæ˜¯å¦ä¸ºç´ æ•°
+int pp[MAXP+1];//pp[x]=xåœ¨ç´ æ•°è¡¨ä¸­çš„ä½ç½®(ä»0å¼€å§‹)
+int fac[MAXP+1];//fax[x]=xæœ€å°çš„è´¨å› å­(x<=1æ—¶æ— æ„ä¹‰)
+int ps;//ç´ æ•°è¡¨çš„å¤§å°
+int p[MAXPS];//ç´ æ•°è¡¨
 void make_prime_table()
 {
 	fl(isp,true);
@@ -71,7 +71,7 @@ lli powWithMod(lli x,lli y,lli z)
 	rtn ret;
 }
 
-//Rabin-MillerËØÊı²âÊÔ
+//Rabin-Millerç´ æ•°æµ‹è¯•
 bool isProbablePrime(lli n,lli k=50)
 {
 	if (n<=1) rtn false;
@@ -96,7 +96,7 @@ bool isProbablePrime(lli n,lli k=50)
 	}
 }
 
-//Pollard's rho´óÊı·Ö½â
+//Pollard's rhoå¤§æ•°åˆ†è§£
 lli factor(lli n,lli k=50)
 {
 	if (isProbablePrime(n,k)) rtn n;
@@ -120,13 +120,13 @@ lli factor(lli n,lli k=50)
 	}
 }
 
-//¼ÆËãphi
+//è®¡ç®—phi
 lli phi(lli x,lli k=50)
 {
 	lli ret=x;
 	whl(x!=1)
 	{
-		lli d=factor(x,k);//Èç¹ûÊÇĞ¡·¶Î§µÄ ´Ë´¦¿ÉÓÃfac[x]´úÌæ
+		lli d=factor(x,k);//å¦‚æœæ˜¯å°èŒƒå›´çš„ æ­¤å¤„å¯ç”¨fac[x]ä»£æ›¿
 		ret/=d;
 		ret*=d-1;
 		whl(x%d==0) x/=d;
@@ -134,7 +134,7 @@ lli phi(lli x,lli k=50)
 	rtn ret;
 }
 
-//À©Õ¹gcd
+//æ‰©å±•gcd
 lli gcd(lli a,lli b,lli& x,lli& y)
 {
 	if (b)
@@ -145,8 +145,8 @@ lli gcd(lli a,lli b,lli& x,lli& y)
 	else rtn x=1,y=0,a;
 }
 
-//ÖĞ¹úÊ£Óà¶¨Àí
-//Ò»°ãµØ,ÖĞ¹úÊ£Óà¶¨ÀíÊÇÖ¸ÈôÓĞÒ»Ğ©Á½Á½»¥ÖÊµÄÕûÊım[i],Ôò¶ÔÈÎÒâµÄÕûÊıa[i],ÒÔÏÂÁªÁ¢Í¬Óà·½³Ì×é¶ÔÄ£m[i]ÓĞ¹«½â
+//ä¸­å›½å‰©ä½™å®šç†
+//ä¸€èˆ¬åœ°,ä¸­å›½å‰©ä½™å®šç†æ˜¯æŒ‡è‹¥æœ‰ä¸€äº›ä¸¤ä¸¤äº’è´¨çš„æ•´æ•°m[i],åˆ™å¯¹ä»»æ„çš„æ•´æ•°a[i],ä»¥ä¸‹è”ç«‹åŒä½™æ–¹ç¨‹ç»„å¯¹æ¨¡m[i]æœ‰å…¬è§£
 //x mod m[i]=a[i]
 lli chinese_remainder(lli n,lli m[],lli a[])
 {
@@ -164,9 +164,9 @@ lli chinese_remainder(lli n,lli m[],lli a[])
 	rtn ans;
 }
 
-//Ö¸ÊıÑ­»·½Ú
-//Èç¹û(a,p)=1		a^x%p=a^(x%phi(p))%p
-//·ñÔòÈôx>=phi(p)	a^x%p=a^(x%phi(p)+phi(p))%p
+//æŒ‡æ•°å¾ªç¯èŠ‚
+//å¦‚æœ(a,p)=1		a^x%p=a^(x%phi(p))%p
+//å¦åˆ™è‹¥x>=phi(p)	a^x%p=a^(x%phi(p)+phi(p))%p
 lli mod(lli x,lli phip)
 {
 	rtn x>=phip?x%phip+phip:x;
