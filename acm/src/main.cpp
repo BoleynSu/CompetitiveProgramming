@@ -1,6 +1,7 @@
 #include <StandardCodeLibrary>
 using namespace StandardCodeLibrary::GraphTheory::MinCostMaxFlow;
 
+
 int main()
 {
 	str t;
