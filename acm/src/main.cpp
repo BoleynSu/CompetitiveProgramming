@@ -10,7 +10,7 @@ int main()
 	vs s(n);
 	vi a(n);
 	rep(i,n) cin>>s[i]>>a[i];
-    memset(adj,0,sizeof(adj)),top=pool;f
+    memset(adj,0,sizeof(adj)),top=pool;
     S=26+n,T=26+n+1;
 	mci cnt;
 	rep(i,sz(t)) cnt[t[i]]++;
