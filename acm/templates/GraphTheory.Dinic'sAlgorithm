@@ -1,0 +1,4 @@
+#ifndef SCL_GRAPH_THEORY_DA
+#define SCL_GRAPH_THEORY_DA
+#include <GraphTheory.Dinic'sAlgorithm.h>
+#endif

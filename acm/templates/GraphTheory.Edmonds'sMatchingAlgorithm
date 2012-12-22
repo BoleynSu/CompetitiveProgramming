@@ -1,0 +1,4 @@
+#ifndef SCL_GRAPH_THEORY_EMA
+#define SCL_GRAPH_THEORY_EMA
+#include <GraphTheory.Edmonds'sMatchingAlgorithm.h>
+#endif

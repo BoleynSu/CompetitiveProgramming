@@ -1,0 +1,4 @@
+#ifndef SCL_GRAPH_THEORY
+#define SCL_GRAPH_THEORY
+#include <GraphTheory.h>
+#endif

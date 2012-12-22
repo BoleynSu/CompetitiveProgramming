@@ -1,0 +1,4 @@
+#ifndef SCL_CORE
+#define SCL_CORE
+#include <Core.h>
+#endif

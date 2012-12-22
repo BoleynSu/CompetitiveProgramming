@@ -1,0 +1,245 @@
+2012.11.17 Codeforces Round #150 (Div. 1)
+#TODO
+
+#A AC 64 mins
+It can be solved by brute force algorithm, but I didn't found this until I solve this problem using binary search.
+
+#B TLE 103 mins
+It can be solved by burte force algorithm, and I did so. The reason why I got a TLE is that I didn't skip calculation when I can know it can't be the answer.
+
+After the contest:
+#B AC
+
+Summary:
+It is really important to find how difficult a problem really is as well as to come up with easy solutions to easy problems.
+
+
+
+2012.11.17 USACO 2012 November Contest
+#TODO
+
+The problem A can be solved by DP.
+The problem B can be solved by brute force algorithm with STL/map.
+I tried C by burte force algorithm. But I made a mistake. I should have built a rooted tree.
+
+After the contest:
+I only passed all the test cases of problem A.
+I passed only ONE test case of problem B because I used an incorrect conclusion to optimize my brute force algorithm. And I got AC when I corrected it.
+However, I pass more test cases than I expected of problem C. I am think about the solution to it now.
+
+
+
+2012.11.19 CROC-MBTU 2012, Elimination Round (ACM-ICPC)
+
+#B AC 19 mins 1 wrong try
+#A AC 21 mins
+#D AC 30 mins
+#E AC 36 mins
+#F AC 93 mins 2 wrong tries
+
+All the problems are simple.
+I wasted a lot of time on #C which can be solved greedy(I missed a possiblity so I got WA all the time).
+
+After the contest:
+#C AC
+#H AC
+It can be solved by DP algorithm.
+Let f[i][j] stand for whether s[i...j] is a palindrome(1 for yes, 0 for no).
+Let g[i][j] stand for the number of palindromes in range [i,j].
+Then f[i][j]=f[i+1][j-1]+(if s[i]=s[j] 1, otherwise 0) and if (i>j) f[i][j]=0;
+g[i][j]=g[i+1][j]+g[i][j-1]-g[i+1][j-1]+f[i][j] and if (i>j) g[i][j]=0.
+#G AC
+It can be solved by brute force algorithm.
+
+
+
+2012.11.21 Codeforces Round #151 (Div. 2)
+
+#A AC 5 mins
+#B AC 10 mins
+#D AC 36 mins 4 wrong tries
+It is a simple problem. I got lots of WA because I didn't correctly output for edge cases.
+#C AC 86 mins 5 wrong tries
+It can be solved by constructive algorithm. But I solved it by DP, and wasted lots of time.
+
+After the consest:
+#E AC
+
+
+
+2012.11.26 CROC-MBTU 2012, Final Round (Online version, Div. 2)
+
+#A AC 10 mins
+Implementation
+#B AC 26 mins
+Implementation
+#C AC 37 mins
+Implementation
+#D TLE 69 mins 1 wrong try
+For a certain i, let's define F[j] = L[i]+sqrt((a-b)^2+(A[j]-B[i])^2)+sqrt(a^2+A[j]^2) ,and we'll find that F[j] depends only on A[j].
+Let's assume A is in ascending order, then there will be a k satisfying that for each j less than k, F[j] is not less than F[j-1] and for each j greater than k, F[j] is not less than F[j+1].
+We can calculate k for each i by binary search, and by doing so we will get the min{F[j]} for each i, let's call it G[i].
+The answer will be min{G[i]}.
+#E AC 105 mins 2 wrong tries
+Implementation
+
+After the contest:
+#D AC
+I should have solved this problem during the contest, but I got TLE because I used cin without calling sync_with_stdio(false).
+
+
+
+2012.12.2 ACME Training One - The 2012 ACM-ICPC Asia Chengdu Regional Contest[team]
+#TODO
+
+This is my first cooperation with my new teammates, WDP and WHD. Our team is called ACME, which can be understood as AC me, or it original meaning the peak.
+
+#A AC 8 mins 1 wrong try by WHD
+#I AC 17 mins
+It is a typical DP problem.
+#B AC 76 mins 1 wrong try
+It is a math problem. WDP told me the meaning of the problem, and I come up with a formula soon.
+Let f(p) be p*sum{p^n*(1-p)^i*C(i,n+1)*(n-i);i=0 to n}.
+The answer will f(p)+f(1-p).
+However for some certain i, p^n*(1-p)^i*C(i,n+1)*(n-i) can be too small, to avoid underflow errors we can calculate ln(p^n*(1-p)^i*C(i,n+1)*(n-i)) instead.
+When we use it, we use e^ln(p^n*(1-p)^i*C(i,n+1)*(n-i)) and if ln(p^n*(1-p)^i*C(i,n+1)*(n-i)) is too small we just ignore it.
+
+We come up with a n^1.5*logn algorithm for problem C and got TLE. We also used the algorithm proved to be right to solve problem K, but didn't get AC. I think it must be some bugs when facing edge cases.
+
+
+
+2012.12.3 ACME Training Two - Codeforces Round #124 (Div. 1)[individual]
+#A AC 6 mins
+Greedy
+#B AC 67 mins
+BFS
+
+#E AC
+SSP and MST
+
+
+
+2012.12.5 ACME Training Three - Graph Theory Problems[individual]
+
+URAL 1272 Non-Yekaterinburg Subway
+Disjoint-set
+
+URAL 1156 Two Rounds
+Bipartite graph
+Knapsack problem
+
+URAL 1128 Partition into Groups
+Bipartite graph
+I got RE because I used a variable at a wrong place (it should be j, but I wrote i there) and wasted lots of time to debug it.
+
+URAL 1400 Cellular Characters
+BFS
+I got WA because I used "\n" when output. When I changed it to "%n" I got AC.
+
+URAL 1630 Talisman
+It must be a straight line, a point, a triangle or a tetrahedron.
+
+
+
+2012.12.7 Codeforces Round #153 (Div. 1)
+
+#A AC 5 mins
+For each index i, let f[i] be the min index satisfying x[i]-x[f[j]]<=d. The answer will be sum{(i-f[i])*(i-f[i]-1)/2;i= 1 to n}.
+F[i] can be calculated by binary search or two pointers method.
+
+#B AC 61 mins 2 wrong tries
+It can be solved by brute force algorithm.
+I misunderstood the problem, so I had 2 wrong tries.
+
+#C AC 113 mins 2 wrong tries
+All numbers can be divided into lcm{i;i=2 to k} classes.
+Let n=lcm{i;i=2 to k}.Then there will be n classes, if a=b(mod n) then a and b belong to the same class.
+Let n*i+a belongs to [a] for each i.
+Then there will be edges from [a] to [a-a%i] (i=2 to k) and also a edge from [a] to [a-1] if a>0 or from [a] to [n-1] if a=0.
+We can see that only if we start at [0] can we arrive at [n-1] and if we go from [i], after some step we must arrive at [0]. 
+Let a=ca*n+s, b=cb*n+t.
+If ca=cb, the answer will be the shortest path from [s] to [t];
+If ca>cb, we must go from [s] to [0], from [0] to [n-1], from [n-1] to [0] ... from [0] to [n-1], from [n-1] to [0], from [0] to [n-1], from [n-1] to [t], so the answer will be d[s,0]+(ca-cb-1)*(d[n-1,0]+1)+1+d[n-1,t] (d[i,j]=the length of the shortest path from [i] to [j]).
+
+
+
+2012.12.9 ACME Training Four - The 7th(2012) ACM Programming Contest of HUST - Preliminary Contest[team]
+
+link: http://acm.hust.edu.cn:8080/judge/contest/view.action?cid=18005
+
+#B AC 31 mins 1 wrong try by WHD
+#A AC 50 mins by WDP
+#D AC 75 mins 3 wrong tries by WHD
+#G AC 79 mins 5 wrong tries
+It can be solved by brute force, but I used DP to solve it, so I wasted a lot of time.
+#C AC 94 mins 1 wrong try
+For a query, if b>sqrt(n), we can response it by brute force.
+After do some preparations in O(n^1.5), we can response qeuries whose b<=sqrt(n) in O(1).
+#F AC 118 mins 1 wrong try by WHD
+#E AC 179 mins by WDP
+
+
+
+2012.12.9 Codeforces Round #155 (Div. 2)
+#A AC 10 mins
+#C AC 58 mins 4 wrong tries
+#B AC 69 mins
+#E AC 96 mins
+
+
+
+2012.12.16 ACME Training Five - The 7th(2012) ACM Programming Contest of HUST - Onsite Contest(Semilive)[team,live]
+
+link: http://acm.hust.edu.cn/contest.php?cid=1106
+
+We started about 50 mins after the contest had begun.
+
+#I AC 61 mins
+Brute force
+#E AC 105 mins
+Greedy
+#A AC 113 mins 2 wrong tries by WHD
+#C AC 126 mins 1 wrong try
+AC automation
+#H AC 153 mins 1 wrong try
+Math
+#F AC 224 mins 1 wrong try
+Game theory
+#B AC 259 mins 5 wrong tries
+The solution for this problem is first written by WHD. I rewrote it and got AC after 1 wrong try. 
+#J AC 284 mins 4 wrong tries by WHD
+WHD used a right algorithm to solve this problem, but made a small mistake. After I found it out, WHD corrected it and got AC.
+
+
+
+2012.12.16 Codeforces Round #156 (Div. 1)
+
+#A AC 23 mins
+DP
+#B WA 54 mins
+Math and binary search
+I got WA because my upper bound for binary search is too low.
+#C TLE 102 mins 3 wrong tries
+Game theory
+I got TLE because I forgot to use long long int instead of int.
+
+After the contest:
+#B AC
+#C AC
+#E AC
+DP and segment tree
+
+
+
+2012.12.21 TopCoder SRM 565
+
+#A cha
+DP
+My solution was challenged because I made a mistake. I should have used >=, but I used > instead.
+#B cha
+Game theory
+My solution was challenged because I forgot to delete codes for debug.
+
+After the contest:
+#A AC
+#B AC
