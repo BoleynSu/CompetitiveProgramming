@@ -3,6 +3,8 @@
  * Last Update: 2012-12-21
  * Description:
  * O(n)的筛法求素数表;
+ * 带mod的乘法;
+ * 带mod的指数函数;
  * Rabin-Miller素数测试;
  * Pollard's rho大数分解;
  * 计算phi;
@@ -40,6 +42,7 @@ void make_prime_table()
 	}
 }
 
+//带mod的乘法
 lli mulWithMod(lli x,lli y,lli z)
 {
 	lli ret=0;
@@ -58,6 +61,8 @@ lli mulWithMod(lli x,lli y,lli z)
 	}
 	rtn ret;
 }
+
+//带mod的指数函数
 lli powWithMod(lli x,lli y,lli z)
 {
 	lli ret=1;
