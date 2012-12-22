@@ -3,7 +3,7 @@
  * Last Update: 2012-12-22
  * Description:
  * KMP;
- * À©Õ¹KMP;
- * AC×Ô¶¯»ú;
+ * æ‰©å±•KMP;
+ * ACè‡ªåŠ¨æœº;
  * */
 //TODO
