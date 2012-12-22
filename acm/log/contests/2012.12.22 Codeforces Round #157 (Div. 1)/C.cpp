@@ -147,86 +147,46 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int d[10];
-int cnt[10];
-bool calced[10][10][2];
-lli f[10][10][2];
-int ans;
-lli cur[7];
+enum{MAX=100000};
+lli n;
+lli a[MAX+2];
+lli cnt[MAX+2];
+lli ans[MAX+2];
+lli lst[MAX+2];
 
-int calc(int i,int j,int k)
+lli pow(lli x,lli y)
 {
-	if (j<0) rtn 0;
-	if (i<0) rtn j==0;
-	if (cmax(calced[i][j][k],true))
+	lli z=1;
+	whl(y)
 	{
-		if (k)
-		{
-			f[i][j][k]+=calc(i-1,j-1,k)*2;
-			f[i][j][k]+=calc(i-1,j-0,k)*8;
-		}
-		else if (d[i]>7)
-		{
-			f[i][j][k]+=calc(i-1,j-1,1)*2;
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-2);
-			f[i][j][k]+=calc(i-1,j-0,0);
-		}
-		else if (d[i]==7)
-		{
-			f[i][j][k]+=calc(i-1,j-1,1);
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-1);
-			f[i][j][k]+=calc(i-1,j-1,0);
-		}
-		else if (d[i]>4)
-		{
-			f[i][j][k]+=calc(i-1,j-1,1);
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-1);
-			f[i][j][k]+=calc(i-1,j-0,0);
-		}
-		else if (d[i]==4)
-		{
-			f[i][j][k]+=calc(i-1,j-0,1)*d[i];
-			f[i][j][k]+=calc(i-1,j-1,0);
-		}
-		else
-		{
-			f[i][j][k]+=calc(i-1,j-0,1)*d[i];
-			f[i][j][k]+=calc(i-1,j-0,0);
-
-		}
-		f[i][j][k]%=MOD;
+		if (y&1) z=z*x%MOD;
+		x=x*x%MOD;
+		y>>=1;
 	}
-	rtn f[i][j][k];
-}
-void dfs(lli r,lli d)
-{
-	if (r<=0) ;
-	else if (d==0) ans=(ans+cur[0])%MOD;
-	else
-	{
-		rep(i,10) if (cnt[i])
-		{
-			cur[d-1]=cur[d]*cnt[i]%MOD;
-			cnt[i]--;
-			dfs(r-i,d-1);
-			cnt[i]++;
-		}
-	}
+	rtn z;
 }
 
 int main()
 {
-	int m;
-	cin>>m;
-	rep(i,10) d[i]=m%10,m/=10;
-	rep(i,10) cnt[i]=calc(9,i,0);
-	cnt[0]--;
-	rep(i,10) if (cnt[i])
+	sf("%I64d",&n);
+	rep(i,n) sf("%I64d",a+i);
+	sort(a,a+n);
+	lli beg=1,answer=0;
+	ft(i,1,MAX) ans[i]=1;
+	rep(i,n)
 	{
-		cur[6]=cnt[i];
-		cnt[i]--;
-		dfs(i,6);
-		cnt[i]++;
+		ft(j,beg,a[i])
+		{
+			ft(k,1,oo)
+			{
+				if (j*k>MAX) break;
+				cnt[j*k]++;
+				ans[j*k]=(ans[j*k]*pow(cnt[j*k]-1,i-lst[j*k]))%MOD;
+				lst[j*k]=i;
+			}
+			answer=(answer+(pow(cnt[j],n-i)-pow(cnt[j]-1,n-i)+MOD)*ans[j])%MOD;
+		}
+		beg=a[i]+1;
 	}
-	cout<<ans<<endl;
+	pf("%I64d\n",answer);
 }

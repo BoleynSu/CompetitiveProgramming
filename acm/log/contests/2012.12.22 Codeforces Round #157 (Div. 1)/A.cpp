@@ -147,86 +147,10 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int d[10];
-int cnt[10];
-bool calced[10][10][2];
-lli f[10][10][2];
-int ans;
-lli cur[7];
-
-int calc(int i,int j,int k)
-{
-	if (j<0) rtn 0;
-	if (i<0) rtn j==0;
-	if (cmax(calced[i][j][k],true))
-	{
-		if (k)
-		{
-			f[i][j][k]+=calc(i-1,j-1,k)*2;
-			f[i][j][k]+=calc(i-1,j-0,k)*8;
-		}
-		else if (d[i]>7)
-		{
-			f[i][j][k]+=calc(i-1,j-1,1)*2;
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-2);
-			f[i][j][k]+=calc(i-1,j-0,0);
-		}
-		else if (d[i]==7)
-		{
-			f[i][j][k]+=calc(i-1,j-1,1);
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-1);
-			f[i][j][k]+=calc(i-1,j-1,0);
-		}
-		else if (d[i]>4)
-		{
-			f[i][j][k]+=calc(i-1,j-1,1);
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-1);
-			f[i][j][k]+=calc(i-1,j-0,0);
-		}
-		else if (d[i]==4)
-		{
-			f[i][j][k]+=calc(i-1,j-0,1)*d[i];
-			f[i][j][k]+=calc(i-1,j-1,0);
-		}
-		else
-		{
-			f[i][j][k]+=calc(i-1,j-0,1)*d[i];
-			f[i][j][k]+=calc(i-1,j-0,0);
-
-		}
-		f[i][j][k]%=MOD;
-	}
-	rtn f[i][j][k];
-}
-void dfs(lli r,lli d)
-{
-	if (r<=0) ;
-	else if (d==0) ans=(ans+cur[0])%MOD;
-	else
-	{
-		rep(i,10) if (cnt[i])
-		{
-			cur[d-1]=cur[d]*cnt[i]%MOD;
-			cnt[i]--;
-			dfs(r-i,d-1);
-			cnt[i]++;
-		}
-	}
-}
-
 int main()
 {
-	int m;
-	cin>>m;
-	rep(i,10) d[i]=m%10,m/=10;
-	rep(i,10) cnt[i]=calc(9,i,0);
-	cnt[0]--;
-	rep(i,10) if (cnt[i])
-	{
-		cur[6]=cnt[i];
-		cnt[i]--;
-		dfs(i,6);
-		cnt[i]++;
-	}
-	cout<<ans<<endl;
+	str s;
+	cin>>s;
+	rep(i,sz(s)-1) if (s[i]=='0') rtn cout<<s.substr(0,i)<<s.substr(i+1,sz(s)-(i+1))<<endl,0;
+	cout<<s.substr(0,sz(s)-1);
 }
