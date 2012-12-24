@@ -20,7 +20,7 @@ namespace GraphTheory
 namespace MinCostMaxFlow
 {
 
-#define oo 0x7f7f7f7f
+const int oo=0x7f7f7f7f;
 const int MAXE=1000000;
 const int MAXV=1000000;
 typedef struct struct_edge* edge;

@@ -21,7 +21,8 @@ namespace NumberTheory
 
 //O(n)的筛法求素数表
 //MAXPS=[1,MAXP]中素数的个数
-enum{MAXP=10000000,MAXPS=664579};
+const int MAXP=10000000;
+const int MAXPS=664579;
 bool isp[MAXP+1];//isp[x]=x是否为素数
 int pp[MAXP+1];//pp[x]=x在素数表中的位置(从0开始)
 int fac[MAXP+1];//fax[x]=x最小的质因子(x<=1时无意义)
