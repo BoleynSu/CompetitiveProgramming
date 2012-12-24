@@ -147,86 +147,518 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int d[10];
-int cnt[10];
-bool calced[10][10][2];
-lli f[10][10][2];
-int ans;
-lli cur[7];
+/*
+ * Package: StandardCodeLibrary.GraphTheory.Dinic'sAlgorithm
+ * Last Update: 2012-12-21
+ * Usage:
+ * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * add_edge:
+ * 输入int u,v,c
+ * add_edge(u,v,c) 加一条u到v的容量为c的有向边,加一条v到u的容量为0的有向边
+ * build_graph:构图,详细见函数内的注释
+ * dinic:
+ * 输出int
+ * dinic()=最大流
+ * */
 
-int calc(int i,int j,int k)
+namespace StandardCodeLibrary
 {
-	if (j<0) rtn 0;
-	if (i<0) rtn j==0;
-	if (cmax(calced[i][j][k],true))
+namespace GraphTheory
+{
+namespace Dinic_sAlgorithm
+{
+
+#define oo 0x7f7f7f7f
+const int MAXV=1000000;
+const int MAXE=1000000;
+typedef struct struct_edge* edge;
+struct struct_edge{int v,c;edge n,b;};
+struct_edge pool[MAXE];
+edge top;
+int S,T;
+edge adj[MAXV];
+int d[MAXV];
+int q[MAXV];
+int qh,qt;
+void add_edge(int u,int v,int c)
+{
+	top->v=v,top->c=c,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->c=0,top->n=adj[v],adj[v]=top++;
+	adj[u]->b=adj[v],adj[v]->b=adj[u];
+}
+bool relabel()
+{
+	fl(d,oo),d[q[qh=qt=0]=T]=0;
+	whl(qh<=qt)
 	{
-		if (k)
+		int u=q[qh++];
+		for (edge i=adj[u];i;i=i->n)
+			if (i->b->c&&cmin(d[i->v],d[u]+1))
+				if ((q[++qt]=i->v)==S) rtn true;
+	}
+	rtn false;
+}
+//递归增广
+int augment(int u,int e)
+{
+	if (u==T) return e;
+	int f=0;
+	for (edge i=adj[u];i&&e;i=i->n)
+		if (i->c&&d[u]==d[i->v]+1)
+			if (int df=augment(i->v,min(e,i->c)))
+				i->c-=df,i->b->c+=df,e-=df,f+=df;
+	return f;
+}
+//非递归增广
+int st,us[MAXV],es[MAXV],fs[MAXV],f,df,ret;
+edge is[MAXV],cur[MAXV];
+#define push(u,e) us[st+1]=u,es[st+1]=e,fs[st+1]=0,is[st+1]=cur[u],st++
+#define pop() df=fs[st--],st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
+int improved_augment(int u,int e)
+{
+    f=0,st=-1,cpy(cur,adj);
+    push(u,e);
+    whl(st>=0)
+    {
+        if (us[st]==T) fs[st]=es[st],pop();
+        else if (!is[st]||!es[st]) pop();
+        else if (is[st]->c&&d[us[st]]==d[is[st]->v]+1) cur[us[st]]=is[st],push(is[st]->v,min(es[st],is[st]->c));
+        else is[st]=is[st]->n;
+    }
+    rtn f;
+}
+int dinic()
+{
+	int f=0;
+	while (relabel()) f+=improved_augment(S,oo);
+	return f;
+}
+void build_network()
+{
+	top=pool,clr(adj);
+	//S,T;//源,汇
+	//add_edge(u,v,c);
+}
+
+}
+}
+}
+
+/*
+ * Package: StandardCodeLibrary.GraphTheory.Edmonds'sMatchingAlgorithm
+ * Last Update: 2012-12-21
+ * Usage:
+ * MAXV:需要为点分配多少空间,点一定要从0到V-1，即MAXV应该等于最大点数
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * V:点数
+ * add_edge:
+ * 输入int u,v
+ * add_edge(u,v) 加一条u到v的边和一条v到u的边
+ * build_graph:构图,详细见函数内的注释
+ * edmonds:
+ * 输出int
+ * edmonds()=最大匹配数
+ * 附加输出:
+ * 如果match[u]==NOT_NODE则u没有被匹配
+ * 否者u与match[u]匹配
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace GraphTheory
+{
+namespace Edmonds_sMatchingAlgorithm
+{
+
+const int MAXV=100;
+const int MAXE=MAXV*MAXV*2;
+const int NOT_NODE=-1;
+struct struct_edge{int v;struct_edge* n;};
+typedef struct_edge* edge;
+int V;
+struct_edge pool[MAXE];
+edge top;
+edge adj[MAXV];
+void build_graph()
+{
+	top=pool;
+	clr(adj);
+	//V;//点数
+	//Warning:
+	//V必须严格等于图中的点的数目
+	//add_edge(u,v);
+}
+void add_edge(int u,int v)
+{
+	top->v=v,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->n=adj[v],adj[v]=top++;
+}
+int match[MAXV];
+int qh,qt;
+int q[MAXV];
+bool inq[MAXV];
+int father[MAXV];
+int base[MAXV];
+bool ib[MAXV];
+bool ip[MAXV];
+int LCA(int root,int u,int v)
+{
+	clr(ip);
+	lp
+	{
+		ip[u=base[u]]=true;
+		if (u==root) break;
+		u=father[match[u]];
+	}
+	lp
+	{
+		if (ip[v=base[v]]) rtn v;
+		else v=father[match[v]];
+	}
+}
+void mark_blossom(int lca,int u)
+{
+	whl(base[u]!=lca)
+	{
+		int v=match[u];
+		ib[base[u]]=true;
+		ib[base[v]]=true;
+		u=father[v];
+		if (base[u]!=lca) father[u]=v;
+	}
+}
+void blossom_contraction(int s,int u,int v)
+{
+	int lca=LCA(s,u,v);
+	clr(ib);
+	mark_blossom(lca,u);
+	mark_blossom(lca,v);
+	if (base[u]!=lca) father[u]=v;
+	if (base[v]!=lca) father[v]=u;
+	rep(u,V)
+		if (ib[base[u]])
 		{
-			f[i][j][k]+=calc(i-1,j-1,k)*2;
-			f[i][j][k]+=calc(i-1,j-0,k)*8;
+			base[u]=lca;
+			if (!inq[u]) inq[q[++qt]=u]=true;
 		}
-		else if (d[i]>7)
+}
+int find_augmenting_path(int s)
+{
+	clr(inq),fl(father,NOT_NODE);
+	for (int i=0;i<V;i++) base[i]=i;
+	inq[q[qh=qt=0]=s]=true;
+	whl(qh<=qt)
+	{
+		int u=q[qh++];
+		for (edge e=adj[u];e;e=e->n)
 		{
-			f[i][j][k]+=calc(i-1,j-1,1)*2;
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-2);
-			f[i][j][k]+=calc(i-1,j-0,0);
+			int v=e->v;
+			if (base[u]!=base[v]&&match[u]!=v)
+			{
+				if ((v==s)||(match[v]!=NOT_NODE&&father[match[v]]!=NOT_NODE))
+					blossom_contraction(s,u,v);
+				else if (father[v]==NOT_NODE)
+				{
+					father[v]=u;
+					if (match[v]==NOT_NODE) rtn v;
+					else if (!inq[match[v]]) inq[q[++qt]=match[v]]=true;
+				}
+			}
 		}
-		else if (d[i]==7)
+	}
+	rtn NOT_NODE;
+}
+int augment_path(int s,int t)
+{
+	int u,v,w;
+	u=t;
+	whl(u!=NOT_NODE)
+	{
+		v=father[u];
+		w=match[v];
+		match[v]=u;
+		match[u]=v;
+		u=w;
+	}
+	rtn t!=NOT_NODE;
+}
+int edmonds()
+{
+	int matchc=0;
+	fl(match,NOT_NODE);
+	for (int u=0;u<V;u++)
+		if (match[u]==NOT_NODE)
+		matchc+=augment_path(u,find_augmenting_path(u));
+	rtn matchc;
+}
+
+}
+}
+}
+
+/*
+ * Package: StandardCodeLibrary.GraphTheory.MinCostMaxFlow
+ * Last Update: 2012-12-22
+ * Usage:
+ * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * add_edge:
+ * 输入int u,v,c,d
+ * add_edge(u,v,c,d) 加一条u到v的容量为c代价为d的有向边,加一条v到u的容量为0代价为-d的有向边
+ * build_graph:构图,详细见函数内的注释
+ * min_cost_max_flow:
+ * min_cost_max_flow(最大流,最小费用)
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace GraphTheory
+{
+namespace MinCostMaxFlow
+{
+
+#define oo 0x7f7f7f7f
+const int MAXE=1000000;
+const int MAXV=1000000;
+typedef struct struct_edge* edge;
+struct struct_edge{int v,c,d;edge n,b;};
+struct_edge pool[MAXE];
+edge top;
+int S,T;
+edge adj[MAXV];
+int d[MAXV];
+int q[MAXV];
+bool inq[MAXV];
+int qh,qt;
+void add_edge(int u,int v,int c,int d)
+{
+	top->v=v,top->c=c,top->d=d,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->c=0,top->d=-d,top->n=adj[v],adj[v]=top++;
+	adj[u]->b=adj[v],adj[v]->b=adj[u];
+}
+edge p[MAXV];
+void min_cost_max_flow(int& flow,int& cost)
+{
+	flow=0,cost=0;
+	lp
+	{
+		fl(d,oo),inq[q[qh=qt=0]=S]=true,d[S]=0,p[S]=0;
+		whl(qh<=qt)
 		{
-			f[i][j][k]+=calc(i-1,j-1,1);
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-1);
-			f[i][j][k]+=calc(i-1,j-1,0);
+			int u=q[(qh++)%MAXV];
+			inq[u]=false;
+			for (edge i=adj[u];i;i=i->n)
+				if (i->c&&cmin(d[i->v],d[u]+i->d))
+				{
+					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
+					p[i->v]=i;
+				}
 		}
-		else if (d[i]>4)
-		{
-			f[i][j][k]+=calc(i-1,j-1,1);
-			f[i][j][k]+=calc(i-1,j-0,1)*(d[i]-1);
-			f[i][j][k]+=calc(i-1,j-0,0);
-		}
-		else if (d[i]==4)
-		{
-			f[i][j][k]+=calc(i-1,j-0,1)*d[i];
-			f[i][j][k]+=calc(i-1,j-1,0);
-		}
+		if (d[T]==oo) break;
 		else
 		{
-			f[i][j][k]+=calc(i-1,j-0,1)*d[i];
-			f[i][j][k]+=calc(i-1,j-0,0);
-
+			int delta=oo;
+			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
+			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta;
+			flow+=delta;
+			cost+=d[T]*delta;
 		}
-		f[i][j][k]%=MOD;
 	}
-	rtn f[i][j][k];
 }
-void dfs(lli r,lli d)
+void build_network()
 {
-	if (r<=0) ;
-	else if (d==0) ans=(ans+cur[0])%MOD;
+	top=pool,clr(adj);
+	//S,T;//源,汇
+	//add_edge(u,v,c,d);
+}
+
+}
+}
+}
+
+/*
+ * Package: StandardCodeLibrary.NumberTheory
+ * Last Update: 2012-12-21
+ * Description:
+ * O(n)的筛法求素数表;
+ * 带mod的乘法;
+ * 带mod的指数函数;
+ * Rabin-Miller素数测试;
+ * Pollard's rho大数分解;
+ * 计算phi;
+ * 扩展gcd;
+ * 中国剩余定理;
+ * 指数循环节;
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace NumberTheory
+{
+
+//O(n)的筛法求素数表
+//MAXPS=[1,MAXP]中素数的个数
+enum{MAXP=10000000,MAXPS=664579};
+bool isp[MAXP+1];//isp[x]=x是否为素数
+int pp[MAXP+1];//pp[x]=x在素数表中的位置(从0开始)
+int fac[MAXP+1];//fax[x]=x最小的质因子(x<=1时无意义)
+int ps;//素数表的大小
+int p[MAXPS];//素数表
+void make_prime_table()
+{
+	fl(isp,true);
+	isp[0]=isp[1]=false;
+	ft(i,2,MAXP)
+	{
+		if (isp[i]) pp[p[ps]=i]=ps,ps++,fac[i]=i;
+		for (int j=0;p[j]*i<=MAXP;j++)
+		{
+			isp[p[j]*i]=false,fac[p[j]*i]=p[j];
+			if(i%p[j]==0) break;
+		}
+	}
+}
+
+//带mod的乘法
+lli mulWithMod(lli x,lli y,lli z)
+{
+	lli ret=0;
+	x%=z;
+	y%=z;
+	whl(y)
+	{
+		if (y&1)
+		{
+			ret+=x;
+			if (ret>=z) ret-=z;
+		}
+		x<<=1;
+		if (x>=z) x-=z;
+		y>>=1;
+	}
+	rtn ret;
+}
+
+//带mod的指数函数
+lli powWithMod(lli x,lli y,lli z)
+{
+	lli ret=1;
+	x%=z;
+	whl(y)
+	{
+		if (y&1) ret=mulWithMod(ret,x,z);
+		y>>=1;
+		x=mulWithMod(x,x,z);
+	}
+	rtn ret;
+}
+
+//Rabin-Miller素数测试
+bool isProbablePrime(lli n,lli k=50)
+{
+	if (n<=1) rtn false;
+	else if (n<=3) rtn true;
 	else
 	{
-		rep(i,10) if (cnt[i])
+		lli d=n-1;
+		whl(!(d&1)) d>>=1;
+		rep(i,k)
 		{
-			cur[d-1]=cur[d]*cnt[i]%MOD;
-			cnt[i]--;
-			dfs(r-i,d-1);
-			cnt[i]++;
+			lli a=rand()%(n-3)+2;//2 to n-2
+			lli x=powWithMod(a,d,n);
+			if (x==1) continue;
+			whl(d!=n-1&&x!=n-1&&x!=1)
+			{
+				x=mulWithMod(x,x,n);
+				d<<=1;
+			}
+			if (x!=n-1) rtn false;
+		}
+		rtn true;
+	}
+}
+
+//Pollard's rho大数分解
+lli factor(lli n,lli k=50)
+{
+	if (isProbablePrime(n,k)) rtn n;
+	lp
+	{
+		lli d=1,x=rand()%(n-1)+1,//1 to n-1
+				y=rand()%(n-1)+1,//1 to n-1
+				c=rand()%n;
+		if (c==0) c++;//c!=0
+		if (c==n-2) c++;//c!=n-2
+		lli loop=0;
+		whl(d==1)
+		{
+			loop++;
+			if (((-loop)&loop)==loop) y=x;
+			x=(mulWithMod(x,x,n)+c)%n;
+			if (x==y) break;
+			d=gcd(y-x+n,n);
+			if (d!=1&&d!=n) rtn factor(d,k);
 		}
 	}
 }
+
+//计算phi
+lli phi(lli x,lli k=50)
+{
+	lli ret=x;
+	whl(x!=1)
+	{
+		lli d=factor(x,k);//如果是小范围的 此处可用fac[x]代替
+		ret/=d;
+		ret*=d-1;
+		whl(x%d==0) x/=d;
+	}
+	rtn ret;
+}
+
+//扩展gcd
+lli gcd(lli a,lli b,lli& x,lli& y)
+{
+	if (b)
+	{
+		lli g=gcd(b,a%b,y,x);
+		rtn y-=a/b*x,g;
+	}
+	else rtn x=1,y=0,a;
+}
+
+//中国剩余定理
+//一般地,中国剩余定理是指若有一些两两互质的整数m[i],则对任意的整数a[i],以下联立同余方程组对模m[i]有公解
+//x mod m[i]=a[i]
+lli chinese_remainder(lli n,lli m[],lli a[])
+{
+	lli lcm=1;
+	rep(i,n) lcm*=m[i];
+	lli ans=0;
+	rep(i,n)
+	{
+		lli Mi=lcm/m[i],x,y;
+		gcd(Mi,m[i],x,y);
+		ans+=Mi*x*a[i];
+		ans%=lcm;
+	}
+	if (ans<0) ans+=lcm;
+	rtn ans;
+}
+
+//指数循环节
+//如果(a,p)=1		a^x%p=a^(x%phi(p))%p
+//否则若x>=phi(p)	a^x%p=a^(x%phi(p)+phi(p))%p
+lli mod(lli x,lli phip)
+{
+	rtn x>=phip?x%phip+phip:x;
+}
+
+}
+}
+
 
 int main()
 {
-	int m;
-	cin>>m;
-	rep(i,10) d[i]=m%10,m/=10;
-	rep(i,10) cnt[i]=calc(9,i,0);
-	cnt[0]--;
-	rep(i,10) if (cnt[i])
-	{
-		cur[6]=cnt[i];
-		cnt[i]--;
-		dfs(i,6);
-		cnt[i]++;
-	}
-	cout<<ans<<endl;
 }

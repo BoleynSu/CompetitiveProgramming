@@ -16,7 +16,6 @@
  * 如果match[u]==NOT_NODE则u没有被匹配
  * 否者u与match[u]匹配
  * */
-
 #include <Core>
 
 namespace StandardCodeLibrary
