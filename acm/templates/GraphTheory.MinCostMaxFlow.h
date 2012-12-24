@@ -29,16 +29,22 @@ struct_edge pool[MAXE];
 edge top;
 int S,T;
 edge adj[MAXV];
-int d[MAXV];
-int q[MAXV];
-bool inq[MAXV];
-int qh,qt;
 void add_edge(int u,int v,int c,int d)
 {
 	top->v=v,top->c=c,top->d=d,top->n=adj[u],adj[u]=top++;
 	top->v=u,top->c=0,top->d=-d,top->n=adj[v],adj[v]=top++;
 	adj[u]->b=adj[v],adj[v]->b=adj[u];
 }
+void build_graph()
+{
+	top=pool,clr(adj);
+	//S,T;//源,汇
+	//add_edge(u,v,c,d);
+}
+int d[MAXV];
+int q[MAXV];
+bool inq[MAXV];
+int qh,qt;
 edge p[MAXV];
 void min_cost_max_flow(int& flow,int& cost)
 {
@@ -67,12 +73,6 @@ void min_cost_max_flow(int& flow,int& cost)
 			cost+=d[T]*delta;
 		}
 	}
-}
-void build_network()
-{
-	top=pool,clr(adj);
-	//S,T;//源,汇
-	//add_edge(u,v,c,d);
 }
 
 }

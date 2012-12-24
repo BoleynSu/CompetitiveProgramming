@@ -30,15 +30,21 @@ struct_edge pool[MAXE];
 edge top;
 int S,T;
 edge adj[MAXV];
-int d[MAXV];
-int q[MAXV];
-int qh,qt;
 void add_edge(int u,int v,int c)
 {
 	top->v=v,top->c=c,top->n=adj[u],adj[u]=top++;
 	top->v=u,top->c=0,top->n=adj[v],adj[v]=top++;
 	adj[u]->b=adj[v],adj[v]->b=adj[u];
 }
+void build_graph()
+{
+	top=pool,clr(adj);
+	//S,T;//源,汇
+	//add_edge(u,v,c);
+}
+int d[MAXV];
+int q[MAXV];
+int qh,qt;
 bool relabel()
 {
 	fl(d,oo),d[q[qh=qt=0]=T]=0;
@@ -85,12 +91,6 @@ int dinic()
 	int f=0;
 	while (relabel()) f+=improved_augment(S,oo);
 	return f;
-}
-void build_network()
-{
-	top=pool,clr(adj);
-	//S,T;//源,汇
-	//add_edge(u,v,c);
 }
 
 }
