@@ -69,7 +69,7 @@ int augment(int u,int e)
 	return f;
 }
 //非递归增广
-int st,us[MAXV],es[MAXV],fs[MAXV],f,df,ret;
+int st,us[MAXV],es[MAXV],fs[MAXV],f,df;
 edge is[MAXV],cur[MAXV];
 #define push(nu,ne) u=nu,e=ne,st++,us[st]=u,es[st]=e,fs[st]=0,is[st]=cur[u]
 #define pop() df=fs[st],st--,st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
