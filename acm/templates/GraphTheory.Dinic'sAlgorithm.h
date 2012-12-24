@@ -71,8 +71,8 @@ int augment(int u,int e)
 //非递归增广
 int st,us[MAXV],es[MAXV],fs[MAXV],f,df,ret;
 edge is[MAXV],cur[MAXV];
-#define push(u,e) us[st+1]=u,es[st+1]=e,fs[st+1]=0,is[st+1]=cur[u],st++
-#define pop() df=fs[st--],st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
+#define push(nu,ne) u=nu,e=ne,st++,us[st]=u,es[st]=e,fs[st]=0,is[st]=cur[u]
+#define pop() df=fs[st],st--,st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
 int improved_augment(int u,int e)
 {
     f=0,st=-1,cpy(cur,adj);
