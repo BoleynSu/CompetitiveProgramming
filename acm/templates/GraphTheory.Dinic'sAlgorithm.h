@@ -86,6 +86,8 @@ int improved_augment(int u,int e)
     }
     rtn f;
 }
+#undef pop
+#undef push
 int dinic()
 {
 	int f=0;
