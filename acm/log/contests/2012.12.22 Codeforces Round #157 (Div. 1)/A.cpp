@@ -152,5 +152,5 @@ int main()
 	str s;
 	cin>>s;
 	rep(i,sz(s)-1) if (s[i]=='0') rtn cout<<s.substr(0,i)<<s.substr(i+1,sz(s)-(i+1))<<endl,0;
-	cout<<s.substr(0,sz(s)-1);
+	cout<<s.substr(0,sz(s)-1)<<endl;
 }
