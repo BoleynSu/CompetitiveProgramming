@@ -1,4 +1,7 @@
-//begin #include <Core>
+#ifndef ONLINE_JUDGE
+#define DEBUG
+#endif
+
 /*
  * Package: StandardCodeLibrary.Core
  * Last Update: 2012-12-21
@@ -146,79 +149,45 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
 
-struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
-//end #include <Core>
-
-const int MAXN=100000;
-pii p[MAXN];
-int sax[MAXN],say[MAXN];
-int a[9];
-int szcut;
-pii cut[MAXN];
-int r1c[MAXN],r2c[MAXN],r3c[MAXN];
+struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();
+#ifdef DEBUG
+whl(cin.get());
+#endif
+}}initializer;
+bool is(const str& s)
+{
+    if (s[2]!='-'||s[5]!='-') rtn false;
+    rep(i,10) if (s[i]=='-'&&i!=2&&i!=5) rtn false;
+    //0123456789
+    //dd-mm-yyyy
+    int dd=(s[0]-'0')*10+(s[1]-'0');
+    int mm=(s[3]-'0')*10+(s[4]-'0');
+    int yyyy=(s[6]-'0')*1000+(s[7]-'0')*100+(s[8]-'0')*10+(s[9]-'0');
+    if (yyyy<2013||yyyy>2015) rtn false;
+    if (mm<1||mm>12) rtn false;
+    if (dd<1) rtn false;
+    if ((mm==1||mm==3||mm==5||mm==7||mm==8||mm==10||mm==12)&&dd>31) rtn false;
+    if ((mm==2)&&dd>28) rtn false;
+    if ((mm==4||mm==6||mm==9||mm==11)&&dd>30) rtn false;
+    rtn true;
+}
 
 int main()
 {
-	int n;
-	cin>>n;
-	rep(i,n) cin>>p[i].x>>p[i].y;
-
-	sort(p,p+n);
-	rep(i,n) sax[i]=p[i].x;
-	rep(i,n) swap(p[i].x,p[i].y);
-	sort(p,p+n);
-	rep(i,n) say[i]=p[i].x;
-	rep(i,n) swap(p[i].x,p[i].y);
-
-	rep(i,9) cin>>a[i];
-	sort(a,a+9);
-
-	rep(i,9) repf(j,i+1,9) repf(k,j+1,9)
-	rep(ii,9) if (ii!=i&&ii!=j&&ii!=k)
-	repf(jj,ii+1,9) if (jj!=i&&jj!=j&&jj!=k)
-	repf(kk,jj+1,9) if (kk!=i&&kk!=j&&kk!=k)
-	cut[szcut++]=(mp(a[i]+a[j]+a[k],a[ii]+a[jj]+a[kk]));
-	sort(cut,cut+szcut),szcut=unique(cut,cut+szcut)-cut;
-
-	rep(i,szcut)
-	{
-		int r1=cut[i].x,r2=cut[i].x+cut[i].y,r3=n;
-		if (sax[r1-1]==sax[r1]||sax[r2-1]==sax[r2]) continue;
-		rep(j,n)
-		{
-			r1c[j]=j?r1c[j-1]:0;
-			r2c[j]=j?r2c[j-1]:0;
-			r3c[j]=j?r3c[j-1]:0;
-			if (p[j].x<sax[r1]) r1c[j]++;
-			if (p[j].x<sax[r2]) r2c[j]++;
-			if (true) r3c[j]++;
-		}
-		rep(j,szcut)
-		{
-			int c1=cut[j].x,c2=cut[j].x+cut[j].y,c3=n;
-			if (say[c1-1]==say[c1]||say[c2-1]==say[c2]) continue;
-			int b[9],szb=0;
-			b[szb++]=((r1c[c1-1]-0)-0);
-			b[szb++]=((r1c[c2-1]-r1c[c1-1])-0);
-			b[szb++]=((r1c[c3-1]-r1c[c2-1])-0);
-			b[szb++]=((r2c[c1-1]-0)-(r1c[c1-1]-0));
-			b[szb++]=((r2c[c2-1]-r2c[c1-1])-(r1c[c2-1]-r1c[c1-1]));
-			b[szb++]=((r2c[c3-1]-r2c[c2-1])-(r1c[c3-1]-r1c[c2-1]));
-			b[szb++]=((r3c[c1-1]-0)-(r2c[c1-1]-0));
-			b[szb++]=((r3c[c2-1]-r3c[c1-1])-(r2c[c2-1]-r2c[c1-1]));
-			b[szb++]=((r3c[c3-1]-r3c[c2-1])-(r2c[c3-1]-r2c[c2-1]));
-			sort(b,b+szb);
-			bool equal=true;
-			rep(k,9) if (a[k]!=b[k]) equal=false;
-			if (equal)
-			{
-				rtn pdb(10,sax[r1-1]+0.5)<<" ",
-					pdb(10,sax[r2-1]+0.5)<<endl,
-					pdb(10,say[c1-1]+0.5)<<" ",
-					pdb(10,say[c2-1]+0.5)<<endl,
-					0;
-			}
-		}
-	}
-	cout<<-1<<endl;
+    str s;
+    cin>>s;
+    msi cnt;
+    ft(i,10,sz(s))
+    {
+        cnt[s.substr(i-10,10)]++;
+        prt(s.substr(i-10,10));
+    }
+    vec<pr<int,str> > lst;
+    feach(i,cnt) lst.pb(mp(i->y,i->x));
+    sort(all(lst),greater<pr<int,str> >());
+    rep(i,sz(lst))
+    {
+        if (is(lst[i].y)) rtn cout<<lst[i].y<<endl,0;
+        prt(lst[i].y);
+    }
 }

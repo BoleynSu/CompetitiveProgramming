@@ -209,7 +209,7 @@ int main()
 			b[szb++]=((r3c[c3-1]-r3c[c2-1])-(r2c[c3-1]-r2c[c2-1]));
 			sort(b,b+szb);
 			bool equal=true;
-			rep(k,9) if (a[k]!=b[k]) equal=false;
+			rep(i,9) if (a[i]!=b[i]) equal=false;
 			if (equal)
 			{
 				rtn pdb(10,sax[r1-1]+0.5)<<" ",
