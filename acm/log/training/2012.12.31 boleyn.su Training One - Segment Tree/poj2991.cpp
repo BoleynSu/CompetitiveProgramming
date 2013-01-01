@@ -152,6 +152,83 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=10000;
+struct node
+{
+	double dx,dy,lz;
+};
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int L,int R,db v)
+{
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R)
+	{
+		db dx=st[rt].dx,dy=st[rt].dy;
+		st[rt].dx=dx*cos(v)-dy*sin(v);
+		st[rt].dy=dx*sin(v)+dy*cos(v);
+		st[rt].lz+=v;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].lz!=0)
+		{
+			db dx,dy;
+			dx=st[lrt].dx,dy=st[lrt].dy;
+			st[lrt].dx=dx*cos(st[rt].lz)-dy*sin(st[rt].lz);
+			st[lrt].dy=dx*sin(st[rt].lz)+dy*cos(st[rt].lz);
+			st[lrt].lz+=st[rt].lz;
+			dx=st[rrt].dx,dy=st[rrt].dy;
+			st[rrt].dx=dx*cos(st[rt].lz)-dy*sin(st[rt].lz);
+			st[rrt].dy=dx*sin(st[rt].lz)+dy*cos(st[rt].lz);
+			st[rrt].lz+=st[rt].lz;
+			st[rt].lz=0;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+		st[rt].dx=st[lrt].dx+st[rrt].dx;
+		st[rt].dy=st[lrt].dy+st[rrt].dy;
+	}
+}
+pdd qry(int l,int r)
+{
+	rtn mp(st[rt].dx,st[rt].dy);
+}
+#undef rc
+#undef lc
+#undef p
+//#undef idx
+
 int main()
 {
+	int n,m;
+	whl(~sf("%d%d",&n,&m))
+	{
+		clr(st);
+		rep(i,n)
+		{
+			int l;
+			sf("%d",&l);
+			st[idx(i,i)].dx=0;
+			st[idx(i,i)].dy=l;
+			st[idx(i,i)].lz=0;
+		}
+		rep(i,n) upd(0,n-1,i,i,0);
+		rep(i,m)
+		{
+			int p,d;
+			sf("%d%d",&p,&d);
+			db v=2*pi/360*d;
+			upd(0,n-1,p-1,p-1,0);
+			upd(0,n-1,p,p,0);
+			db a1=atan2(-st[idx(p-1,p-1)].dy,-st[idx(p-1,p-1)].dx);
+			db a2=atan2(st[idx(p,p)].dy,st[idx(p,p)].dx);
+			upd(0,n-1,p,n-1,v+a1-a2);
+			pf("%.2f %.2f\n",qry(0,n-1).x,qry(0,n-1).y);
+		}
+		puts("");
+	}
 }

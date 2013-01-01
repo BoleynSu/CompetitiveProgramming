@@ -50,9 +50,6 @@ using namespace std;
 #define pb push_back
 #define mp make_pair
 #define ins insert
-#define ers erase
-#define lb lower_bound
-#define ub upper_bound
 #define rnk order_of_key
 #define sel find_by_order
 #define x first
@@ -152,6 +149,30 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+const int MAXN=500000;
+int cnt[MAXN+1];
+char name[MAXN][10+1];
+int A[MAXN];
+
 int main()
 {
+	ft(i,1,MAXN)
+		for (int j=i;j<=MAXN;j+=i)
+			cnt[j]++;
+	int n,k;
+	whl(~sf("%d%d",&n,&k))
+	{
+		k--;
+		rep(i,n) sf("%s%d",name+i,A+i);
+		vi st(n);
+		rep(i,n) bit_inc(st,i,1);
+		int ans,maxcnt=-oo;
+		ft(i,1,n)
+		{
+			if (cmax(maxcnt,cnt[i])) ans=k;
+			bit_inc(st,k,-1);
+			if (i!=n) k=bit_kth(st,((bit_sum(st,k)+(A[k]>0?A[k]-1:A[k]))%(n-i)+n-i)%(n-i));
+		}
+		printf("%s %d\n",name[ans],maxcnt);
+	}
 }

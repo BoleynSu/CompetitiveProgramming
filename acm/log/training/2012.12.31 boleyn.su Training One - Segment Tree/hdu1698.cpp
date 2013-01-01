@@ -152,6 +152,66 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=100000;
+struct node
+{
+	int sum;
+	int cnt;
+};
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int L,int R,int v)
+{
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R)
+	{
+		st[rt].sum=v*(r-l+1);
+		st[rt].cnt=v;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].cnt)
+		{
+			st[lrt].sum=(m-l+1)*st[rt].cnt;
+			st[lrt].cnt=st[rt].cnt;
+			st[rrt].sum=(r-(m+1)+1)*st[rt].cnt;
+			st[rrt].cnt=st[rt].cnt;
+			st[rt].cnt=0;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+		st[rt].sum=st[lrt].sum+st[rrt].sum;
+	}
+}
+int qry(int l,int r)
+{
+	rtn st[rt].sum;
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
 int main()
 {
+	int T;
+	sf("%d",&T);
+	ft(t,1,T)
+	{
+		int n;
+		sf("%d",&n);
+		upd(0,n-1,0,n-1,1);
+		int m;
+		sf("%d",&m);
+		rep(i,m)
+		{
+			int l,r,v;
+			sf("%d%d%d",&l,&r,&v),--l,--r;
+			upd(0,n-1,l,r,v);
+		}
+		pf("Case %d: The total value of the hook is %d.\n",t,qry(0,n-1));
+	}
 }

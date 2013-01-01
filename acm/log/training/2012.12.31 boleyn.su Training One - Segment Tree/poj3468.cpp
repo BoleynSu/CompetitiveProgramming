@@ -152,6 +152,88 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=100000;
+struct node
+{
+	lli sum;
+	lli cnt;
+};
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int L,int R,lli v)
+{
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R)
+	{
+		st[rt].sum+=v*(r-l+1);
+		st[rt].cnt+=v;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].cnt)
+		{
+			st[lrt].sum+=(m-l+1)*st[rt].cnt;
+			st[lrt].cnt+=st[rt].cnt;
+			st[rrt].sum+=(r-(m+1)+1)*st[rt].cnt;
+			st[rrt].cnt+=st[rt].cnt;
+			st[rt].cnt=0;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+		st[rt].sum=st[lrt].sum+st[rrt].sum;
+	}
+}
+lli qry(int l,int r,int L,int R)
+{
+	if (R<l||r<L) rtn 0;
+	else if (L<=l&&r<=R) rtn st[rt].sum;
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].cnt)
+		{
+			st[lrt].sum+=(m-l+1)*st[rt].cnt;
+			st[lrt].cnt+=st[rt].cnt;
+			st[rrt].sum+=(r-(m+1)+1)*st[rt].cnt;
+			st[rrt].cnt+=st[rt].cnt;
+			st[rt].cnt=0;
+		}
+		rtn qry(l,m,L,R)+qry(m+1,r,L,R);
+	}
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
 int main()
 {
+	int n,m;
+	sf("%d%d",&n,&m);
+	rep(i,n)
+	{
+		int ai;
+		sf("%d",&ai);
+		upd(0,n-1,i,i,ai);
+	}
+	rep(i,m)
+	{
+		char op;
+		sf(" %c",&op);
+		if (op=='Q')
+		{
+			int l,r;
+			sf("%d%d",&l,&r),--l,--r;
+			pf("%I64d\n",qry(0,n-1,l,r));
+		}
+		else
+		{
+			int l,r,v;
+			sf("%d%d%d",&l,&r,&v),--l,--r;
+			upd(0,n-1,l,r,v);
+		}
+	}
 }

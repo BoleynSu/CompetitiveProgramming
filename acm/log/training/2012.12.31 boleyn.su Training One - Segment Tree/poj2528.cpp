@@ -152,6 +152,83 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=200000;
+struct node
+{
+	int c;
+	bool lz;
+};
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int L,int R,lli v)
+{
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R)
+	{
+		st[rt].c=v;
+		st[rt].lz=true;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].lz)
+		{
+			st[lrt].c=st[rt].c;
+			st[lrt].lz=true;
+			st[rrt].c=st[rt].c;
+			st[rrt].lz=true;
+			st[rt].lz=false;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+	}
+}
+lli qry(int l,int r,int p)
+{
+	if (p<l||r<p) rtn -1;
+	else if (p<=l&&r<=p) rtn st[rt].c;
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].lz)
+		{
+			st[lrt].c=st[rt].c;
+			st[lrt].lz=true;
+			st[rrt].c=st[rt].c;
+			st[rrt].lz=true;
+			st[rt].lz=false;
+		}
+		rtn max(qry(l,m,p),qry(m+1,r,p));
+	}
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
+int l[MAXN],r[MAXN];
+int xs;
+int x[MAXN];
+
 int main()
 {
+	int c;
+	sf("%d",&c);
+	rep(i,c)
+	{
+		int n;
+		sf("%d",&n);
+		xs=0;
+		rep(i,n) sf("%d%d",l+i,r+i),x[xs++]=--l[i],x[xs++]=--r[i];
+		sort(x,x+xs);
+		xs=unique(x,x+xs)-x;
+		upd(0,xs-1,0,xs-1,-1);
+		rep(i,n) upd(0,xs-1,lb(x,x+xs,l[i])-x,lb(x,x+xs,r[i])-x,i);
+		si cnt;
+		rep(i,xs) cnt.ins(qry(0,xs-1,i));
+		cnt.ers(-1);
+		pf("%d\n",sz(cnt));
+	}
 }

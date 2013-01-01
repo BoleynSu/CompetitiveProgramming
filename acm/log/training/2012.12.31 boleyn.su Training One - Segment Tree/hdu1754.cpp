@@ -50,9 +50,6 @@ using namespace std;
 #define pb push_back
 #define mp make_pair
 #define ins insert
-#define ers erase
-#define lb lower_bound
-#define ub upper_bound
 #define rnk order_of_key
 #define sel find_by_order
 #define x first
@@ -142,7 +139,7 @@ template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));r
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
-template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<=sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
+template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
@@ -152,6 +149,67 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=200000;
+typedef int node;
+node st[(MAXN<<1)-1];
+void insert(int l,int r,int p,int v)
+{
+	if (p<l||r<p) ;
+	else if (p<=l&&r<=p) st[rt]=v;
+	else
+	{
+		int m=(l+r)>>1;
+		insert(l,m,p,v),insert(m+1,r,p,v);
+		st[rt]=max(st[lrt],st[rrt]);
+	}
+}
+int query(int l,int r,int L,int R)
+{
+	if (R<l||r<L) rtn -oo;
+	else if (L<=l&&r<=R) rtn st[rt];
+	else
+	{
+		int m=(l+r)>>1;
+		rtn max(query(l,m,L,R),query(m+1,r,L,R));
+	}
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
 int main()
 {
+	int n,m;
+	whl(~sf("%d%d",&n,&m))
+	{
+		clr(st);
+		rep(i,n)
+		{
+			int ai;
+			sf("%d",&ai);
+			insert(0,n-1,i,ai);
+		}
+		rep(i,m)
+		{
+			char op;
+			sf(" %c",&op);
+			if (op=='Q')
+			{
+				int L,R;
+				sf("%d%d",&L,&R),--L,--R;
+				pf("%d\n",query(0,n-1,L,R));
+			}
+			else if (op=='U')
+			{
+				int p,v;
+				sf("%d%d",&p,&v),--p;
+				insert(0,n-1,p,v);
+			}
+		}
+	}
 }

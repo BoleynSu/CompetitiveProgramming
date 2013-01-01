@@ -1,5 +1,5 @@
 /*
- * Package: StandardCodeLibrary.BigInteger
+ * Package: StandardCodeLibrary.Math.BigInteger
  * Last Update: 2012-12-21
  * Description:
  * 用FFT实现的O(nlogn)的多项式乘法;

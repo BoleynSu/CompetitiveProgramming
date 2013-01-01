@@ -152,6 +152,72 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=200000;
+typedef int node;
+int x[MAXN];
+si ys[MAXN];
+mii xidx;
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int p,int v)
+{
+	if (p<l||r<p) ;
+	else if (p<=l&&r<=p)
+	{
+		if (v>0) ys[p].ins(v);
+		else ys[p].ers(-v);
+		if (sz(ys[p])) st[rt]=*ys[p].rbegin();
+		else st[rt]=-oo;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		upd(l,m,p,v),upd(m+1,r,p,v);
+		st[rt]=max(st[lrt],st[rrt]);
+	}
+}
+pii qry(int l,int r,int p,int v)
+{
+	if (r<=p||st[rt]<=v) rtn mp(-oo,-oo);
+	else if (l==r) rtn mp(x[l],*ys[l].ub(v));
+	else
+	{
+		int m=(l+r)>>1;
+		pii ret=qry(l,m,p,v);
+		if (ret!=mp(-oo,-oo)) rtn ret;
+		else rtn qry(m+1,r,p,v);
+	}
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
+char op[MAXN][7];
+pii p[MAXN];
+
 int main()
 {
+	int n;
+	sf("%d",&n);
+	rep(i,n) sf("%s%d%d",op+i,&p[i].x,&p[i].y);
+	rep(i,n) x[i]=p[i].x;
+	sort(x,x+n);
+	rep(i,n) if (!xidx.count(x[i])) xidx.insert(mp(x[sz(xidx)]=x[i],sz(xidx)));
+	rep(i,n)
+	{
+		if (strcmp(op[i],"add")==0)
+			upd(0,sz(xidx)-1,xidx[p[i].x],p[i].y);
+		else if (strcmp(op[i],"remove")==0)
+			upd(0,sz(xidx)-1,xidx[p[i].x],-p[i].y);
+		else
+		{
+			pii ans=qry(0,sz(xidx)-1,xidx[p[i].x],p[i].y);
+			if (ans!=mp(-oo,-oo)) pf("%d %d\n",ans.x,ans.y);
+			else puts("-1");
+		}
+	}
 }

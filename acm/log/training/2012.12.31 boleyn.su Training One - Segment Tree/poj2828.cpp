@@ -50,9 +50,6 @@ using namespace std;
 #define pb push_back
 #define mp make_pair
 #define ins insert
-#define ers erase
-#define lb lower_bound
-#define ub upper_bound
 #define rnk order_of_key
 #define sel find_by_order
 #define x first
@@ -142,7 +139,7 @@ template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));r
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
-template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<=sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
+template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
@@ -152,6 +149,55 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=200000;
+typedef int node;
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int p,int v)
+{
+	if (p<l||r<p) ;
+	else if (p<=l&&r<=p) st[rt]+=v;
+	else
+	{
+		int m=(l+r)>>1;
+		upd(l,m,p,v),upd(m+1,r,p,v);
+		st[rt]=st[rrt]+st[lrt];
+	}
+}
+int qry(int l,int r,int k)
+{
+	if (l==r) rtn l;
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[lrt]>=k) rtn qry(l,m,k);
+		else rtn qry(m+1,r,k-st[lrt]);
+	}
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
+int p[MAXN],v[MAXN];
+int ans[MAXN];
+
 int main()
 {
+	int n;
+	whl(~sf("%d",&n))
+	{
+		rep(i,n) sf("%d%d",p+i,v+i);
+		vi st(n);//clr(st);
+		rep(i,n) bit_inc(st,i,1);//upd(0,n-1,i,1);
+		fdt(i,n-1,0)
+		{
+			int idx=bit_kth(st,p[i]);//qry(0,n-1,p[i]+1);
+			ans[idx]=v[i],bit_inc(st,idx,-1);//upd(0,n-1,idx,-1);
+		}
+		rep(i,n) pf("%d%c",ans[i],i+1==n?'\n':' ');
+	}
 }

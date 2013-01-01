@@ -50,9 +50,6 @@ using namespace std;
 #define pb push_back
 #define mp make_pair
 #define ins insert
-#define ers erase
-#define lb lower_bound
-#define ub upper_bound
 #define rnk order_of_key
 #define sel find_by_order
 #define x first
@@ -152,6 +149,79 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=100000;
+struct node
+{
+	int cnt,size;
+	lli sum[5];
+};
+int a[MAXN];
+mii idx;
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int p,int v)
+{
+	if (p<l||r<p) ;
+	else if (p<=l&&r<=p)
+	{
+		st[rt].cnt+=v;
+		if (st[rt].cnt)
+		{
+			st[rt].size=1;
+			rep(i,5) st[rt].sum[i]=0;
+			st[rt].sum[0]=a[p];
+		}
+		else
+		{
+			st[rt].size=0;
+			rep(i,5) st[rt].sum[i]=0;
+		}
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		upd(l,m,p,v),upd(m+1,r,p,v);
+		st[rt].size=st[lrt].size+st[rrt].size;
+		rep(i,5) st[rt].sum[i]=st[lrt].sum[i];
+		rep(i,5) st[rt].sum[(st[lrt].size+i)%5]+=st[rrt].sum[i];
+	}
+}
+lli qry(int l,int r)
+{
+	rtn l<=r?st[rt].sum[2]:0;
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
+str op[MAXN];
+int opx[MAXN];
+int opxcpy[MAXN];
+
 int main()
 {
+	int n;
+	whl(cin>>n)
+	{
+		rep(i,n)
+		{
+			cin>>op[i];
+			if (op[i]!="sum") cin>>opx[i];
+		}
+		cpy(opxcpy,opx);
+		sort(opxcpy,opxcpy+n);
+		idx.clear();
+		clr(st);
+		rep(i,n) if (!idx.count(opxcpy[i])) idx.insert(mp(a[sz(idx)]=opxcpy[i],sz(idx)));
+		rep(i,n)
+		{
+			if (op[i]=="add") upd(0,sz(idx)-1,idx[opx[i]],+1);
+			else if (op[i]=="del") upd(0,sz(idx)-1,idx[opx[i]],-1);
+			else cout<<qry(0,sz(idx)-1)<<endl;
+		}
+	}
 }
