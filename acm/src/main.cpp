@@ -152,6 +152,155 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=100000;
+struct node
+{
+	char slz;
+	bool rlz;
+	int lcnt,rcnt;
+	int lls,lmr;
+};
+node st[(MAXN<<1)-1];
+void updf(int l,int r,char v)
+{
+	if (v=='(')
+	{
+		st[rt].slz=v;
+		st[rt].rlz=false;
+		st[rt].lcnt=r-l+1;
+		st[rt].rcnt=0;
+		st[rt].lls=0;
+		st[rt].lmr=r-l+1;
+	}
+	else if (v==')')
+	{
+		st[rt].slz=v;
+		st[rt].rlz=false;
+		st[rt].lcnt=0;
+		st[rt].rcnt=r-l+1;
+		st[rt].lls=r-l+1;
+		st[rt].lmr=0;
+	}
+	else
+	{
+		st[rt].rlz=!st[rt].rlz;
+		swap(st[rt].lcnt,st[rt].rcnt);
+		swap(st[rt].lls,st[rt].lmr);
+	}
+}
+void upd(int l,int r,int L,int R,char v)
+{
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R) updf(l,r,v);
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].slz)
+		{
+			updf(l,m,st[rt].slz);
+			updf(m+1,r,st[rt].slz);
+			st[rt].slz=0;
+		}
+		if (st[rt].rlz)
+		{
+			updf(l,m,'r');
+			updf(m+1,r,'r');
+			st[rt].rlz=false;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+		st[rt].lcnt=st[lrt].lcnt+st[rrt].lcnt;
+		st[rt].rcnt=st[lrt].rcnt+st[rrt].rcnt;
+		st[rt].lls=max(st[lrt].lls,st[lrt].rcnt-st[lrt].lcnt+st[rrt].lls);
+		st[rt].lmr=max(st[lrt].lmr,st[lrt].lcnt-st[lrt].rcnt+st[rrt].lmr);
+	}
+}
+node qry(int l,int r,int L,int R)
+{
+	if (R<l||r<L)
+	{
+		node ret;
+		ret.lcnt=ret.rcnt=0;
+		ret.lls=ret.lmr=0;
+		rtn ret;
+	}
+	else if (L<=l&&r<=R) rtn st[rt];
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].slz)
+		{
+			updf(l,m,st[rt].slz);
+			updf(m+1,r,st[rt].slz);
+			st[rt].slz=0;
+		}
+		if (st[rt].rlz)
+		{
+			updf(l,m,'r');
+			updf(m+1,r,'r');
+			st[rt].rlz=false;
+		}
+		node lret=qry(l,m,L,R);
+		node rret=qry(m+1,r,L,R);
+		node ret;
+		ret.lcnt=lret.lcnt+rret.lcnt;
+		ret.rcnt=lret.rcnt+rret.rcnt;
+		ret.lls=max(lret.lls,lret.rcnt-lret.lcnt+rret.lls);
+		ret.lmr=max(lret.lmr,lret.lcnt-lret.rcnt+rret.lmr);
+		rtn ret;
+	}
+}
+#undef rc
+#undef lc
+#undef p
+#undef idx
+
 int main()
 {
+	int T;
+	sf("%d",&T);
+	ft(t,1,T)
+	{
+		pf("Case %d:\n",t);
+		int n;
+		sf("%d",&n);
+		clr(st);
+		rep(i,n)
+		{
+			char ai;
+			sf(" %c",&ai);
+			upd(0,n-1,i,i,ai);
+		}
+		int q;
+		sf("%d",&q);
+		rep(i,q)
+		{
+			char op[8];
+			sf("%s",op);
+			if (strcmp(op,"set")==0)
+			{
+				int l,r;
+				char v;
+				sf("%d%d %c",&l,&r,&v);
+				upd(0,n-1,l,r,v);
+			}
+			else if (strcmp(op,"reverse")==0)
+			{
+				int l,r;
+				sf("%d%d",&l,&r);
+				upd(0,n-1,l,r,'r');
+			}
+			else
+			{
+				int l,r;
+				sf("%d%d",&l,&r);
+				node ret=qry(0,n-1,l,r);
+				pf("%s\n",(ret.lcnt==ret.rcnt&&!ret.lls)?"YES":"NO");
+			}
+		}
+		puts("");
+	}
 }
