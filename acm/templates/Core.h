@@ -1,6 +1,6 @@
 /*
  * Package: StandardCodeLibrary.Core
- * Last Update: 2012-12-21
+ * Last Update: 2012-12-31
  * */
 #include <iostream>
 #include <fstream>
@@ -49,6 +49,9 @@ using namespace std;
 #define pb push_back
 #define mp make_pair
 #define ins insert
+#define ers erase
+#define lb lower_bound
+#define ub upper_bound
 #define rnk order_of_key
 #define sel find_by_order
 #define x first
@@ -138,7 +141,7 @@ template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));r
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
-template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
+template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<=sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
