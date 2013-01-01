@@ -1,4 +1,4 @@
 #ifndef SCL_BIG_INTEGER
 #define SCL_BIG_INTEGER
-#include <BigInteger.h>
+#include <Math.BigInteger.h>
 #endif
