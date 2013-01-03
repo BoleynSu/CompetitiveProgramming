@@ -152,18 +152,16 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-struct SegmentTree{
 #define nd(l,r) (st[(((l)+(r))|((l)!=(r)))])
 #define rt nd(l,r)
 #define lrt nd(l,m)
 #define rrt nd(m+1,r)
-static const int MAXN=100000;
+const int MAXN=100+100000+100;
 struct node
 {
 	bool lz;
 	int s;
-	bool rlz;
-	int cnt[2];
+	int max,lmax,rmax;
 };
 node st[(MAXN<<1)-1];
 void updf(int l,int r,node v)
@@ -172,13 +170,7 @@ void updf(int l,int r,node v)
 	{
 		rt.lz=true;
 		rt.s=v.s;
-		rt.rlz=false;
-		rep(i,2) rt.cnt[i]=(v.s==i?r-l+1:0);
-	}
-	else if (v.rlz)
-	{
-		rt.rlz=!rt.rlz;
-		swap(rt.cnt[0],rt.cnt[1]);
+		rt.max=rt.lmax=rt.rmax=(r-l+1)*v.s;
 	}
 }
 void upd(int l,int r,int L,int R,node v)
@@ -193,29 +185,22 @@ void upd(int l,int r,int L,int R,node v)
 			node lupd,rupd;
 			lupd.lz=rupd.lz=true;
 			lupd.s=rupd.s=rt.s;
-			lupd.rlz=rupd.rlz=false;
 			updf(l,m,lupd),updf(m+1,r,rupd);
 			rt.lz=false;
 		}
-		if (rt.rlz)
-		{
-			node lupd,rupd;
-			lupd.lz=rupd.lz=false;
-			lupd.rlz=rupd.rlz=true;
-			updf(l,m,lupd),updf(m+1,r,rupd);
-			rt.rlz=false;
-		}
 		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
-		rep(i,2)
-		{
-			rt.cnt[i]=lrt.cnt[i]+rrt.cnt[i];
-		}
+		rt.max=max(max(lrt.max,rrt.max),lrt.rmax+rrt.lmax);
+		rt.lmax=lrt.max==m-l+1?lrt.max+rrt.lmax:lrt.lmax;
+		rt.rmax=rrt.max==r-(m+1)+1?rrt.max+lrt.rmax:rrt.rmax;
 	}
 }
-int qry_cnt(int l,int r,int L,int R)
+int qry(int l,int r,int ln)
 {
-	if (R<l||r<L) rtn 0;
-	else if (L<=l&&r<=R) rtn rt.cnt[1];
+	if (l==r)
+	{
+		if (rt.max>=ln) rtn l;
+		else rtn -1;
+	}
 	else
 	{
 		int m=(l+r)>>1;
@@ -224,69 +209,53 @@ int qry_cnt(int l,int r,int L,int R)
 			node lupd,rupd;
 			lupd.lz=rupd.lz=true;
 			lupd.s=rupd.s=rt.s;
-			lupd.rlz=rupd.rlz=false;
 			updf(l,m,lupd),updf(m+1,r,rupd);
 			rt.lz=false;
 		}
-		if (rt.rlz)
-		{
-			node lupd,rupd;
-			lupd.lz=rupd.lz=false;
-			lupd.rlz=rupd.rlz=true;
-			updf(l,m,lupd),updf(m+1,r,rupd);
-			rt.rlz=false;
-		}
-		rtn qry_cnt(l,m,L,R)+qry_cnt(m+1,r,L,R);
+		if (lrt.max>=ln) rtn qry(l,m,ln);
+		else if (lrt.rmax+rrt.lmax>=ln) rtn m-lrt.rmax+1;
+		else if (rrt.max>=ln) rtn qry(m+1,r,ln);
+		else rtn -1;
 	}
 }
 #undef rc
 #undef lc
 #undef p
 #undef nd
-};
-
-SegmentTree trees[20];
 
 int main()
 {
-	int n;
-	sf("%d",&n);
+	int L,f,b,n;
+	cin>>L>>f>>b>>n;
+	L=f+L+b;
+	vi bg(n),ed(n);
+	node rtupd;
+	rtupd.lz=true;
+	rtupd.s=1;
+	upd(0,L-1,0,L-1,rtupd);
 	rep(i,n)
 	{
-		int ai;
-		sf("%d",&ai);
-		rep(j,20)
+		int x,y;
+		cin>>x>>y;
+		if (x==1)
 		{
-			SegmentTree::node rtupd;
-			rtupd.lz=true;
-			rtupd.s=(ai>>j)&1;
-			rtupd.rlz=false;
-			trees[j].upd(0,n-1,i,i,rtupd);
-		}
-	}
-	int m;
-	sf("%d",&m);
-	rep(i,m)
-	{
-		int op,l,r;
-		sf("%d%d%d",&op,&l,&r),--l,--r;
-		if (op==1)
-		{
-			lli ans=0;
-			rep(j,20) ans+=lli(trees[j].qry_cnt(0,n-1,l,r))<<j;
-			pf("%I64d\n",ans);
-		}
-		else
-		{
-			int x;
-			sf("%d",&x);
-			rep(j,20) if ((x>>j)&1)
+			bg[i]=qry(0,L-1,f+b+y);
+			if (~bg[i])
 			{
-				SegmentTree::node rtupd;
-				rtupd.lz=false;
-				rtupd.rlz=true;
-				trees[j].upd(0,n-1,l,r,rtupd);
+				ed[i]=bg[i]+f+y-1;
+				node rtupd;
+				rtupd.lz=true;
+				rtupd.s=0;
+				upd(0,L-1,bg[i]+f,ed[i],rtupd);
 			}
+			cout<<bg[i]<<endl;
+		}
+		if (x==2&&(~bg[--y]))
+		{
+			node rtupd;
+			rtupd.lz=true;
+			rtupd.s=1;
+			upd(0,L-1,bg[y]+f,ed[y],rtupd);
 		}
 	}
 }
