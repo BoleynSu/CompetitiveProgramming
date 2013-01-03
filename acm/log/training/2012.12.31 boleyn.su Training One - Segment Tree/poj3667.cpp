@@ -156,14 +156,12 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 #define rt nd(l,r)
 #define lrt nd(l,m)
 #define rrt nd(m+1,r)
-const int MAXN=100000;
+const int MAXN=50000;
 struct node
 {
 	bool lz;
 	int s;
-	bool rlz;
-	int max[2],lmax[2],rmax[2];
-	int cnt[2];
+	int max,lmax,rmax;
 };
 node st[(MAXN<<1)-1];
 void updf(int l,int r,node v)
@@ -172,16 +170,7 @@ void updf(int l,int r,node v)
 	{
 		rt.lz=true;
 		rt.s=v.s;
-		rt.rlz=false;
-		rep(i,2) rt.max[i]=rt.lmax[i]=rt.rmax[i]=rt.cnt[i]=(v.s==i?r-l+1:0);
-	}
-	else if (v.rlz)
-	{
-		rt.rlz=!rt.rlz;
-		swap(rt.max[0],rt.max[1]);
-		swap(rt.lmax[0],rt.lmax[1]);
-		swap(rt.rmax[0],rt.rmax[1]);
-		swap(rt.cnt[0],rt.cnt[1]);
+		rt.max=rt.lmax=rt.rmax=(r-l+1)*v.s;
 	}
 }
 void upd(int l,int r,int L,int R,node v)
@@ -196,32 +185,22 @@ void upd(int l,int r,int L,int R,node v)
 			node lupd,rupd;
 			lupd.lz=rupd.lz=true;
 			lupd.s=rupd.s=rt.s;
-			lupd.rlz=rupd.rlz=false;
 			updf(l,m,lupd),updf(m+1,r,rupd);
 			rt.lz=false;
-		}
-		if (rt.rlz)
-		{
-			node lupd,rupd;
-			lupd.lz=rupd.lz=false;
-			lupd.rlz=rupd.rlz=true;
-			updf(l,m,lupd),updf(m+1,r,rupd);
-			rt.rlz=false;
 		}
 		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
-		rep(i,2)
-		{
-			rt.max[i]=max(max(lrt.max[i],rrt.max[i]),lrt.rmax[i]+rrt.lmax[i]);
-			rt.lmax[i]=lrt.max[i]==m-l+1?lrt.max[i]+rrt.lmax[i]:lrt.lmax[i];
-			rt.rmax[i]=rrt.max[i]==r-(m+1)+1?rrt.max[i]+lrt.rmax[i]:rrt.rmax[i];
-			rt.cnt[i]=lrt.cnt[i]+rrt.cnt[i];
-		}
+		rt.max=max(max(lrt.max,rrt.max),lrt.rmax+rrt.lmax);
+		rt.lmax=lrt.max==m-l+1?lrt.max+rrt.lmax:lrt.lmax;
+		rt.rmax=rrt.max==r-(m+1)+1?rrt.max+lrt.rmax:rrt.rmax;
 	}
 }
-int qry_cnt(int l,int r,int L,int R)
+int qry(int l,int r,int ln)
 {
-	if (R<l||r<L) rtn 0;
-	else if (L<=l&&r<=R) rtn rt.cnt[1];
+	if (l==r)
+	{
+		if (rt.max>=ln) rtn l;
+		else rtn -1;
+	}
 	else
 	{
 		int m=(l+r)>>1;
@@ -230,46 +209,13 @@ int qry_cnt(int l,int r,int L,int R)
 			node lupd,rupd;
 			lupd.lz=rupd.lz=true;
 			lupd.s=rupd.s=rt.s;
-			lupd.rlz=rupd.rlz=false;
 			updf(l,m,lupd),updf(m+1,r,rupd);
 			rt.lz=false;
 		}
-		if (rt.rlz)
-		{
-			node lupd,rupd;
-			lupd.lz=rupd.lz=false;
-			lupd.rlz=rupd.rlz=true;
-			updf(l,m,lupd),updf(m+1,r,rupd);
-			rt.rlz=false;
-		}
-		rtn qry_cnt(l,m,L,R)+qry_cnt(m+1,r,L,R);
-	}
-}
-int qry_max(int l,int r,int L,int R)
-{
-	if (R<l||r<L) rtn 0;
-	else if (L<=l&&r<=R) rtn rt.max[1];
-	else
-	{
-		int m=(l+r)>>1;
-		if (rt.lz)
-		{
-			node lupd,rupd;
-			lupd.lz=rupd.lz=true;
-			lupd.s=rupd.s=rt.s;
-			lupd.rlz=rupd.rlz=false;
-			updf(l,m,lupd),updf(m+1,r,rupd);
-			rt.lz=false;
-		}
-		if (rt.rlz)
-		{
-			node lupd,rupd;
-			lupd.lz=rupd.lz=false;
-			lupd.rlz=rupd.rlz=true;
-			updf(l,m,lupd),updf(m+1,r,rupd);
-			rt.rlz=false;
-		}
-		rtn max(max(qry_max(l,m,L,R),qry_max(m+1,r,L,R)),min(lrt.rmax[1],m-L+1)+min(rrt.lmax[1],R-(m+1)+1));
+		if (lrt.max>=ln) rtn qry(l,m,ln);
+		else if (lrt.rmax+rrt.lmax>=ln) rtn m-lrt.rmax+1;
+		else if (rrt.max>=ln) rtn qry(m+1,r,ln);
+		else rtn -1;
 	}
 }
 #undef rc
@@ -279,49 +225,35 @@ int qry_max(int l,int r,int L,int R)
 
 int main()
 {
-	int T;
-	sf("%d",&T);
-	whl(T--)
+	int n,m;
+	sf("%d%d",&n,&m);
+	node rtupd;
+	rtupd.lz=true;
+	rtupd.s=1;
+	upd(0,n-1,0,n-1,rtupd);
+	rep(i,m)
 	{
-		int n,m;
-		sf("%d%d",&n,&m);
-		rep(i,n)
+		int op;
+		sf("%d",&op);
+		if (op==1)
 		{
+			int ln;
+			sf("%d",&ln);
+			int ans=qry(0,n-1,ln);
+			pf("%d\n",ans+1);
 			node rtupd;
 			rtupd.lz=true;
-			sf("%d",&rtupd.s);
-			rtupd.rlz=false;
-			upd(0,n-1,i,i,rtupd);
+			rtupd.s=0;
+			if (~ans) upd(0,n-1,ans,ans+ln-1,rtupd);
 		}
-		rep(i,m)
+		else
 		{
-			int op,l,r;
-			sf("%d%d%d",&op,&l,&r);
-			if (op==0)
-			{
-				node rtupd;
-				rtupd.lz=true;
-				rtupd.s=0;
-				rtupd.rlz=false;
-				upd(0,n-1,l,r,rtupd);
-			}
-			else if (op==1)
-			{
-				node rtupd;
-				rtupd.lz=true;
-				rtupd.s=1;
-				rtupd.rlz=false;
-				upd(0,n-1,l,r,rtupd);
-			}
-			else if (op==2)
-			{
-				node rtupd;
-				rtupd.lz=false;
-				rtupd.rlz=true;
-				upd(0,n-1,l,r,rtupd);
-			}
-			else if (op==3) pf("%d\n",qry_cnt(0,n-1,l,r));
-			else pf("%d\n",qry_max(0,n-1,l,r));
+			int b,ln;
+			sf("%d%d",&b,&ln),--b;
+			node rtupd;
+			rtupd.lz=true;
+			rtupd.s=1;
+			upd(0,n-1,b,b+ln-1,rtupd);
 		}
 	}
 }
