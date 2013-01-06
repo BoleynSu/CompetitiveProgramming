@@ -1,0 +1,4 @@
+#ifndef SCL_MATH_NT
+#define SCL_MATH_NT
+#include <Math.NumberTheory.h>
+#endif

@@ -270,3 +270,22 @@ DFS and segment tree
 After the contest:
 #C AC
 #E AC
+
+
+
+2012.1.5 Open Ural FU Personal Contest 2012
+#A AC 64 mins 3 wrong tries
+#B AC 108 mins 2 wrong tries
+#D AC 117 mins
+#C AC 98 mins 5 wrong tries
+Brute force
+#H AC 230 mins 7 wrong tries
+Math
+
+After the contest:
+#F AC
+DP
+#I AC
+Max-flow
+#J AC
+Math

@@ -16,6 +16,8 @@
 
 namespace StandardCodeLibrary
 {
+namespace Math
+{
 namespace NumberTheory
 {
 
@@ -178,5 +180,6 @@ lli mod(lli x,lli phip)
 	rtn x>=phip?x%phip+phip:x;
 }
 
+}
 }
 }

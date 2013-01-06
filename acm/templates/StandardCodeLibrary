@@ -1,6 +1,6 @@
 #ifndef SCL_ALL
 #define SCL_ALL
 #include <Core>
-#include <NumberTheory>
+#include <Math>
 #include <GraphTheory>
 #endif

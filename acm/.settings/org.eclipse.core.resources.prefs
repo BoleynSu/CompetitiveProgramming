@@ -1,4 +1,4 @@
-#Tue Jan 01 17:06:31 CST 2013
+#Sun Jan 06 06:48:29 CST 2013
 eclipse.preferences.version=1
 encoding//log/acm.log=UTF-8
 encoding//templates/Core=UTF-8
@@ -13,8 +13,8 @@ encoding//templates/GraphTheory.MinCostMaxFlow.h=UTF-8
 encoding//templates/GraphTheory.h=UTF-8
 encoding//templates/Math.BigInteger=UTF-8
 encoding//templates/Math.BigInteger.h=UTF-8
-encoding//templates/NumberTheory=UTF-8
-encoding//templates/NumberTheory.h=UTF-8
+encoding//templates/Math.NumberTheory=UTF-8
+encoding//templates/Math.NumberTheory.h=UTF-8
 encoding//templates/StandardCodeLibrary=UTF-8
 encoding//templates/StringAlgorithms=UTF-8
 encoding//templates/StringAlgorithms.h=UTF-8

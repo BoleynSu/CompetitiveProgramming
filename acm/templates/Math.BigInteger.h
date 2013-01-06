@@ -17,6 +17,13 @@
  * */
 #include <Core>
 
+namespace StandardCodeLibrary
+{
+namespace Math
+{
+namespace BigInteger
+{
+
 typedef complex<double> cpx;
 typedef vec<cpx> vc;
 typedef vec<db> vdb;
@@ -338,3 +345,7 @@ public:
 		rtn cin;
 	}
 };
+
+}
+}
+}
