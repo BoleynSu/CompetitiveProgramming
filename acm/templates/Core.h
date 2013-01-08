@@ -1,6 +1,5 @@
 /*
  * Package: StandardCodeLibrary.Core
- * Last Update: 2012-1-4
  * */
 #include <iostream>
 #include <fstream>

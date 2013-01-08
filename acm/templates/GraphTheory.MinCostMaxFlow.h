@@ -1,6 +1,5 @@
 /*
  * Package: StandardCodeLibrary.GraphTheory.MinCostMaxFlow
- * Last Update: 2012-12-22
  * Usage:
  * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2

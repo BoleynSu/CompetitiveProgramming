@@ -1,6 +1,5 @@
 /*
  * Package: StandardCodeLibrary.GraphTheory
- * Last Update: 2012-12-21
  * Description:
  * 带花树实现的一般图最大匹配;
  * Dinic实现的最大流算法;

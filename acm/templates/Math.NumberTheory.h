@@ -1,6 +1,5 @@
 /*
  * Package: StandardCodeLibrary.NumberTheory
- * Last Update: 2012-12-21
  * Description:
  * O(n)的筛法求素数表;
  * 带mod的乘法;
