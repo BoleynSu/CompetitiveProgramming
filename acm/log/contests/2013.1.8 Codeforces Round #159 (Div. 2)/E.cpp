@@ -164,11 +164,7 @@ node st[(MAXN<<1)-1];
 void upd_ins(lli l,lli r,lli p,pii v)
 {
 	if (p<l||r<p) rtn;
-	else if (p<=l&&r<=p)
-	{
-		if (~v.x) rt.lst.pb(v),rt.sz=sz(rt.lst);
-		else rt.lst.clear(),rt.sz=sz(rt.lst);
-	}
+	else if (p<=l&&r<=p) rt.lst.pb(v),rt.sz=sz(rt.lst);
 	else
 	{
 		lli m=(l+r)>>1;
@@ -222,11 +218,10 @@ int main()
 
 		lli dwn=bst.qry(0,m-1,0,cur)+est.qry(0,m-1,0,cur);
 		lli up=bst.qry(0,m-1,cur,m-1)+est.qry(0,m-1,cur,m-1);
+
 		if (up||dwn)
-		{
 			if (up>=dwn) cmin(delta,*es.lb(cur)-cur);
 			else cmin(delta,cur-*--es.ub(cur));
-		}
 
 		if (datp<n) cmin(delta,dat[datp].x.x-curt);
 
@@ -236,35 +231,27 @@ int main()
 		{
 			bst.upd_ins(0,m-1,dat[datp].y.x,mp(dat[datp].y.y,dat[datp].x.y));
 			es.ins(dat[datp].y.x);
-			//cerr<<dat[datp].x.y<<" wait "<<dat[datp].y.x<<" to "<<dat[datp].y.y<<" at "<<curt<<endl;
 			datp++;
 		}
 		else if (sz(est.st[cur<<1].lst))
 		{
 			rep(i,sz(est.st[cur<<1].lst))
-			{
-				//cerr<<est.st[cur<<1].lst[i].x<<" out "<<cur<<" at "<<curt<<endl;
-				ans[est.st[cur<<1].lst[i].x]=curt;
-			}
+					ans[est.st[cur<<1].lst[i].x]=curt;
 			est.upd_clr(0,m-1,cur);
 			if (!bst.qry(0,m-1,cur,cur)) es.ers(cur);
 		}
 		else if (sz(bst.st[cur<<1].lst))
 		{
 			rep(i,sz(bst.st[cur<<1].lst))
-			{
-				//cerr<<bst.st[cur<<1].lst[i].y<<" in "<<cur<<" at "<<curt<<endl;
-				est.upd_ins(0,m-1,bst.st[cur<<1].lst[i].x,mp(bst.st[cur<<1].lst[i].y,0));
+				est.upd_ins(0,m-1,bst.st[cur<<1].lst[i].x,mp(bst.st[cur<<1].lst[i].y,0)),
 				es.ins(bst.st[cur<<1].lst[i].x);
-			}
 			bst.upd_clr(0,m-1,cur);
 			if (!est.qry(0,m-1,cur,cur)) es.ers(cur);
 		}
+
 		if (up||dwn)
-		{
 			if (up>=dwn) cur=cur+delta;
 			else cur=cur-delta;
-		}
 		curt+=delta;
 	}
 	rep(i,n) cout<<ans[i]<<endl;
