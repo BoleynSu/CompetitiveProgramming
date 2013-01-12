@@ -1,6 +1,6 @@
-/Debug
-/src
-/.settings
 /.git
+/.settings
 /.project
 /.cproject
+/src
+/Debug
