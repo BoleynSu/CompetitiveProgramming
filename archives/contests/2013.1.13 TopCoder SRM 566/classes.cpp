@@ -178,3 +178,48 @@ struct PenguinSledding
 		rtn ans;
 	}
 };
+
+struct PenguinEmperor
+{
+	void get(int x[],int k,int n)
+	{
+		rep(i,n) x[i]=0;
+		x[0]=1;
+		ft(i,1,k)
+		{
+			int y[n];
+			rep(j,n)
+			{
+				if ((j+n-i)%n!=(j+i)%n) y[j]=(x[(j+n-i)%n]+x[(j+i)%n])%MOD;
+				else y[j]=x[(j+i)%n];
+			}
+			rep(j,n) x[j]=y[j];
+		}
+	}
+	void  mul(int a[],int b[],int n)
+	{
+		int c[n];
+		clr(c);
+		rep(i,n) rep(j,n) c[i]=(lli(c[i])+lli(a[j])*lli(b[(i+j)%n]))%MOD;
+		rep(i,n) a[i]=c[i];
+	}
+	int countJourneys(int numCities, long long daysPassed)
+	{
+		int n=numCities;
+		lli m=daysPassed;
+
+		int ans[n];
+		get(ans,m%n,n);
+
+		int all[n];
+		get(all,n,n);
+		lli t=m/n;
+		whl(t)
+		{
+			if (t&1) mul(ans,all,n);
+			mul(all,all,n);
+			t>>=1;
+		}
+		rtn ans[0];
+	}
+};
