@@ -151,53 +151,59 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+void go(vvi& g,vi& lst,int u)
+{
+	prt(u);
+	rep(v,7) if (g[u][v])
+	{
+		--g[u][v],--g[v][u];
+		go(g,lst,v);
+	}
+	lst.pb(u);
+}
+
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	vi u(m),v(m);
-	vec<db> c(m);
-	rep(i,m) cin>>u[i]>>v[i]>>c[i],--u[i],--v[i];
-	vec<vec<db > > matrix(n,vec<db >(n+1));
-	vi st(n);
-	make_set(st);
-	rep(i,m)
-	{
-		if (u[i]!=0&&u[i]!=n-1) matrix[u[i]][u[i]]+=1,matrix[u[i]][v[i]]-=1;
-		if (v[i]!=0&&v[i]!=n-1) matrix[v[i]][v[i]]+=1,matrix[v[i]][u[i]]-=1;
-		union_set(st,u[i],v[i]);
-	}
-	matrix[0][0]=1;
+	int n;
+	cin>>n;
+	vvi g(7,vi(7));
+	vec<vvi > st(7,vvi(7));
 	rep(i,n)
 	{
-		repf(j,i,n) if (abs(matrix[j][i])>abs(matrix[i][i])) swap(matrix[i],matrix[j]);
-		if (sgn(matrix[i][i]))
-			repf(j,i+1,n)
+		int u,v;
+		cin>>u>>v;
+		++g[u][v],++g[v][u];
+		st[u][v].pb(i+1);
+	}
+	int s=-1;
+	vi cnt(2);
+	rep(i,7)
+	{
+		int tol=0;
+		rep(j,7) tol+=g[i][j];
+		cnt[tol%2]++;
+		if (tol%2==1) s=i;
+		if (s==-1&&tol) s=i;
+	}
+	if (cnt[1]!=2&&cnt[1]!=0) cout<<"No solution"<<endl;
+	else
+	{
+		vi lst;
+		go(g,lst,s);
+		if (sz(lst)!=n+1) cout<<"No solution"<<endl;
+		else
+			repf(i,1,sz(lst))
 			{
-				db times=matrix[j][i]/matrix[i][i];
-				ft(k,i,n) matrix[j][k]-=matrix[i][k]*times;
+				if (sz(st[lst[i-1]][lst[i]]))
+				{
+					cout<<st[lst[i-1]][lst[i]].back()<<" +"<<endl;
+					st[lst[i-1]][lst[i]].pop_back();
+				}
+				else
+				{
+					cout<<st[lst[i]][lst[i-1]].back()<<" -"<<endl;
+				st[lst[i]][lst[i-1]].pop_back();
+				}
 			}
 	}
-	vec<db > x(n);
-	fdt(i,n-1,0)
-	{
-		if (sgn(matrix[i][i]))
-		{
-			x[i]=matrix[i][n];
-			repf(j,i+1,n) x[i]-=matrix[i][j]*x[j];
-			x[i]/=matrix[i][i];
-		}
-		else if (find_set(st,i)==find_set(st,0)) x[i]=inf;
-	}
-	db times=-inf;
-	rep(i,m) cmax(times,abs(x[u[i]]-x[v[i]])/c[i]);
-	rep(i,n) x[i]/=times;
-	db ans=0;
-	rep(i,m)
-	{
-		if (u[i]==0) ans+=x[v[i]];
-		if (v[i]==0) ans+=x[u[i]];
-	}
-	pdb(10,ans)<<endl;
-	rep(i,m) pdb(10,x[v[i]]-x[u[i]])<<endl;
 }

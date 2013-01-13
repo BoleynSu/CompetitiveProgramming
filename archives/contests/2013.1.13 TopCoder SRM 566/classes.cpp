@@ -151,53 +151,30 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-int main()
+struct PenguinSledding
 {
-	int n,m;
-	cin>>n>>m;
-	vi u(m),v(m);
-	vec<db> c(m);
-	rep(i,m) cin>>u[i]>>v[i]>>c[i],--u[i],--v[i];
-	vec<vec<db > > matrix(n,vec<db >(n+1));
-	vi st(n);
-	make_set(st);
-	rep(i,m)
+	long long countDesigns(int numCheckpoints, vector <int> checkpoint1, vector <int> checkpoint2)
 	{
-		if (u[i]!=0&&u[i]!=n-1) matrix[u[i]][u[i]]+=1,matrix[u[i]][v[i]]-=1;
-		if (v[i]!=0&&v[i]!=n-1) matrix[v[i]][v[i]]+=1,matrix[v[i]][u[i]]-=1;
-		union_set(st,u[i],v[i]);
+		int n=numCheckpoints,m=sz(checkpoint1);
+
+		set<pii > edges;
+		vvi adj(n);
+		rep(i,m)
+			--checkpoint1[i],--checkpoint2[i],
+			adj[checkpoint1[i]].pb(checkpoint2[i]),adj[checkpoint2[i]].pb(checkpoint1[i]),
+			edges.ins(mp(checkpoint1[i],checkpoint2[i])),
+			edges.ins(mp(checkpoint2[i],checkpoint1[i]));
+		rep(i,n) srt(adj[i]);
+
+		lli ans=1;
+		rep(i,n)
+			repf(j,ub(all(adj[i]),i)-adj[i].begin(),sz(adj[i]))
+				repf(k,j+1,sz(adj[i]))
+					if (edges.count(mp(adj[i][j],adj[i][k])))
+						ans++;
+
+		rep(i,n) ans+=(lli(1)<<sz(adj[i]))-1;
+		ans-=m;
+		rtn ans;
 	}
-	matrix[0][0]=1;
-	rep(i,n)
-	{
-		repf(j,i,n) if (abs(matrix[j][i])>abs(matrix[i][i])) swap(matrix[i],matrix[j]);
-		if (sgn(matrix[i][i]))
-			repf(j,i+1,n)
-			{
-				db times=matrix[j][i]/matrix[i][i];
-				ft(k,i,n) matrix[j][k]-=matrix[i][k]*times;
-			}
-	}
-	vec<db > x(n);
-	fdt(i,n-1,0)
-	{
-		if (sgn(matrix[i][i]))
-		{
-			x[i]=matrix[i][n];
-			repf(j,i+1,n) x[i]-=matrix[i][j]*x[j];
-			x[i]/=matrix[i][i];
-		}
-		else if (find_set(st,i)==find_set(st,0)) x[i]=inf;
-	}
-	db times=-inf;
-	rep(i,m) cmax(times,abs(x[u[i]]-x[v[i]])/c[i]);
-	rep(i,n) x[i]/=times;
-	db ans=0;
-	rep(i,m)
-	{
-		if (u[i]==0) ans+=x[v[i]];
-		if (v[i]==0) ans+=x[u[i]];
-	}
-	pdb(10,ans)<<endl;
-	rep(i,m) pdb(10,x[v[i]]-x[u[i]])<<endl;
-}
+};

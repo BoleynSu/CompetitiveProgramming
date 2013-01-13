@@ -153,51 +153,19 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	vi u(m),v(m);
-	vec<db> c(m);
-	rep(i,m) cin>>u[i]>>v[i]>>c[i],--u[i],--v[i];
-	vec<vec<db > > matrix(n,vec<db >(n+1));
-	vi st(n);
-	make_set(st);
-	rep(i,m)
+	lli n;
+	cin>>n;
+	whl(n--)
 	{
-		if (u[i]!=0&&u[i]!=n-1) matrix[u[i]][u[i]]+=1,matrix[u[i]][v[i]]-=1;
-		if (v[i]!=0&&v[i]!=n-1) matrix[v[i]][v[i]]+=1,matrix[v[i]][u[i]]-=1;
-		union_set(st,u[i],v[i]);
-	}
-	matrix[0][0]=1;
-	rep(i,n)
-	{
-		repf(j,i,n) if (abs(matrix[j][i])>abs(matrix[i][i])) swap(matrix[i],matrix[j]);
-		if (sgn(matrix[i][i]))
-			repf(j,i+1,n)
-			{
-				db times=matrix[j][i]/matrix[i][i];
-				ft(k,i,n) matrix[j][k]-=matrix[i][k]*times;
-			}
-	}
-	vec<db > x(n);
-	fdt(i,n-1,0)
-	{
-		if (sgn(matrix[i][i]))
+		lli a,b;
+		cin>>a>>b;
+		lli ans=0;
+		whl(a&&b)
 		{
-			x[i]=matrix[i][n];
-			repf(j,i+1,n) x[i]-=matrix[i][j]*x[j];
-			x[i]/=matrix[i][i];
+			if (a>b) swap(a,b);
+			ans+=b/a;
+			b=b%a;
 		}
-		else if (find_set(st,i)==find_set(st,0)) x[i]=inf;
+		cout<<ans<<endl;
 	}
-	db times=-inf;
-	rep(i,m) cmax(times,abs(x[u[i]]-x[v[i]])/c[i]);
-	rep(i,n) x[i]/=times;
-	db ans=0;
-	rep(i,m)
-	{
-		if (u[i]==0) ans+=x[v[i]];
-		if (v[i]==0) ans+=x[u[i]];
-	}
-	pdb(10,ans)<<endl;
-	rep(i,m) pdb(10,x[v[i]]-x[u[i]])<<endl;
 }
