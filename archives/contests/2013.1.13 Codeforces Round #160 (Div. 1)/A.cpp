@@ -151,73 +151,20 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-map<pll,lli> dp;
-
-lli g(lli n,lli t)
-{
-	if (!dp.count(pll(n,t)))
-	{
-		if (n!=1) dp[pll(n,t)]=g(n/2,t)+g(n/2,t/2);
-		else dp[pll(n,t)]=(t==1);
-	}
-	rtn dp[pll(n,t)];
-}
-
 int main()
 {
-	lli n,t;
-	cin>>n>>t;
-	n++;
-	if ((t&-t)!=t) cout<<0<<endl;
-	else
-	{
-		lli ans=t==1?-1:0;
-		for (lli x=1;n;x<<=1)
-		{
-			lli y=min(x,n);
-			if (y==x)
-			{
-				ans+=g(y,t);
-				n-=y;
-			}
-			else
-			{
-				whl(n)
-				{
-					lli y=1;
-					whl((y<<1)<=n) y<<=1;
-					ans+=g(y,t);
-					t/=2;
-					n-=y;
-				}
-			}
-		}
-		cout<<ans<<endl;
-	}
+	int m;
+	cin>>m;
+	vi q(m);
+	rep(i,m) cin>>q[i];
+	int n;
+	cin>>n;
+	vi a(n);
+	rep(i,n) cin>>a[i];
+	srt(q);
+	sort(all(a),greater<int>());
+	int Q=q.front();
+	int ans=0;
+	rep(i,n) if (i%(Q+2)<Q) ans+=a[i];
+	cout<<ans<<endl;
 }
-//
-//const int MAXN=50;
-//int n,a[MAXN+2],q;
-//db f[MAXN+2][MAXN+2][MAXN*MAXN+2];
-//
-//int main()
-//{
-//	cin>>n;
-//	ft(i,1,n) cin>>a[i];
-//	cin>>q;
-//	f[0][0][0]=1;
-//	int sum=0;
-//	ft(i,1,n)
-//	{
-//		sum+=a[i];
-//		ft(x,0,i)
-//			ft(bs,0,sum)
-//				f[i][x][bs]=f[i-1][x][bs]*(i-x)+(x>=1&&bs>=a[i]?f[i-1][x-1][bs-a[i]]*x:0);
-//	}
-//	db ans=0;
-//	ft(x,1,n)
-//		ft(bs,0,q)
-//			ans+=f[n][x][bs];
-//	ft(i,1,n) ans/=i;
-//	pdb(100,ans)<<endl;
-//}

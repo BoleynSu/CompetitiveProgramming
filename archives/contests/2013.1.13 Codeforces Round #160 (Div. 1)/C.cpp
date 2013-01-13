@@ -195,29 +195,3 @@ int main()
 		cout<<ans<<endl;
 	}
 }
-//
-//const int MAXN=50;
-//int n,a[MAXN+2],q;
-//db f[MAXN+2][MAXN+2][MAXN*MAXN+2];
-//
-//int main()
-//{
-//	cin>>n;
-//	ft(i,1,n) cin>>a[i];
-//	cin>>q;
-//	f[0][0][0]=1;
-//	int sum=0;
-//	ft(i,1,n)
-//	{
-//		sum+=a[i];
-//		ft(x,0,i)
-//			ft(bs,0,sum)
-//				f[i][x][bs]=f[i-1][x][bs]*(i-x)+(x>=1&&bs>=a[i]?f[i-1][x-1][bs-a[i]]*x:0);
-//	}
-//	db ans=0;
-//	ft(x,1,n)
-//		ft(bs,0,q)
-//			ans+=f[n][x][bs];
-//	ft(i,1,n) ans/=i;
-//	pdb(100,ans)<<endl;
-//}
