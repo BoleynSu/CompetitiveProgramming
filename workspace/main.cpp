@@ -124,6 +124,8 @@ const lli ooll=(~0ull)>>1;
 const db inf=1e+10;
 const db eps=1e-10;
 const db pi=acos(-1.0);
+const int dx[]={-1,1,0,0,-1,-1,1,1,0};
+const int dy[]={0,0,-1,1,-1,1,-1,1,0};
 const int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
@@ -166,92 +168,24 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
  * */
 //#include <Core>
 
-namespace StandardCodeLibrary
-{
-namespace ComputationalGeometry2D
-{
-
-//数据类型定义
-typedef db Number;//数值类型
-typedef pr<Number,Number> Point;//点
-typedef Point Vector;//向量
-typedef pr<Point,Point> Segment;//线段
-typedef vec<Point> Polygon;//多边形
-
-//基本运算
-//符号函数 正数返回1 负数返回-1 0返回0
-using ::sgn;
-//比较函数 大于返回1 小于返回-1 等于返回0
-using ::dbcmp;
-//点积
-using ::dot;
-Number dot(const Point& a,const Point& b,const Point& c)
-{
-	rtn dot(b-a,c-a);
-}
-//叉积
-using ::cross;
-Number cross(const Point& a,const Point& b,const Point& c)
-{
-	rtn cross(b-a,c-a);
-}
-//长度
-Number len(const Vector& v)
-{
-	rtn sqrt(dot(v,v));
-}
-Number len(const Segment& s)
-{
-	rtn len(s.x-s.y);
-}
-//距离
-Number dis(const Point& a,const Point& b)
-{
-	rtn len(b-a);
-}
-
-//判断点是否在线段上
-//如果点在线段上返回1 不在线段上但在直线上 返回-1 不在直线上返回0
-int point_on_segment(const Point& p,const Segment& s)
-{
-	if (sgn(cross(p,s.x,s.y))) rtn 0;
-	else rtn dbcmp(dis(s.x,p)+dis(s.y,p),len(s))==0?1:-1;
-}
-
-//Ray Casting Algorithm 射线法判断点是否在简单多边形内
-//在内部返回1 在外部返回-1 在边上返回0
-int point_in_polygon(const Point& p,const vec<Segment>& e)
-{
-	rep(i,sz(e)) if (point_on_segment(p,e[i])==1) rtn 0;
-	bool in=false;
-	rep(i,sz(e))
-		if ((dbcmp(e[i].x.y,p.y)>0)!=(dbcmp(e[i].y.y,p.y)>0)
-			&&dbcmp(p.x,(e[i].y.x-e[i].x.x)/(e[i].y.y-e[i].x.y)*(p.y-e[i].x.y)+e[i].x.x)<0)
-			in=!in;
-	return in?1:-1;
-}
-
-}
-}
-//end #include <ComputationalGeometry>
-
-using namespace StandardCodeLibrary::ComputationalGeometry2D;
-
 int main()
 {
-	int n,n1,n2;
-	Point p1,p2;
-	cin>>n>>n1>>n2>>p1>>p2,--n1,--n2;
-	if (n1<n2) swap(n1,n2),swap(p1,p2);
-	Number length=(dis(p1,p2)/2.0)/tan(2.0*pi/n*(n1-n2)/2.0);
-	Vector p12=p2-p1;
-	Vector rp12=Point(-p12.y,p12.x);
-	Point mid=(p1+p2)/2.0;
-	Point O=mid+rp12/dis(p1,p2)*length;
-	Point R=p1-O;
-	Polygon pol(n);
-	rep(i,n)
-		pol[(n1+i)%n]=O+Vector(dot(R,Vector(cos(-2.0*pi/n*i),-sin(-2.0*pi/n*i))),
-		                       dot(R,Vector(sin(-2.0*pi/n*i),cos(-2.0*pi/n*i))));
-	rep(i,n) pdb(6,pol[i].x)<<" ",pdb(6,pol[i].y)<<endl;
+	int n;
+	cin>>n;
+	vvi b(n,vi(n));
+	rep(i,n) rep(j,n) cin>>b[i][j];
+	vvi a(n,vi(n,-1));
+	fdt(x,9,0)
+	{
+		vvi bb(b);
+		rep(i,n) rep(j,n)
+			if (a[i][j]==-1&&bb[i][j]==0)
+			{
+				a[i][j]=x;
+				rep(d,4) if (i+dx[d]>=0&&i+dx[d]<n&&j+dy[d]>=0&&j+dy[d]<n&&a[i+dx[d]][j+dy[d]]==-1) b[i+dx[d]][j+dy[d]]--;
+			}
+		rep(i,n) rep(j,n) prt(mp(i,j)),prt(b[i][j]);
+		rep(i,n) rep(j,n) if (b[i][j]<0) rtn cout<<"NO SOLUTION"<<endl,0;
+	}
+	rep(i,n) rep(j,n) cout<<a[i][j]<<char(j+1==n?'\n':' ');
 }
