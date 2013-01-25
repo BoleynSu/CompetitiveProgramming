@@ -1,3 +1,4 @@
+//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -157,3 +158,45 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//end #include <Core>
+
+int n;
+int a[3][3],b[3][3];
+bool chk_s(int x,int y)
+{
+	int cnt=0;
+	rep(d,4) if (x+dx[d]>=0&&x+dx[d]<n&&y+dy[d]>=0&&y+dy[d]<n&&a[x+dx[d]][y+dy[d]]>a[x][y]) cnt++;
+	rtn cnt==b[x][y];
+}
+bool chk_a(int x,int y)
+{
+	if (x&&!chk_s(x-1,y)) rtn false;
+	if (x==n-1&&y&&!chk_s(x,y-1)) rtn false;
+	if (x==n-1&&y==n-1&&!chk_s(x,y)) rtn false;
+	rtn true;
+}
+void dfs(int x,int y)
+{
+	if (x==n)
+	{
+		rep(i,n) rep(j,n) cout<<a[i][j]<<char(j+1==n?'\n':' ');
+		exit(0);
+	}
+	rep(i,9)
+	{
+		a[x][y]=i;
+		if (chk_a(x,y))
+		{
+			if (y+1<n) dfs(x,y+1);
+			else dfs(x+1,0);
+		}
+	}
+}
+
+int main()
+{
+	cin>>n;
+	rep(i,n) rep(j,n) cin>>b[i][j];
+	dfs(0,0);
+	puts("NO SOLUTION");
+}
