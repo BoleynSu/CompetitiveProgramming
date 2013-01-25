@@ -11,8 +11,8 @@ namespace ComputationalGeometry2D
 {
 
 //数据类型定义
-typedef db type;//数值类型
-typedef pr<type,type> Point;//点
+typedef db Number;//数值类型
+typedef pr<Number,Number> Point;//点
 typedef Point Vector;//向量
 typedef pr<Point,Point> Segment;//线段
 typedef vec<Point> Polygon;//多边形
@@ -24,27 +24,27 @@ using ::sgn;
 using ::dbcmp;
 //点积
 using ::dot;
-type dot(const Point& a,const Point& b,const Point& c)
+Number dot(const Point& a,const Point& b,const Point& c)
 {
 	rtn dot(b-a,c-a);
 }
 //叉积
 using ::cross;
-type cross(const Point& a,const Point& b,const Point& c)
+Number cross(const Point& a,const Point& b,const Point& c)
 {
 	rtn cross(b-a,c-a);
 }
 //长度
-type len(const Vector& v)
+Number len(const Vector& v)
 {
 	rtn sqrt(dot(v,v));
 }
-type len(const Segment& s)
+Number len(const Segment& s)
 {
 	rtn len(s.x-s.y);
 }
 //距离
-type dis(const Point& a,const Point& b)
+Number dis(const Point& a,const Point& b)
 {
 	rtn len(b-a);
 }
@@ -72,3 +72,4 @@ int point_in_polygon(const Point& p,const vec<Segment>& e)
 
 }
 }
+
