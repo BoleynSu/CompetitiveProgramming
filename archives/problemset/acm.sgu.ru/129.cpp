@@ -281,8 +281,6 @@ int main()
 	Polygon PO(n);
 	rep(i,n) cin>>PO[i];
 
-	//swap(PO.front(),*min_element(all(PO)));
-	//repf(i,1,sz(PO)) repf(j,i+1,sz(PO)) if (cross(PO.front(),PO[j],PO[i])>0) swap(PO[i],PO[j]);
 	get_convex_hull(PO);
 
 	vec<Segment> edges;

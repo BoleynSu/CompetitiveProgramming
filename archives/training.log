@@ -1,0 +1,93 @@
+2012.12.02 ACME Training One - The 2012 ACM-ICPC Asia Chengdu Regional Contest[team]
+#TODO
+
+This is my first cooperation with my new teammates, WDP and WHD. Our team is called ACME, which can be understood as AC me, or it original meaning the peak.
+
+#A AC 8 mins 1 wrong try by WHD
+#I AC 17 mins
+It is a typical DP problem.
+#B AC 76 mins 1 wrong try
+It is a math problem. WDP told me the meaning of the problem, and I come up with a formula soon.
+Let f(p) be p*sum{p^n*(1-p)^i*C(i,n+1)*(n-i);i=0 to n}.
+The answer will f(p)+f(1-p).
+However for some certain i, p^n*(1-p)^i*C(i,n+1)*(n-i) can be too small, to avoid underflow errors we can calculate ln(p^n*(1-p)^i*C(i,n+1)*(n-i)) instead.
+When we use it, we use e^ln(p^n*(1-p)^i*C(i,n+1)*(n-i)) and if ln(p^n*(1-p)^i*C(i,n+1)*(n-i)) is too small we just ignore it.
+
+We come up with a n^1.5*logn algorithm for problem C and got TLE. We also used the algorithm proved to be right to solve problem K, but didn't get AC. I think it must be some bugs when facing edge cases.
+
+
+
+2012.12.03 ACME Training Two - Codeforces Round #124 (Div. 1)[individual]
+#A AC 6 mins
+Greedy
+#B AC 67 mins
+BFS
+
+#E AC
+SSP and MST
+
+
+
+2012.12.05 ACME Training Three - Graph Theory Problems[individual]
+
+URAL 1272 Non-Yekaterinburg Subway
+Disjoint-set
+
+URAL 1156 Two Rounds
+Bipartite graph
+Knapsack problem
+
+URAL 1128 Partition into Groups
+Bipartite graph
+I got RE because I used a variable at a wrong place (it should be j, but I wrote i there) and wasted lots of time to debug it.
+
+URAL 1400 Cellular Characters
+BFS
+I got WA because I used "\n" when output. When I changed it to "%n" I got AC.
+
+URAL 1630 Talisman
+It must be a straight line, a point, a triangle or a tetrahedron.
+
+
+
+2012.12.09 ACME Training Four - The 7th(2012) ACM Programming Contest of HUST - Preliminary Contest[team]
+
+link: http://acm.hust.edu.cn:8080/judge/contest/view.action?cid=18005
+
+#B AC 31 mins 1 wrong try by WHD
+#A AC 50 mins by WDP
+#D AC 75 mins 3 wrong tries by WHD
+#G AC 79 mins 5 wrong tries
+It can be solved by brute force, but I used DP to solve it, so I wasted a lot of time.
+#C AC 94 mins 1 wrong try
+For a query, if b>sqrt(n), we can response it by brute force.
+After do some preparations in O(n^1.5), we can response qeuries whose b<=sqrt(n) in O(1).
+#F AC 118 mins 1 wrong try by WHD
+#E AC 179 mins by WDP
+
+
+
+2012.12.16 ACME Training Five - The 7th(2012) ACM Programming Contest of HUST - Onsite Contest(Semilive)[team,live]
+
+link: http://acm.hust.edu.cn/contest.php?cid=1106
+
+We started about 50 mins after the contest had begun.
+
+#I AC 61 mins
+Brute force
+#E AC 105 mins
+Greedy
+#A AC 113 mins 2 wrong tries by WHD
+#C AC 126 mins 1 wrong try
+AC automation
+#H AC 153 mins 1 wrong try
+Math
+#F AC 224 mins 1 wrong try
+Game theory
+#B AC 259 mins 5 wrong tries
+The solution for this problem is first written by WHD. I rewrote it and got AC after 1 wrong try. 
+#J AC 284 mins 4 wrong tries by WHD
+WHD used a right algorithm to solve this problem, but made a small mistake. After I found it out, WHD corrected it and got AC.
+
+
+
