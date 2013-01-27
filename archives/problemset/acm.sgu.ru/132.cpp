@@ -163,6 +163,58 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+//typedef unsigned char type;
+//const type MAXN=7,MAXM=70;
+//type st[MAXM];
+//type clsts[1<<MAXN];
+//type clst[1<<MAXN][1<<MAXN];
+//type f[1<<MAXN][1<<MAXN],g[1<<MAXN][1<<MAXN][1<<MAXN];
+//
+//int main()
+//{
+//	int m,n;
+//	cin>>m>>n;
+//	rep(i,m) rep(j,n)
+//	{
+//		char c;
+//		cin>>c;
+//		st[i]=(st[i]<<1)|(c=='*');
+//	}
+//
+//	type rs1n=1<<n;
+//	rep(s1,rs1n) rep(s2,rs1n)
+//	{
+//		bool can=true;
+//		for (type i=1;i<rs1n;i<<=1)
+//			if (!((s1&i)||(s2&i))||!(!(i>>1)||((s1&i)||(s1&(i>>1)))))
+//				can=false;
+//		if (can) clst[s1][clsts[s1]++]=s2;
+//	}
+//
+//	fl(f,254);
+//	f[rs1n-1][rs1n-1]=0;
+//	rep(i,m)
+//	{
+//		fl(g,254);
+//		rep(s1,rs1n) rep(s2,rs1n) g[st[i]][s1][s2]=f[s1][s2];
+//		rep(s1,rs1n) if ((s1&st[i])==st[i]&&s1!=st[i])
+//		{
+//			type s=s1^st[i];
+//			type i=s&-s;
+//			rep(s2,rs1n) rep(s3,rs1n)
+//			{
+//				if ((s2&i)) cmin(g[s1][s2][s3],type(g[s1^i][s2^i][s3]+1));
+//				if ((s1&(i<<1))) cmin(g[s1][s2][s3],type(g[s1^i^(i<<1)][s2][s3]+1));
+//			}
+//		}
+//		fl(f,254);
+//		rep(s1,rs1n) rep(s2,rs1n) rep(i,clsts[s2]) cmin(f[s1][s2],g[s1][s2][clst[s2][i]]);
+//	}
+//	type ans=254;
+//	rep(s1,rs1n) rep(i,clsts[s1]) cmin(ans,f[s1][clst[s1][i]]);
+//	cout<<int(ans)<<endl;
+//}
+
 typedef unsigned char State;
 #define oo 0x39393939
 
