@@ -163,116 +163,22 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//typedef unsigned char type;
-//const type MAXN=7,MAXM=70;
-//type st[MAXM];
-//type clsts[1<<MAXN];
-//type clst[1<<MAXN][1<<MAXN];
-//type f[1<<MAXN][1<<MAXN],g[1<<MAXN][1<<MAXN][1<<MAXN];
-//
-//int main()
-//{
-//	int m,n;
-//	cin>>m>>n;
-//	rep(i,m) rep(j,n)
-//	{
-//		char c;
-//		cin>>c;
-//		st[i]=(st[i]<<1)|(c=='*');
-//	}
-//
-//	type rs1n=1<<n;
-//	rep(s1,rs1n) rep(s2,rs1n)
-//	{
-//		bool can=true;
-//		for (type i=1;i<rs1n;i<<=1)
-//			if (!((s1&i)||(s2&i))||!(!(i>>1)||((s1&i)||(s1&(i>>1)))))
-//				can=false;
-//		if (can) clst[s1][clsts[s1]++]=s2;
-//	}
-//
-//	fl(f,254);
-//	f[rs1n-1][rs1n-1]=0;
-//	rep(i,m)
-//	{
-//		fl(g,254);
-//		rep(s1,rs1n) rep(s2,rs1n) g[st[i]][s1][s2]=f[s1][s2];
-//		rep(s1,rs1n) if ((s1&st[i])==st[i]&&s1!=st[i])
-//		{
-//			type s=s1^st[i];
-//			type i=s&-s;
-//			rep(s2,rs1n) rep(s3,rs1n)
-//			{
-//				if ((s2&i)) cmin(g[s1][s2][s3],type(g[s1^i][s2^i][s3]+1));
-//				if ((s1&(i<<1))) cmin(g[s1][s2][s3],type(g[s1^i^(i<<1)][s2][s3]+1));
-//			}
-//		}
-//		fl(f,254);
-//		rep(s1,rs1n) rep(s2,rs1n) rep(i,clsts[s2]) cmin(f[s1][s2],g[s1][s2][clst[s2][i]]);
-//	}
-//	type ans=254;
-//	rep(s1,rs1n) rep(i,clsts[s1]) cmin(ans,f[s1][clst[s1][i]]);
-//	cout<<int(ans)<<endl;
-//}
-
-typedef unsigned char State;
-#define oo 0x39393939
-
-const int MAXN=7,MAXM=70;
-int n,m;
-State st[MAXM];
-int ps2lsts[1<<MAXN][1<<MAXN];
-State ps2lst[1<<MAXN][1<<MAXN][1<<MAXN];
-int s3lsts[1<<MAXN];
-State s3lst[1<<MAXN][1<<MAXN];
-int f[1<<MAXN][1<<MAXN],g[1<<MAXN][1<<MAXN];
-int bit_count[1<<MAXN];
-
-void dfs(State lst[],int& lsts,int s1,int s2)
+const lli MAXK=30+2;
+bool calced[MAXK];
+lli f[MAXK];
+lli dp(lli x)
 {
-	if (s1)
+	if (cmax(calced[x],true))
 	{
-		int i=s1&-s1;
-		if (s2&i) dfs(lst,lsts,s1^i,s2^i);
-		if (s1&(i<<1)) dfs(lst,lsts,s1^i^(i<<1),s2);
+		if (x) rep(i,x) f[x]+=dp(i)*dp(x-1-i);
+		else f[x]=1;
 	}
-	else lst[lsts++]=s2;
+	rtn f[x];
 }
 
 int main()
 {
-	cin>>m>>n;
-	rep(i,m) rep(j,n)
-	{
-		char c;
-		cin>>c;
-		st[i]=(st[i]<<1)|(c=='*');
-	}
-
-	State max=(1<<n);
-	rep(s2,max) rep(s3,max)
-	{
-		bool psb=true;
-		for (State i=1;i<max;i<<=1)
-			if ((!(s2&i)&&!(s3&i))||((i<<1)!=max&&!(s2&i)&&!(s2&(i<<1))))
-				psb=false;
-		if (psb) s3lst[s2][s3lsts[s2]++]=s3;
-	}
-	rep(s1,max) rep(s2,max) dfs(ps2lst[s1][s2],ps2lsts[s1][s2],s1,s2);
-	rep(s,max) for (State i=1;i!=max;i<<=1) if (s&i) bit_count[s]++;
-
-	fl(f,oo);
-	f[max-1][max-1]=0;
-	rep(i,m)
-	{
-		fl(g,oo);
-		rep(s1,max) if (!(s1&st[i]))
-			rep(s2,max) rep(ps2i,ps2lsts[s1][s2]) rep(s3i,s3lsts[s2])
-				cmin(g[s1|st[i]][s2],f[ps2lst[s1][s2][ps2i]][s3lst[s2][s3i]]+(bit_count[s1]+bit_count[s2^ps2lst[s1][s2][ps2i]])/2);
-		cpy(f,g);
-	}
-
-	int ans=oo;
-	rep(s2,max) rep(s3i,s3lsts[s2]) cmin(ans,f[s2][s3lst[s2][s3i]]);
-	cout<<ans<<endl;
+	lli k;
+	cin>>k;
+	cout<<dp(k)<<" "<<k+1<<endl;
 }
