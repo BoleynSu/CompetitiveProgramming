@@ -30,6 +30,9 @@
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
 #endif
+#ifdef  __GXX_EXPERIMENTAL_CXX0X__
+#define typeof decltype
+#endif
 using namespace std;
 
 #define lp for(;;)
@@ -118,14 +121,14 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
-const int oo=(~0u)>>1;
-const lli ooll=(~0ull)>>1;
-const db inf=1e+10;
-const db eps=1e-10;
-const db pi=acos(-1.0);
-const int dx[]={-1,1,0,0,-1,-1,1,1,0};
-const int dy[]={0,0,-1,1,-1,1,-1,1,0};
-const int MOD=1000000007;
+int oo=(~0u)>>1;
+lli ooll=(~0ull)>>1;
+db inf=1e+10;
+db eps=1e-10;
+db pi=acos(-1.0);
+int dx[]={-1,1,0,0,-1,-1,1,1,0};
+int dy[]={0,0,-1,1,-1,1,-1,1,0};
+int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
 template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:false;}
@@ -138,7 +141,7 @@ template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rt
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
 template<typename type>inline pr<type,type> operator*(const pr<type,type>& a,const type& b){rtn mp(a.x*b,a.y*b);}
-template<typename type>inline pr<type,type> operator/(const pr<type,type>& a,const type b){rtn mp(a.x/b,a.y/b);}
+template<typename type>inline pr<type,type> operator/(const pr<type,type>& a,const type& b){rtn mp(a.x/b,a.y/b);}
 template<typename type>inline pr<type,type>& operator-=(pr<type,type>& a,const pr<type,type>& b){rtn a=a-b;}
 template<typename type>inline pr<type,type>& operator+=(pr<type,type>& a,const pr<type,type>& b){rtn a=a+b;}
 template<typename type>inline pr<type,type>& operator*=(pr<type,type>& a,const type& b){rtn a=a*b;}
