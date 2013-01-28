@@ -195,6 +195,7 @@ void save_file()
 	p=file_content.find("<td>",p);
 	size_t q=file_content.find("</td>",p);
 	str lang=file_content.substr(p,q-p);
+
 	str type;
 	if (lang.find("C++")!=str::npos) type=".cpp";
 	else if (file_content.find("Java")!=str::npos) type=".java";
@@ -207,7 +208,7 @@ void save_file()
 	{
 		str output;
 		size_t p=file_content.find(begincode)+sz(begincode);
-		size_t q=file_content.find(endcode);
+		size_t q=file_content.find(endcode,p);
 		repf(i,p,q) if (file_content[i]!='\r') output.pb(file_content[i]);
 		output.pb('\n');
 		ofstream file(id+type);
@@ -251,6 +252,8 @@ void get_file_url()
 {
 	static const str subbegin(" data-submission-id=\""),subend("\"");
 	static const str idbegin("<a href=\"/problemset/problem/"),idend("/");
+	static const str gym("<a href=\"/problemset/gymProblem");
+
 	size_t p=0;
 	lp
 	{
@@ -259,6 +262,7 @@ void get_file_url()
 		p+=sz(subbegin);
 		size_t q=page_content.find(subend,p);
 		str sub=page_content.substr(p,q-p);
+		if (page_content.find(idbegin,p)>=page_content.find(gym,p)) continue;
 		p=page_content.find(idbegin,p)+sz(idbegin);
 		q=page_content.find(idend,p);
 		contest=page_content.substr(p,q-p);
