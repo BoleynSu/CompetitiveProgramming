@@ -168,8 +168,7 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 #include <curl/curl.h>
 #include <curl/easy.h>
 
-#define USER "sujiao"//这里是用户名
-#define PASS "********"//这里是密码
+str USER,PASS;
 
 size_t write_data(char *data,size_t size,size_t num,string* buffer)
 {
@@ -186,7 +185,8 @@ void login()
 	curl_easy_setopt(curl,CURLOPT_POST,1);
 	curl_easy_setopt(curl,CURLOPT_COOKIEFILE,"cookie.txt");
 	curl_easy_setopt(curl,CURLOPT_COOKIEJAR,"cookie.txt");
-    curl_easy_setopt(curl,CURLOPT_POSTFIELDS,"username="USER"&userpass="PASS"&login=Sign+In");
+	str post="username="+USER+"&userpass="+PASS+"&login=Sign+In";
+    curl_easy_setopt(curl,CURLOPT_POSTFIELDS,post.c_str());
 	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
 	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
 	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
@@ -308,9 +308,15 @@ bool has_next_page()
 
 int main()
 {
+	cout<<"Username:";
+	cin>>USER;
+	cout<<"PASSWORD:";
+	cin>>PASS;
 	curl_global_init(CURL_GLOBAL_ALL);
 	login();
-	page_url="http://acm.hdu.edu.cn/status.php?first=&pid=&user="USER"&lang=0&status=5";
+	page_url="http://acm.hdu.edu.cn/status.php?first=&pid=&user="+USER+"&lang=0&status=5";
 	do download_page();
 	whl(has_next_page());
+	cout<<"Enter 'q' to quit."<<endl;
+	whl(cin.get()!='q');
 }
