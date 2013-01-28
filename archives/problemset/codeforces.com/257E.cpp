@@ -1,6 +1,7 @@
 //begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
+ * Last Update: 2012-1-4
  * */
 #include <iostream>
 #include <fstream>
@@ -151,54 +152,108 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
+struct segtr
+{
+#define nd(l,r) st[((l)+(r))|((l)!=(r))]
+#define rt nd(l,r)
+#define lrt nd(l,m)
+#define rrt nd(m+1,r)
+static const lli MAXN=100000;
+struct node{vec<pii> lst;lli sz;};
+node st[(MAXN<<1)-1];
+void upd_ins(lli l,lli r,lli p,pii v)
+{
+	if (p<l||r<p) rtn;
+	else if (p<=l&&r<=p) rt.lst.pb(v),rt.sz=sz(rt.lst);
+	else
+	{
+		lli m=(l+r)>>1;
+		upd_ins(l,m,p,v),upd_ins(m+1,r,p,v);
+		rt.sz=lrt.sz+rrt.sz;
+	}
+}
+void upd_clr(lli l,lli r,lli p)
+{
+	if (p<l||r<p) rtn;
+	else if (p<=l&&r<=p) rt.lst.clear(),rt.sz=sz(rt.lst);
+	else
+	{
+		lli m=(l+r)>>1;
+		upd_clr(l,m,p),upd_clr(m+1,r,p);
+		rt.sz=lrt.sz+rrt.sz;
+	}
+}
+lli qry(lli l,lli r,lli L,lli R)
+{
+	if (R<l||r<L) rtn 0;
+	else if (L<=l&&r<=R) rtn rt.sz;
+	else
+	{
+		lli m=(l+r)>>1;
+		rtn qry(l,m,L,R)+qry(m+1,r,L,R);
+	}
+}
+#undef rrt
+#undef lrt
+#undef rt
+#undef nd
+};
+segtr bst;
+segtr est;
+set<lli> es;
+
 int main()
 {
-	int n,m;
+	lli n,m;
 	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
+	vec<pr<pii,pii> > dat(n);
+	vec<lli> ans(n);
+	rep(i,n) cin>>dat[i].x.x>>dat[i].y.x>>dat[i].y.y,--dat[i].y.x,--dat[i].y.y,dat[i].x.y=i;
+	srt(dat);
+	lli cur=0,curt=0;
+	lli datp=0;
+	lp
 	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
+		lli delta=+oo;
+
+		lli dwn=bst.qry(0,m-1,0,cur)+est.qry(0,m-1,0,cur);
+		lli up=bst.qry(0,m-1,cur,m-1)+est.qry(0,m-1,cur,m-1);
+
+		if (up||dwn)
+			if (up>=dwn) cmin(delta,*es.lb(cur)-cur);
+			else cmin(delta,cur-*--es.ub(cur));
+
+		if (datp<n) cmin(delta,dat[datp].x.x-curt);
+
+		if (delta==oo) break;
+
+		if (curt==dat[datp].x.x)
+		{
+			bst.upd_ins(0,m-1,dat[datp].y.x,mp(dat[datp].y.y,dat[datp].x.y));
+			es.ins(dat[datp].y.x);
+			datp++;
+		}
+		else if (sz(est.st[cur<<1].lst))
+		{
+			rep(i,sz(est.st[cur<<1].lst))
+					ans[est.st[cur<<1].lst[i].x]=curt;
+			est.upd_clr(0,m-1,cur);
+			if (!bst.qry(0,m-1,cur,cur)) es.ers(cur);
+		}
+		else if (sz(bst.st[cur<<1].lst))
+		{
+			rep(i,sz(bst.st[cur<<1].lst))
+				est.upd_ins(0,m-1,bst.st[cur<<1].lst[i].x,mp(bst.st[cur<<1].lst[i].y,0)),
+				es.ins(bst.st[cur<<1].lst[i].x);
+			bst.upd_clr(0,m-1,cur);
+			if (!est.qry(0,m-1,cur,cur)) es.ers(cur);
+		}
+
+		if (up||dwn)
+			if (up>=dwn) cur=cur+delta;
+			else cur=cur-delta;
+		curt+=delta;
 	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
+	rep(i,n) cout<<ans[i]<<endl;
 }
 

@@ -1,6 +1,7 @@
-//begin #include <Core>
+
 /*
  * Package: StandardCodeLibrary.Core
+ * Last Update: 2012-12-21
  * */
 #include <iostream>
 #include <fstream>
@@ -27,9 +28,9 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/tag_and_trait.hpp>
+	#include <ext/pb_ds/assoc_container.hpp>
+	#include <ext/pb_ds/tree_policy.hpp>
+	#include <ext/pb_ds/tag_and_trait.hpp>
 #endif
 using namespace std;
 
@@ -39,8 +40,8 @@ using namespace std;
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=b;--i)
 #define feach(e,s) for (typeof((s).begin()) e=(s).begin();e!=(s).end();++e)
-#define fsubset(subset,set) for (int subset=(set)&((set)-1);subset;subset=(subset-1)&(set))
-#define forin(i,charset) for (cstr i=(charset);*i;i++)
+#define fsubset(subset,set) for (int subset=set&(set-1);subset;subset=(subset-1)&set)
+#define forin(i,charset) for (cstr i=charset;*i;i++)
 #define whl while
 #define rtn return
 #define fl(x,y) memset((x),char(y),sizeof(x))
@@ -49,9 +50,6 @@ using namespace std;
 #define pb push_back
 #define mp make_pair
 #define ins insert
-#define ers erase
-#define lb lower_bound
-#define ub upper_bound
 #define rnk order_of_key
 #define sel find_by_order
 #define x first
@@ -59,7 +57,7 @@ using namespace std;
 #define sz(x) (int((x).size()))
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
-#define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define uniq(x) srt(x),(x).erase(unique(all(x)),x.end())
 #define vec vector
 #define pr pair
 #define que queue
@@ -67,7 +65,7 @@ using namespace std;
 #define itr iterator
 #define sf scanf
 #define pf printf
-#define pdb(prcs,x) (cout<<setprecision(prcs)<<fixed<<(sgn(x)?(x):0))
+#define pdb(prcs,x) (cout<<setprecision(prcs)<<fixed<<(x))
 #ifdef DEBUG
 #define prt(x) cerr<<#x"="<<(x)<<endl
 #define asrtWA(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
@@ -86,7 +84,7 @@ using namespace std;
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
 #define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
-#define runtime() (cerr)
+#define runtime() cerr
 #define input(in) freopen(in,"r",stdin)
 #define output(out) freopen(out,"w",stdout)
 #endif
@@ -112,11 +110,11 @@ typedef set<str> ss;
 typedef que<int> qi;
 typedef prq<int> pqi;
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+	template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+	template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+	template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+	template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
 const int oo=(~0u)>>1;
@@ -141,7 +139,7 @@ template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));r
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
-template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<=sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
+template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
@@ -149,56 +147,96 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
-//end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
-int main()
+/*
+ * Package: StandardCodeLibrary.GraphTheory.Edmonds'sMatchingAlgorithm
+ * Last Update: 2012-12-21
+ * Usage:
+ * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * V:点数
+ * add_edge:
+ * 输入int u,v
+ * add_edge(u,v,c) 加一条u到v的容量为c的有向边,加一条v到u的容量为0的有向边
+ * build_graph:构图,详细见函数内的注释
+ * dinic:
+ * 输出int
+ * dinic()=最大流
+ * */
+
+#define oo 0x7f7f7f7f
+const int MAXE=1000000;
+const int MAXV=1000000;
+typedef struct struct_edge* edge;
+struct struct_edge{int v,c,d;edge n,b;};
+struct_edge pool[MAXE];
+edge top;
+int S,T;
+edge adj[MAXV];
+int d[MAXV];
+int q[MAXV];
+bool inq[MAXV];
+int qh,qt;
+void add_edge(int u,int v,int c,int d)
 {
-	int n,m;
-	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
+	top->v=v,top->c=c,top->d=d,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->c=0,top->d=-d,top->n=adj[v],adj[v]=top++;
+	adj[u]->b=adj[v],adj[v]->b=adj[u];
+}
+edge p[MAXV];
+void min_cost_flow(int& flow,int& cost)
+{
+	flow=0,cost=0;
+	lp
 	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
+		fl(d,oo),inq[q[qh=qt=0]=S]=true,d[S]=0,p[S]=0;
+		whl(qh<=qt)
+		{
+			int u=q[(qh++)%MAXV];
+			inq[u]=false;
+			for (edge i=adj[u];i;i=i->n)
+				if (i->c&&cmin(d[i->v],d[u]+i->d))
+				{
+					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
+					p[i->v]=i;
+				}
+		}
+		if (d[T]==oo) break;
+		else
+		{
+			int delta=oo;
+			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
+			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta;
+			flow+=delta;
+			cost+=d[T]*delta;
+		}
 	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
 }
 
+int main()
+{
+	ios_base::sync_with_stdio(false);
+	str t;
+	cin>>t;
+	int n;
+	cin>>n;
+	vs s(n);
+	vi a(n);
+	rep(i,n) cin>>s[i]>>a[i];
+    memset(adj,0,sizeof(adj)),top=pool;
+    S=26+n,T=26+n+1;
+	mci cnt;
+	rep(i,sz(t)) cnt[t[i]]++;
+	ft(i,'a','z') add_edge(i-'a',T,cnt[i],0);
+	rep(i,n)
+	{
+		mci cnt;
+		rep(j,sz(s[i])) cnt[s[i][j]]++;
+		ft(j,'a','z') add_edge(26+i,j-'a',cnt[j],i+1);
+		add_edge(S,26+i,a[i],0);
+	}
+	int flow,cost;
+	min_cost_flow(flow,cost);
+	if (flow!=sz(t)) cout<<-1<<endl;
+	else cout<<cost<<endl;
+}

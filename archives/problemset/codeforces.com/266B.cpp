@@ -31,9 +31,6 @@
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
 #endif
-#ifdef  __GXX_EXPERIMENTAL_CXX0X__
-#define typeof decltype
-#endif
 using namespace std;
 
 #define lp for(;;)
@@ -122,31 +119,23 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
-int oo=(~0u)>>1;
-lli ooll=(~0ull)>>1;
-db inf=1e+10;
-db eps=1e-10;
-db pi=acos(-1.0);
-int dx[]={-1,1,0,0,-1,-1,1,1,0};
-int dy[]={0,0,-1,1,-1,1,-1,1,0};
-int MOD=1000000007;
+const int oo=(~0u)>>1;
+const lli ooll=(~0ull)>>1;
+const db inf=1e+10;
+const db eps=1e-10;
+const db pi=acos(-1.0);
+const int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
 template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:false;}
 template<typename type>inline type sqr(const type& x){rtn x*x;}
 inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
 inline int sgn(const db& x){rtn dbcmp(x,0);}
-template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
-template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
-template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
-template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
-template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
-template<typename type>inline pr<type,type> operator*(const pr<type,type>& a,const type& b){rtn mp(a.x*b,a.y*b);}
-template<typename type>inline pr<type,type> operator/(const pr<type,type>& a,const type& b){rtn mp(a.x/b,a.y/b);}
-template<typename type>inline pr<type,type>& operator-=(pr<type,type>& a,const pr<type,type>& b){rtn a=a-b;}
-template<typename type>inline pr<type,type>& operator+=(pr<type,type>& a,const pr<type,type>& b){rtn a=a+b;}
-template<typename type>inline pr<type,type>& operator*=(pr<type,type>& a,const type& b){rtn a=a*b;}
-template<typename type>inline pr<type,type>& operator/=(pr<type,type>& a,const type& b){rtn a=a/b;}
+template<typename istream,typename first_type,typename second_type>istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
+template<typename ostream,typename first_type,typename second_type>ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
+template<typename type>pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
+template<typename type>pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
+template<typename type>pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
 template<typename type>inline type cross(const pr<type,type>& a,const pr<type,type>& b){rtn a.x*b.y-a.y*b.x;}
 template<typename type>inline type dot(const pr<type,type>& a,const pr<type,type>& b){rtn a.x*b.x+a.y*b.y;}
 template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));rtn a+b;}
@@ -163,148 +152,14 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-#include <boost/filesystem.hpp>
-
-#include <curl/curl.h>
-#include <curl/easy.h>
-
-str USER,PASS;
-
-size_t write_data(char *data,size_t size,size_t num,string* buffer)
-{
-    buffer->append(data,size*num);
-    return size*num;
-}
-
-str page_url;
-str page_content;
-size_t page_count;
-str contest;
-str file_url;
-str file_content;
-void save_file()
-{
-	cerr<<"save()"<<endl;
-	const str getid("\"/contest/"+contest+"/problem/");
-	static const str begincode("<pre class=\"prettyprint\" style=\"padding:0.5em;\">");
-	static const str endcode("</pre>");
-
-	str id=contest+file_content.substr(file_content.find(getid)+sz(getid),1);
-
-	size_t p=file_content.find(getid);
-	p=file_content.find("<td>",p);
-	size_t q=file_content.find("</td>",p);
-	str lang=file_content.substr(p,q-p);
-	str type;
-	if (lang.find("C++")!=str::npos) type=".cpp";
-	else if (file_content.find("Java")!=str::npos) type=".java";
-	else if (file_content.find("PHP")!=str::npos) type=".php";
-	else type=".txt";
-	if (!boost::filesystem::exists(id+".java")
-		&&!boost::filesystem::exists(id+".cpp")
-		&&!boost::filesystem::exists(id+".txt")
-		&&!boost::filesystem::exists(id+".php"))
-	{
-		str output;
-		size_t p=file_content.find(begincode)+sz(begincode);
-		size_t q=file_content.find(endcode);
-		repf(i,p,q) if (file_content[i]!='\r') output.pb(file_content[i]);
-		output.pb('\n');
-		ofstream file(id+type);
-		rep(i,sz(output))
-		{
-			if (output[i]!='&') file<<output[i];
-			else
-			{
-				int j=i;
-				whl(output[++j]!=';') ;
-				if (output[i+1]=='a')
-				{
-					if (output[i+2]=='m') file<<'&';
-					else cout<<'\'';
-				}
-				else if (output[i+1]=='q') file<<'\"';
-				else if (output[i+1]=='l') file<<'<';
-				else file<<'>';
-				i=j;
-			}
-		}
-	}
-	cerr<<"/save()"<<endl;
-}
-void download_file()
-{
-	cerr<<"download_file()"<<endl;
-	string buffer;
-	CURL *curl=curl_easy_init();
-	curl_easy_setopt(curl,CURLOPT_URL,file_url.c_str());
-	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
-	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
-	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
-	curl_easy_perform(curl);
-	curl_easy_cleanup(curl);
-	buffer.swap(file_content);
-	save_file();
-	cerr<<"/download_file()"<<endl;
-}
-void get_file_url()
-{
-	static const str subbegin(" data-submission-id=\""),subend("\"");
-	static const str idbegin("<a href=\"/problemset/problem/"),idend("/");
-	size_t p=0;
-	lp
-	{
-		p=page_content.find(subbegin,p);
-		if (p==str::npos) break;
-		p+=sz(subbegin);
-		size_t q=page_content.find(subend,p);
-		str sub=page_content.substr(p,q-p);
-		p=page_content.find(idbegin,p)+sz(idbegin);
-		q=page_content.find(idend,p);
-		contest=page_content.substr(p,q-p);
-		file_url="http://codeforces.com/contest/"+contest+"/submission/"+sub;
-
-		size_t x=page_content.find(subbegin,p);
-		size_t y=page_content.find("<span class='verdict-accepted'>Accepted</span>",p);
-		if (y<x) download_file();
-	}
-}
-
-void download_page()
-{
-	cerr<<"Page "<<++page_count<<": "<<page_url<<endl;
-	cerr<<"download_page()"<<endl;
-	string buffer;
-	CURL *curl=curl_easy_init();
-	curl_easy_setopt(curl,CURLOPT_URL,page_url.c_str());
-	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
-	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
-	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
-	curl_easy_perform(curl);
-	curl_easy_cleanup(curl);
-	buffer.swap(page_content);
-	get_file_url();
-	cerr<<"/download_page()"<<endl;
-}
-bool has_next_page()
-{
-	static const str beginpage("href=\""),endpage("\"");
-	size_t p=page_content.find("page-index",page_content.find("page-index active")+1);
-	if (p==str::npos) rtn false;
-	p=page_content.find(beginpage,p)+sz(beginpage);
-	size_t q=page_content.find(endpage,p);
-	page_url="http://codeforces.com"+page_content.substr(p,q-p);
-	rtn true;
-}
-
 int main()
 {
-	cout<<"Username:";
-	cin>>USER;
-	curl_global_init(CURL_GLOBAL_ALL);
-	page_url="http://codeforces.com/submissions/"+USER+"/page/1";
-	do download_page();
-	whl(has_next_page());
-	cout<<"Enter 'q' to quit."<<endl;
-	whl(cin.get()!='q');
+	int n,t;
+	cin>>n>>t;
+	str s;
+	cin>>s;
+	rep(i,t)
+		repf(j,1,n) if (s[j]=='G') swap(s[j],s[j-1]),j++;
+	cout<<s<<endl;
 }
+

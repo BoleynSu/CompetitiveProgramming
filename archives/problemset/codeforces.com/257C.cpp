@@ -1,6 +1,7 @@
 //begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
+ * Last Update: 2012-1-4
  * */
 #include <iostream>
 #include <fstream>
@@ -151,54 +152,32 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
+bool cmp(const pii& a,const pii& b)
+{
+	rtn atan2(a.y,a.x)<atan2(b.y,b.x);
+}
+
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
+	int n;
+	cin>>n;
+	vec<pii> p(n);
+	rep(i,n)
 	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
+		cin>>p[i].x>>p[i].y;
+		int g=gcd(p[i].x,p[i].y);
+		if (g<0) g=-g;
+		p[i].x/=g;
+		p[i].y/=g;
 	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
+	uniq(p);
+	n=sz(p);
+	sort(all(p),cmp);
+	db ans=0;
+	rep(i,n) cmax(ans,abs(atan2(p[i].y,p[i].x)-(i+1==n?atan2(p[0].y,p[0].x)+2*pi:atan2(p[i+1].y,p[i+1].x))));
+	prt(n);
+	if (n==1) pdb(10,0.0);
+	else if (n==2) pdb(10,min(ans,2*pi-ans)/(2*pi)*360)<<endl;
+	else pdb(10,(2*pi-ans)/(2*pi)*360)<<endl;
 }
 

@@ -1,6 +1,6 @@
-//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
+ * Last Update: 2012-12-08
  * */
 #include <iostream>
 #include <fstream>
@@ -26,11 +26,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <climits>
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/tag_and_trait.hpp>
-#endif
 using namespace std;
 
 #define lp for(;;)
@@ -39,8 +34,8 @@ using namespace std;
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=b;--i)
 #define feach(e,s) for (typeof((s).begin()) e=(s).begin();e!=(s).end();++e)
-#define fsubset(subset,set) for (int subset=(set)&((set)-1);subset;subset=(subset-1)&(set))
-#define forin(i,charset) for (cstr i=(charset);*i;i++)
+#define fsubset(subset,set) for (int subset=set&(set-1);subset;subset=(subset-1)&set)
+#define forin(i,charset) for (cstr i=charset;*i;i++)
 #define whl while
 #define rtn return
 #define fl(x,y) memset((x),char(y),sizeof(x))
@@ -48,18 +43,12 @@ using namespace std;
 #define cpy(x,y) memcpy(x,y,sizeof(x))
 #define pb push_back
 #define mp make_pair
-#define ins insert
-#define ers erase
-#define lb lower_bound
-#define ub upper_bound
-#define rnk order_of_key
-#define sel find_by_order
 #define x first
 #define y second
 #define sz(x) (int((x).size()))
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
-#define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define uniq(x) srt(x),(x).erase(unique(all(x)),x.end());
 #define vec vector
 #define pr pair
 #define que queue
@@ -67,8 +56,19 @@ using namespace std;
 #define itr iterator
 #define sf scanf
 #define pf printf
-#define pdb(prcs,x) (cout<<setprecision(prcs)<<fixed<<(sgn(x)?(x):0))
-#ifdef DEBUG
+#define pdb(prcs,x) (cout<<setprecision(prcs)<<fixed<<(x))
+#ifdef ONLINE_JUDGE
+#define endl '\n'
+#define prt(x) cerr
+#define asrtWA(s) do if(!(s))exit(0);whl(0)
+#define asrtTLE(s) do if(!(s))whl(1);whl(0)
+#define asrtMLE(s) do if(!(s))whl(new int);whl(0)
+#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
+#define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
+#define runtime() cerr
+#define input(in) freopen(in,"r",stdin)
+#define output(out) freopen(out,"w",stdout)
+#else
 #define prt(x) cerr<<#x"="<<(x)<<endl
 #define asrtWA(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
 #define asrtTLE(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
@@ -78,17 +78,7 @@ using namespace std;
 #define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
 #define input(in) do{}whl(0)
 #define output(out) do{}whl(0)
-#else
-#define endl (char('\n'))
-#define prt(x) (cerr)
-#define asrtWA(s) do if(!(s))exit(0);whl(0)
-#define asrtTLE(s) do if(!(s))whl(1);whl(0)
-#define asrtMLE(s) do if(!(s))whl(new int);whl(0)
-#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
-#define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
-#define runtime() (cerr)
-#define input(in) freopen(in,"r",stdin)
-#define output(out) freopen(out,"w",stdout)
+#define DEBUG
 #endif
 
 typedef long long int lli;
@@ -111,18 +101,11 @@ typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
 typedef prq<int> pqi;
-#if __GNUC__>=4 and __GNUC_MINOR__>=7
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#elif __GNUC__>=4 and __GNUC_MINOR__>=6
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#endif
 
 const int oo=(~0u)>>1;
 const lli ooll=(~0ull)>>1;
-const db inf=1e+10;
-const db eps=1e-10;
+const db inf=1e+20;
+const db eps=1e-8;
 const db pi=acos(-1.0);
 const int MOD=1000000007;
 
@@ -131,74 +114,47 @@ template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:
 template<typename type>inline type sqr(const type& x){rtn x*x;}
 inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
 inline int sgn(const db& x){rtn dbcmp(x,0);}
-template<typename ostream,typename type>ostream& operator<<(ostream& cout,const pr<type,type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
-template<typename type>pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
-template<typename type>pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
-template<typename type>pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
 template<typename type>inline type cross(const pr<type,type>& a,const pr<type,type>& b,const pr<type,type>& c){rtn (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);}
 template<typename type>inline type dot(const pr<type,type>& a,const pr<type,type>& b,const pr<type,type>& c){rtn (b.x-a.x)*(c.x-a.x)+(b.y-a.y)*(c.y-a.y);}
 template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));rtn a+b;}
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
-template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<=sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
-inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
-inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
-inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
+template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
+inline void make_set(vi& set){rep(i,sz(set))set[i]=i;}
+inline int find_set(vi& set,int x){int y=x,z;whl(y!=set[y])y=set[y];whl(x!=set[x])z=set[x],set[x]=y,x=z;rtn y;}
+inline bool union_set(vi& set,int a,int b){a=find_set(set,a),b=find_set(set,b);rtn a!=b?set[a]=b,true:false;}
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
-//end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
-int main()
+lli get(lli t,lli n,lli x,lli y)
 {
-	int n,m;
-	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
-	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
-	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
+	lli ans=1+t*(t+1)/2*4;
+	lli l=x-t,r=x+t,u=y-t,d=y+t;
+	if (l<1) ans-=sqr(1-l);
+	if (r>n) ans-=sqr(r-n);
+	if (u<1) ans-=sqr(u-1);
+	if (d>n) ans-=sqr(d-n);
+	if (x+y<=t) ans+=(t-(x+y)+1)*((t-(x+y)+1)+1)/2;
+	if (x+n-y+1<=t) ans+=(t-(x+n-y+1)+1)*((t-(x+n-y+1)+1)+1)/2;
+	if (n-x+1+y<=t) ans+=(t-(n-x+1+y)+1)*((t-(n-x+1+y)+1)+1)/2;
+	if (n-x+1+n-y+1<=t) ans+=(t-(n-x+1+n-y+1)+1)*((t-(n-x+1+n-y+1)+1)+1)/2;
+	prt(t),prt(ans);
+	return ans;
 }
 
+int main()
+{
+	lli n,x,y,c;
+	cin>>n>>x>>y>>c;
+	lli l=-1,r=n*2;
+	whl(l+1!=r)
+	{
+		lli mid=(l+r)>>1;
+		if (get(mid,n,x,y)>=c) r=mid;
+		else l=mid;
+	}
+	cout<<r<<endl;
+}

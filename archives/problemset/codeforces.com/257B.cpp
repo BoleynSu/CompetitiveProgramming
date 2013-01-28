@@ -1,6 +1,7 @@
 //begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
+ * Last Update: 2012-1-4
  * */
 #include <iostream>
 #include <fstream>
@@ -151,54 +152,57 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
+pii get(int x,int y)
+{
+	//x y y x x y y
+	pii ret=mp(0,0);
+	char c='x';
+	x--;
+	lp
+	{
+		char nc;
+		if (!x&&!y) break;
+		if (c=='x')
+		{
+			if (y) nc='y';
+			else nc='x';
+		}
+		else
+		{
+			if (x) nc='x';
+			else nc='y';
+		}
+		if (nc==c) ret.x++;
+		else ret.y++;
+		if (nc=='x') x--;
+		else y--;
+		c=nc;
+		if (!x&&!y) break;
+		if (c=='x')
+		{
+			if (x) nc='x';
+			else nc='y';
+		}
+		else
+		{
+			if (y) nc='y';
+			else nc='x';
+		}
+		if (nc==c) ret.x++;
+		else ret.y++;
+		if (nc=='x') x--;
+		else y--;
+		c=nc;
+	}
+	rtn ret;
+}
+
 int main()
 {
 	int n,m;
 	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
-	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
-	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
+	prt(get(n,m)),prt(get(m,n));
+	pii ans=max(get(n,m),get(m,n));
+	cout<<ans.x<<" "<<ans.y<<endl;
 }
 

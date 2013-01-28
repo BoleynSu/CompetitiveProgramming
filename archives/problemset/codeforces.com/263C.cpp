@@ -151,54 +151,84 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
-int main()
+int find_next(const vvi& adj,int first,int second,int third)
 {
-	int n,m;
-	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
-	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
-	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
+	int fourth=-1;
+	rep(i,sz(adj[third]))
+		rep(j,sz(adj[second]))
+				if (adj[third][i]==adj[second][j]&&adj[third][i]!=first)
+					fourth=adj[third][i];
+	rtn fourth;
+}
+bool is_next(const vvi& adj,int first,int second,int third,int fourth)
+{
+	rep(i,sz(adj[third]))
+		rep(j,sz(adj[second]))
+				if (adj[third][i]==adj[second][j]
+				    &&adj[third][i]!=first
+				    &&fourth==adj[third][i])
+					rtn true;
+	rtn false;
 }
 
+vi calc(vvi& adj,int first,int second,int third)
+{
+	vi lst;
+	lst.pb(first),lst.pb(second),lst.pb(third);
+	whl(sz(lst)<sz(adj))
+	{
+		int fourth=find_next(adj,first,second,third);
+		if (fourth==-1)
+		{
+			lst.clear();
+			rtn lst;
+		}
+		first=second;
+		second=third;
+		third=fourth;
+		lst.pb(fourth);
+	}
+	if (!is_next(adj,lst[sz(lst)-3],lst[sz(lst)-2],lst[sz(lst)-1],lst[0])
+		||!is_next(adj,lst[sz(lst)-2],lst[sz(lst)-1],lst[0],lst[1])
+		||!is_next(adj,lst[sz(lst)-1],lst[0],lst[1],lst[2]))
+	{
+		lst.clear();
+		rtn lst;
+	}
+
+	vb inlst(sz(lst));
+	rep(i,sz(lst)) inlst[lst[i]]=true;
+	rep(i,sz(lst)) if (!inlst[i]) lst.clear();
+	rep(i,sz(lst)) lst[i]++;
+	rtn lst;
+}
+
+int main()
+{
+	int n;
+	cin>>n;
+	vvi adj(n);
+	rep(i,2*n)
+	{
+		int a,b;
+		cin>>a>>b,--a,--b;
+		adj[a].pb(b),adj[b].pb(a);
+	}
+	rep(i,n) adj[i].resize(min(sz(adj[i]),4)),srt(adj[i]);
+
+	vi ans(1,-1);
+	int first=0;
+	rep(i,sz(adj[first]))
+	{
+		int second=adj[first][i];
+		rep(j,sz(adj[first]))
+			rep(k,sz(adj[second]))
+				if (adj[first][j]==adj[second][k])
+				{
+					int third=adj[first][j];
+					vi get=calc(adj,first,second,third);
+					if (sz(get)) ans=get;
+				}
+	}
+	rep(i,sz(ans)) cout<<ans[i]<<char(i+1==n?'\n':' ');
+}

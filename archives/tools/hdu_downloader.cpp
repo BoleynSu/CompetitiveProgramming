@@ -176,34 +176,46 @@ size_t write_data(char *data,size_t size,size_t num,string* buffer)
     return size*num;
 }
 
+void login()
+{
+	cerr<<"login()"<<endl;
+	string buffer;
+	CURL *curl=curl_easy_init();
+	curl_easy_setopt(curl,CURLOPT_URL,"http://acm.hdu.edu.cn/userloginex.php?action=login");
+	curl_easy_setopt(curl,CURLOPT_POST,1);
+	curl_easy_setopt(curl,CURLOPT_COOKIEFILE,"cookie.txt");
+	curl_easy_setopt(curl,CURLOPT_COOKIEJAR,"cookie.txt");
+	str post="username="+USER+"&userpass="+PASS+"&login=Sign+In";
+    curl_easy_setopt(curl,CURLOPT_POSTFIELDS,post.c_str());
+	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
+	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
+	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
+	curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+	cerr<<"/login()"<<endl;
+}
+
 str page_url;
 str page_content;
 size_t page_count;
-str contest;
 str file_url;
 str file_content;
 void save_file()
 {
 	cerr<<"save()"<<endl;
-	const str getid("\"/contest/"+contest+"/problem/");
-	static const str begincode("<pre class=\"prettyprint\" style=\"padding:0.5em;\">");
-	static const str endcode("</pre>");
-
-	str id=contest+file_content.substr(file_content.find(getid)+sz(getid),1);
-
-	size_t p=file_content.find(getid);
-	p=file_content.find("<td>",p);
-	size_t q=file_content.find("</td>",p);
-	str lang=file_content.substr(p,q-p);
+	static const str getid("showproblem.php?pid=");
+	static const str begincode("<textarea id=usercode style=\"display:none;text-align:left;\">");
+	static const str endcode("</textarea>");
+	str id=file_content.substr(file_content.find(getid)+sz(getid),4);
 	str type;
-	if (lang.find("C++")!=str::npos) type=".cpp";
-	else if (file_content.find("Java")!=str::npos) type=".java";
-	else if (file_content.find("PHP")!=str::npos) type=".php";
-	else type=".txt";
+	if (file_content.find("Language : Java&nbsp;")!=str::npos) type=".java";
+	else if (file_content.find("Language : C&nbsp;")!=str::npos) type=".c";
+	else if (file_content.find("Language : Pascal&nbsp;")!=str::npos) type=".pas";
+	else type=".cpp";
 	if (!boost::filesystem::exists(id+".java")
-		&&!boost::filesystem::exists(id+".cpp")
-		&&!boost::filesystem::exists(id+".txt")
-		&&!boost::filesystem::exists(id+".php"))
+		&&!boost::filesystem::exists(id+".c")
+		&&!boost::filesystem::exists(id+".pas")
+		&&!boost::filesystem::exists(id+".cpp"))
 	{
 		str output;
 		size_t p=file_content.find(begincode)+sz(begincode);
@@ -238,6 +250,8 @@ void download_file()
 	string buffer;
 	CURL *curl=curl_easy_init();
 	curl_easy_setopt(curl,CURLOPT_URL,file_url.c_str());
+	curl_easy_setopt(curl,CURLOPT_COOKIEFILE,"cookie.txt");
+	curl_easy_setopt(curl,CURLOPT_COOKIEJAR,"cookie.txt");
 	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
 	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
 	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
@@ -249,24 +263,15 @@ void download_file()
 }
 void get_file_url()
 {
-	static const str subbegin(" data-submission-id=\""),subend("\"");
-	static const str idbegin("<a href=\"/problemset/problem/"),idend("/");
 	size_t p=0;
 	lp
 	{
-		p=page_content.find(subbegin,p);
+		p=page_content.find("\"/viewcode.php?rid=",p);
 		if (p==str::npos) break;
-		p+=sz(subbegin);
-		size_t q=page_content.find(subend,p);
-		str sub=page_content.substr(p,q-p);
-		p=page_content.find(idbegin,p)+sz(idbegin);
-		q=page_content.find(idend,p);
-		contest=page_content.substr(p,q-p);
-		file_url="http://codeforces.com/contest/"+contest+"/submission/"+sub;
-
-		size_t x=page_content.find(subbegin,p);
-		size_t y=page_content.find("<span class='verdict-accepted'>Accepted</span>",p);
-		if (y<x) download_file();
+		p++;
+		size_t q=page_content.find('"',p);
+		file_url="http://acm.hdu.edu.cn"+page_content.substr(p,q-p);
+		download_file();
 	}
 }
 
@@ -277,6 +282,8 @@ void download_page()
 	string buffer;
 	CURL *curl=curl_easy_init();
 	curl_easy_setopt(curl,CURLOPT_URL,page_url.c_str());
+	curl_easy_setopt(curl,CURLOPT_COOKIEFILE,"cookie.txt");
+	curl_easy_setopt(curl,CURLOPT_COOKIEJAR,"cookie.txt");
 	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
 	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
 	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
@@ -288,12 +295,13 @@ void download_page()
 }
 bool has_next_page()
 {
-	static const str beginpage("href=\""),endpage("\"");
-	size_t p=page_content.find("page-index",page_content.find("page-index active")+1);
+	size_t p=page_content.find("Next Page");
 	if (p==str::npos) rtn false;
-	p=page_content.find(beginpage,p)+sz(beginpage);
-	size_t q=page_content.find(endpage,p);
-	page_url="http://codeforces.com"+page_content.substr(p,q-p);
+	whl(page_content[p]!='<') p--;
+	p=page_content.find("href=",p);
+	whl(page_content[p++]!='"');
+	size_t q=page_content.find('>',p)-1;
+	page_url="http://acm.hdu.edu.cn"+page_content.substr(p,q-p);
 	rtn true;
 }
 
@@ -301,8 +309,11 @@ int main()
 {
 	cout<<"Username:";
 	cin>>USER;
+	cout<<"PASSWORD:";
+	cin>>PASS;
 	curl_global_init(CURL_GLOBAL_ALL);
-	page_url="http://codeforces.com/submissions/"+USER+"/page/1";
+	login();
+	page_url="http://acm.hdu.edu.cn/status.php?first=&pid=&user="+USER+"&lang=0&status=5";
 	do download_page();
 	whl(has_next_page());
 	cout<<"Enter 'q' to quit."<<endl;

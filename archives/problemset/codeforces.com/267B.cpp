@@ -151,54 +151,59 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
-int main()
+void go(vvi& g,vi& lst,int u)
 {
-	int n,m;
-	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
+	prt(u);
+	rep(v,7) if (g[u][v])
 	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
+		--g[u][v],--g[v][u];
+		go(g,lst,v);
 	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
+	lst.pb(u);
 }
 
+int main()
+{
+	int n;
+	cin>>n;
+	vvi g(7,vi(7));
+	vec<vvi > st(7,vvi(7));
+	rep(i,n)
+	{
+		int u,v;
+		cin>>u>>v;
+		++g[u][v],++g[v][u];
+		st[u][v].pb(i+1);
+	}
+	int s=-1;
+	vi cnt(2);
+	rep(i,7)
+	{
+		int tol=0;
+		rep(j,7) tol+=g[i][j];
+		cnt[tol%2]++;
+		if (tol%2==1) s=i;
+		if (s==-1&&tol) s=i;
+	}
+	if (cnt[1]!=2&&cnt[1]!=0) cout<<"No solution"<<endl;
+	else
+	{
+		vi lst;
+		go(g,lst,s);
+		if (sz(lst)!=n+1) cout<<"No solution"<<endl;
+		else
+			repf(i,1,sz(lst))
+			{
+				if (sz(st[lst[i-1]][lst[i]]))
+				{
+					cout<<st[lst[i-1]][lst[i]].back()<<" +"<<endl;
+					st[lst[i-1]][lst[i]].pop_back();
+				}
+				else
+				{
+					cout<<st[lst[i]][lst[i-1]].back()<<" -"<<endl;
+				st[lst[i]][lst[i-1]].pop_back();
+				}
+			}
+	}
+}

@@ -151,54 +151,36 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-//1<=db-da<=2
-//<a,b>=2
-//<b,a>=-1
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	vi a(m),b(m);
-	vvi adj(n),radj(n);
-	rep(i,m)
-		cin>>a[i]>>b[i],adj[--a[i]].pb(--b[i]),radj[b[i]].pb(a[i]);
-	qi q;
-	vb inq(n);
-	q.push(0);
-	inq[0]=true;
-	whl(sz(q))
+	[](istream& cin,ostream& cout)
 	{
-		int u=q.front();
-		q.pop();
-		rep(i,sz(adj[u]))
-			if (!inq[adj[u][i]])
-				q.push(adj[u][i]),inq[adj[u][i]]=true;
-	}
-	qi rq;
-	vb rinq(n);
-	rq.push(n-1);
-	rinq[n-1]=true;
-	whl(sz(rq))
-	{
-		int u=rq.front();
-		rq.pop();
-		rep(i,sz(radj[u]))
-			if (!rinq[radj[u][i]])
-				rq.push(radj[u][i]),rinq[radj[u][i]]=true;
-	}
-	vi d(n,n*2);
-	d[0]=0;
-	ft(i,1,n)
-		rep(j,m)
-			if (inq[a[j]]&&inq[b[j]]&&rinq[a[j]]&&rinq[b[j]])
-			{
-				if (cmin(d[b[j]],d[a[j]]+2)&&i==n)
-					rtn cout<<"No"<<endl,0;
-				if (cmin(d[a[j]],d[b[j]]-1)&&i==n)
-					rtn cout<<"No"<<endl,0;
-			}
-	rep(i,n) prt(d[i]);
-	cout<<"Yes"<<endl;
-	rep(i,m) cout<<min(max(d[b[i]]-d[a[i]],1),2)<<endl;
+		int n;
+		cin>>n;
+		vi a(n);
+		rep(i,n) cin>>a[i];
+		srt(a);
+		vi best(*max_element(all(a))+2);
+		int ans=-oo;
+		rep(i,n)
+		{
+			int get=0;
+			for (int j=1;sqr(j)<=a[i];j++)
+				if (a[i]%j==0)
+				{
+					if (j!=1) cmax(get,best[j]);
+					cmax(get,best[a[i]/j]);
+				}
+			get++;
+			for (int j=1;sqr(j)<=a[i];j++)
+				if (a[i]%j==0)
+				{
+					if (j!=1) cmax(best[j],get);
+					cmax(best[a[i]/j],get);
+				}
+			cmax(ans,get);
+		}
+		cout<<ans<<endl;
+	}(cin,cout);
 }
 
