@@ -1,53 +1,49 @@
-/*
- * Package: StandardCodeLibrary.Core
- * Last Update: 2012-11-27
- * */
+//Boleyn Su's Template for Codeforces
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include <utility>
+#include <string>
 #include <vector>
 #include <list>
-#include <string>
-#include <stack>
-#include <queue>
-#include <deque>
 #include <set>
 #include <map>
+#include <queue>
+#include <deque>
+#include <stack>
 #include <algorithm>
 #include <functional>
-#include <numeric>
+#include <utility>
 #include <bitset>
 #include <complex>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <cmath>
-#include <cstdlib>
 #include <ctime>
 #include <climits>
 using namespace std;
 
 #define lp for(;;)
-#define repf(i,a,b) for (int i=(a);i<(b);++i)
-#define rep(i,n) repf(i,0,n)
+#define rep(i,n) for (int i=0;i<(n);++i)
+#define repf(i,a,b) for (int i=a;i<(b);++i)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=b;--i)
-#define feach(e,s) for (typeof((s).begin()) e=(s).begin();e!=(s).end();++e)
+#define feach(e,s,t) for (t::itr e=(s).begin();e!=(s).end();++e)
 #define fsubset(subset,set) for (int subset=set&(set-1);subset;subset=(subset-1)&set)
-#define forin(i,charset) for (cstr i=charset;*i;i++)
 #define whl while
 #define rtn return
-#define fl(x,y) fill((x),(x)+sizeof(x)/sizeof(*(x)),y)
+#define fl(x,y) memset((x),char(y),sizeof(x))
 #define clr(x) fl(x,0)
-#define cpy(x,y) copy((y),(y)+sizeof(y)/sizeof(*(y)),(x))
+#define cpy(x,y) memcpy((x),(y),sizeof(x))
 #define pb push_back
 #define mp make_pair
 #define x first
 #define y second
 #define sz(x) ((int)(x).size())
+#define len(x) ((int)(x).length())
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
-#define uniq(x) srt(x),(x).erase(unique(all(x)),x.end());
+#define uniq(x) (x).resize(unique(all(x))-x.begin())
 #define vec vector
 #define pr pair
 #define que queue
@@ -56,33 +52,17 @@ using namespace std;
 #define sf scanf
 #define pf printf
 #define pdb(prcs,x) printf("%."#prcs"f",(abs(x)<1e-##prcs)?0.0:x)
-#ifdef ONLINE_JUDGE
-#define endl '\n'
-#define prt(x) cerr
+#define prt(x) cout<<#x<<"="<<(x)<<endl
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
 #define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
-#define runtime() cerr
-#define input(in) freopen(in,"r",stin)
-#define output(out) freopen(out,"w",stdout)
-#else
-#define prt(x) cerr<<#x<<"="<<(x)<<endl
-#define asrtWA(s) do{}whl(0)
-#define asrtTLE(s) do{}whl(0)
-#define asrtMLE(s) do{}whl(0)
-#define asrtOLE(s) do{}whl(0)
-#define asrtRE(s) do{}whl(0)
-#define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
-#define input(in) do{}whl(0)
-#define output(out) do{}whl(0)
-#define DEBUG
-#endif
+#define runtime() printf("Used: %.3fs\n",db(clock())/CLOCKS_PER_SEC);
 
 typedef long long int lli;
 typedef double db;
-typedef const char* cstr;
+typedef char* cstr;
 typedef string str;
 typedef vec<int> vi;
 typedef vec<vi> vvi;
@@ -111,45 +91,28 @@ const int MOD=1000000007;
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
 template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:false;}
 template<typename type>inline type sqr(const type& x){rtn x*x;}
-inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
-inline int sgn(const db& x){rtn dbcmp(x,0);}
-template<typename type>inline type cross(const pr<type,type>& a,const pr<type,type>& b,const pr<type,type>& c){rtn (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);}
-template<typename type>inline type dot(const pr<type,type>& a,const pr<type,type>& b,const pr<type,type>& c){rtn (b.x-a.x)*(c.x-a.x)+(b.y-a.y)*(c.y-a.y);}
+int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
+int sgn(const db& x){rtn dbcmp(x,0);}
 template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));rtn a+b;}
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
-template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
-inline void make_set(vi& set){rep(i,sz(set))set[i]=i;}
+inline void make_set(vi& set,int size){set.resize(size);rep(i,size)set[i]=i;}
 inline int find_set(vi& set,int x){int y=x,z;whl(y!=set[y])y=set[y];whl(x!=set[x])z=set[x],set[x]=y,x=z;rtn y;}
 inline bool union_set(vi& set,int a,int b){a=find_set(set,a),b=find_set(set,b);rtn a!=b?set[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);for(typename type::itr it=b.begin();it!=b.end();b.erase(it++))a.insert(*it);}
-template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
-
-struct Initializer{Initializer(){ios::sync_with_stdio(false);}~Initializer(){runtime();}}initializer;
-
-char buffer[1000000];
 
 int main()
 {
-    str s;
-    whl(~scanf("%s",buffer))//(cin>>s)
+    ios_base::sync_with_stdio(false);
+    int N,T;
+    whl(cin>>N>>T)
     {
-        s=buffer;
-        str S;
-        S.reserve(sz(s)*2+1);
-        rep(i,sz(s)) S.pb('#'),S.pb(s[i]);
-        S.pb('#');
-        vi p(sz(S));
-        int ans,mid;
-        ans=(p[mid=0]=1)-1;
-        repf(i,1,sz(S))
-        {
-            p[i]=p[mid]+mid>i?min(p[mid]+mid-i,p[mid*2-i]):1;
-            whl(i>=p[i]&&i+p[i]<sz(S)&&S[i-p[i]]==S[i+p[i]]) p[i]++;
-            cmax(ans,p[i]-1);
-            if (p[i]+i>p[mid]+mid) mid=i;
-        }
+        vi A(N),B(N);
+        rep(i,N) cin>>A[i];
+        rep(i,N) cin>>B[i];
+        srt(A),srt(B);
+        int ans=0;
+        rep(i,N) ans+=max(0,A[i]+B[N-1-i]-T);
         cout<<ans<<endl;
     }
 }
