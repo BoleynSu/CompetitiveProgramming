@@ -212,16 +212,15 @@ void save_file()
 	else if (file_content.find("Language : C&nbsp;")!=str::npos) type=".c";
 	else if (file_content.find("Language : Pascal&nbsp;")!=str::npos) type=".pas";
 	else type=".cpp";
-	if (!boost::filesystem::exists(id+type))
+	if (!boost::filesystem::exists(id+".java")
+		&&!boost::filesystem::exists(id+".c")
+		&&!boost::filesystem::exists(id+".pas")
+		&&!boost::filesystem::exists(id+".cpp"))
 	{
 		str output;
 		size_t p=file_content.find(begincode)+sz(begincode);
 		size_t q=file_content.find(endcode);
-		repf(i,p,q)
-		{
-			output.pb(file_content[i]);
-			if (file_content[i]=='\n'&&file_content[i+1]=='\n') i++;
-		}
+		repf(i,p,q) if (file_content[i]!='\r') output.pb(file_content[i]);
 		output.pb('\n');
 		ofstream file(id+type);
 		rep(i,sz(output))
