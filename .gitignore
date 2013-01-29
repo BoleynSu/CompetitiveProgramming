@@ -4,3 +4,6 @@
 /.cproject
 /Debug
 /java-workspace/bin
+/java-workspace/.settings
+/java-workspace/.classpath
+/java-workspace/.project
