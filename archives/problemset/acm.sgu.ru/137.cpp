@@ -165,19 +165,14 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int cnt=0;
-	vi lst;
-	rep(i,16)
+	int n,k;
+	cin>>n>>k;
+	vi ans(n,k/n);
+	k%=n;
+	repf(i,1,n) if (i*k%n==n-1)
 	{
-		int a;
-		cin>>a;
-		if (a)
-		{
-			rep(j,i) if (lst[j]>a) cnt++;
-		}
-		else cnt+=i/4+1;
-		lst.pb(a);
+		ft(j,1,k) ans[(j*i)%n]++;
+		break;
 	}
-	if (cnt&1) cout<<"NO"<<endl;
-	else cout<<"YES"<<endl;
+	rep(i,n) cout<<ans[i]<<char(i+1==n?'\n':' ');
 }

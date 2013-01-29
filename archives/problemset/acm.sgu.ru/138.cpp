@@ -165,19 +165,36 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int cnt=0;
-	vi lst;
-	rep(i,16)
+	int n;
+	cin>>n;
+	vi a(n);
+	rep(i,n) cin>>a[i];
+
+	vpii lst;
+	int tot=0;
+	rep(i,n) lst.pb(mp(a[i],i)),tot+=a[i];
+	sort(all(lst),greater<pii>());
+	tot/=2;
+
+	int cur;
+	vpii ans(tot);
+	cur=0;
+	rep(i,n)
 	{
-		int a;
-		cin>>a;
-		if (a)
+		if (cur) ans[cur-1].y=ans[cur-1].x,ans[cur-1].x=lst[i].y+1,lst[i].x--;
+		whl(lst[i].x)
 		{
-			rep(j,i) if (lst[j]>a) cnt++;
+			ans[cur++].x=lst[i].y+1,lst[i].x--;
+			if (cur==tot) break;
 		}
-		else cnt+=i/4+1;
-		lst.pb(a);
+		if (cur==tot) break;
 	}
-	if (cnt&1) cout<<"NO"<<endl;
-	else cout<<"YES"<<endl;
+	cur=0;
+	rep(i,tot) if (!ans[i].y)
+	{
+		whl(!lst[cur].x) cur++;
+		ans[i].y=lst[cur].y+1,lst[cur].x--;
+	}
+	cout<<sz(ans)<<endl;
+	rep(i,sz(ans)) cout<<ans[i]<<endl;
 }

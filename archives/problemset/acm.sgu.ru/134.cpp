@@ -106,14 +106,14 @@ typedef vec<str> vs;
 typedef pr<int,int> pii;
 typedef pr<lli,lli> pll;
 typedef pr<db,db> pdd;
+typedef pr<str,int> psi;
 typedef map<int,int> mii;
 typedef map<str,int> msi;
 typedef map<char,int> mci;
 typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
-typedef vec<pii> vpii;
-typedef vec<pdd> vpdd;
+typedef prq<int> pqi;
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -137,7 +137,7 @@ template<typename type>inline type sqr(const type& x){rtn x*x;}
 inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
 inline int sgn(const db& x){rtn dbcmp(x,0);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
-template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
+template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -163,21 +163,38 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+void dfs_size(vi& size,const vvi& adj,int u,int p=-1)
+{
+	size[u]=1;
+	rep(i,sz(adj[u])) if (adj[u][i]!=p) dfs_size(size,adj,adj[u][i],u),size[u]+=size[adj[u][i]];
+}
+void dfs_lst(vvi& lst,const vi& size,const vvi& adj,int u,int p=-1)
+{
+	int max=p==-1?0:sz(adj)-size[u];
+	rep(i,sz(adj[u])) if (adj[u][i]!=p) dfs_lst(lst,size,adj,adj[u][i],u),cmax(max,size[adj[u][i]]);
+	lst[max].pb(u);
+}
+
 int main()
 {
-	int cnt=0;
-	vi lst;
-	rep(i,16)
+	int n;
+	cin>>n;
+	vvi adj(n);
+	repf(i,1,n)
 	{
-		int a;
-		cin>>a;
-		if (a)
-		{
-			rep(j,i) if (lst[j]>a) cnt++;
-		}
-		else cnt+=i/4+1;
-		lst.pb(a);
+		int u,v;
+		cin>>u>>v,--u,--v;
+		adj[u].pb(v),adj[v].pb(u);
 	}
-	if (cnt&1) cout<<"NO"<<endl;
-	else cout<<"YES"<<endl;
+	vi size(n);
+	dfs_size(size,adj,0);
+	vvi lst(n);
+	dfs_lst(lst,size,adj,0);
+	rep(i,n) if (sz(lst[i]))
+	{
+		cout<<i<<" "<<sz(lst[i])<<endl;
+		srt(lst[i]);
+		rep(j,sz(lst[i])) cout<<lst[i][j]+1<<char(j+1==sz(lst[i])?'\n':' ');
+		break;
+	}
 }

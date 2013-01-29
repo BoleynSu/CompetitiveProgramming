@@ -106,14 +106,14 @@ typedef vec<str> vs;
 typedef pr<int,int> pii;
 typedef pr<lli,lli> pll;
 typedef pr<db,db> pdd;
+typedef pr<str,int> psi;
 typedef map<int,int> mii;
 typedef map<str,int> msi;
 typedef map<char,int> mci;
 typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
-typedef vec<pii> vpii;
-typedef vec<pdd> vpdd;
+typedef prq<int> pqi;
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -137,7 +137,7 @@ template<typename type>inline type sqr(const type& x){rtn x*x;}
 inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
 inline int sgn(const db& x){rtn dbcmp(x,0);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
-template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
+template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -165,19 +165,13 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int cnt=0;
-	vi lst;
-	rep(i,16)
-	{
-		int a;
-		cin>>a;
-		if (a)
-		{
-			rep(j,i) if (lst[j]>a) cnt++;
-		}
-		else cnt+=i/4+1;
-		lst.pb(a);
-	}
-	if (cnt&1) cout<<"NO"<<endl;
-	else cout<<"YES"<<endl;
+	int n;
+	cin>>n;
+	vec<pii> ps(n);
+	rep(i,n) cin>>ps[i];
+	srt(ps);
+	int end=-oo;
+	int ans=0;
+	rep(i,n) if (!cmax(end,ps[i].y)) ans++;
+	cout<<ans<<endl;
 }
