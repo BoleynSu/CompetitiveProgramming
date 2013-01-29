@@ -134,8 +134,8 @@ int MOD=1000000007;
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
 template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:false;}
 template<typename type>inline type sqr(const type& x){rtn x*x;}
-inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
-inline int sgn(const db& x){rtn dbcmp(x,0);}
+inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
+inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
@@ -163,49 +163,6 @@ template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-struct BallsSeparating
-{
-	int minOperations(vector <int> red, vector <int> green, vector <int> blue)
-	{
-		int n=sz(red);
-		vi r=red,g=green,b=blue;
-		int rt=0,gt=0,bt=0;
-		rep(i,n) rt+=r[i],gt+=g[i],bt+=b[i];
-
-		int ans=oo;
-		rep(x,n)
-		{
-			if (rt==0) x=-1;
-			rep(y,n) if (y!=x)
-			{
-				if (gt==0) y=-1;
-				rep(z,n) if (z!=x&&z!=y)
-				{
-					if (bt==0) z=-1;
-					int get=0;
-					rep(i,n)
-					{
-						if (i==x) get+=g[i]+b[i];
-						else if (i==y) get+=r[i]+b[i];
-						else if (i==z) get+=r[i]+g[i];
-						else get+=min(r[i]+g[i],min(r[i]+b[i],g[i]+b[i]));
-					}
-					cmin(ans,get);
-					if (bt==0) z=n;
-				}
-				if (gt==0) y=n;
-			}
-			if (rt==0) x=n;
-		}
-		if (ans==oo) ans=-1;
-		rtn ans;
-	}
-};
-
-#ifdef DEBUG
 int main()
 {
-	BallsSeparating app;
-	prt(app.minOperations({0,0},{1,1},{3,3}));
 }
-#endif
