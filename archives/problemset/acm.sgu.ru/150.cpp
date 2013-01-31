@@ -162,81 +162,67 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-lli P1=97,P2=3761599;
-lli f2[2000000+1];
-lli gcd(lli a,lli b,lli& x,lli& y)
+pll solve(pll v,int n)
 {
-    if (b)
-    {
-        lli g=gcd(b,a%b,y,x);
-        return y-=a/b*x,g;
-    }
-    else return x=1,y=0,a;
-}
-lli chinese_remainder(int n,lli m[],lli a[])
-{
-    lli lcm=1;
-    rep(i,n) lcm*=m[i];
-    lli ans=0;
-    rep(i,n)
-    {
-        lli Mi=lcm/m[i],x,y;
-        gcd(Mi,m[i],x,y);
-        ans+=Mi*x*a[i];
-        ans%=lcm;
-    }
-    if (ans<0) ans+=lcm;
-    return ans;
-}
-lli c[100][100];
-lli C(lli n,lli m)
-{
-    if (n>=P1) rtn C(n/P1,m/P1)*C(n%P1,m%P1)%P1;
-    else if (n<0||n<m||m<0) rtn 0;
-    else
-    {
-        if (!c[n][m])
-        {
-            if (m==0) c[n][m]=1%P1;
-            else c[n][m]=(C(n-1,m)+C(n-1,m-1))%P1;
-        }
-        rtn c[n][m];
-    }
-}
-lli inv(lli x,lli p)
-{
-    lli ans,y;
-    gcd(x,p,ans,y);
-    rtn ans;
+	{
+		lli l=0,r=v.x;
+		whl(l+1!=r)
+		{
+			lli mid=(l+r)>>1;
+			lli cnt=mid+mid*v.y/v.x;
+			if (cnt>n) r=mid;
+			else l=mid;
+		}
+		lli get=l+l*v.y/v.x;
+		if (get==n) rtn mp(l,-1);
+	}
+	{
+		lli l=0,r=v.y;
+		whl(l+1!=r)
+		{
+			lli mid=(l+r)>>1;
+			lli cnt=mid+mid*v.x/v.y;
+			if (cnt>n) r=mid;
+			else l=mid;
+		}
+		lli get=l+l*v.x/v.y;
+		if (get==n) rtn mp(-1,l);
+	}
 }
 
 int main()
 {
-    f2[0]=1%P2;
-    ft(i,1,2000000) f2[i]=f2[i-1]*i%P2;
-    int T;
-    cin>>T;
-    whl(T--)
-    {
-        lli n,m,k;
-        cin>>n>>m>>k;
-        vec<lli> t1(k);
-        rep(i,k) cin>>t1[i];
-        srt(t1);
-        t1.pb(m);
-        lli ans=1;
-        rep(i,k)
-        {
-            lli x=t1[i+1]-t1[i];
-            lli cna1=(C(n+x-1,x)+P1)%P1;
-            lli cna2=(f2[n+x-1]*inv(f2[x],P2)%P2*inv(f2[n-1],P2)%P2+P2)%P2;
-            lli m[]={P1,P2};
-            lli a[]={cna1,cna2};
-            ans*=chinese_remainder(2,m,a);
-            ans%=P1*P2;
-        }
-        static int t;
-        cout<<"Case #"<<++t<<": ";
-        cout<<ans<<endl;
-    }
+	pr<pll,pll> seg;
+	lli n;
+	cin>>seg>>n;
+	pll v=seg.y-seg.x;
+	v.x=abs(v.x),v.y=abs(v.y);
+	lli g=gcd(v.x,v.y);
+	if (g==0||v.x+v.y-g<n) rtn cout<<"no solution"<<endl,0;
+	else
+	{
+		v/=g;
+		pll get=solve(v,n%(v.x+v.y-1));
+
+		pll delta=v*(n/(v.x+v.y-1));
+
+		if (seg.x.x>seg.y.x) delta.x=-delta.x;
+		if (seg.x.y>seg.y.y) delta.y=-delta.y;
+
+		if (get.x==-1)
+		{
+			if (seg.x.x<seg.y.x) delta.x+=get.y*v.x/v.y-(get.y==0);
+			else delta.x-=get.y*v.x/v.y+(get.y!=0);
+			if (seg.x.y<seg.y.y) delta.y+=get.y-1;
+			else delta.y-=get.y;
+		}
+		else if (get.y==-1)
+		{
+			if (seg.x.x<seg.y.x) delta.x+=get.x-1;
+			else delta.x-=get.x;
+			if (seg.x.y<seg.y.y) delta.y+=get.x*v.y/v.x-(get.x==0);
+			else delta.y-=get.x*v.y/v.x+(get.x!=0);
+		}
+		cout<<pll(seg.x+delta)<<endl;
+	}
 }

@@ -161,82 +161,173 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
-
-lli P1=97,P2=3761599;
-lli f2[2000000+1];
-lli gcd(lli a,lli b,lli& x,lli& y)
+bool calc(str exp)
 {
-    if (b)
-    {
-        lli g=gcd(b,a%b,y,x);
-        return y-=a/b*x,g;
-    }
-    else return x=1,y=0,a;
-}
-lli chinese_remainder(int n,lli m[],lli a[])
-{
-    lli lcm=1;
-    rep(i,n) lcm*=m[i];
-    lli ans=0;
-    rep(i,n)
-    {
-        lli Mi=lcm/m[i],x,y;
-        gcd(Mi,m[i],x,y);
-        ans+=Mi*x*a[i];
-        ans%=lcm;
-    }
-    if (ans<0) ans+=lcm;
-    return ans;
-}
-lli c[100][100];
-lli C(lli n,lli m)
-{
-    if (n>=P1) rtn C(n/P1,m/P1)*C(n%P1,m%P1)%P1;
-    else if (n<0||n<m||m<0) rtn 0;
-    else
-    {
-        if (!c[n][m])
-        {
-            if (m==0) c[n][m]=1%P1;
-            else c[n][m]=(C(n-1,m)+C(n-1,m-1))%P1;
-        }
-        rtn c[n][m];
-    }
-}
-lli inv(lli x,lli p)
-{
-    lli ans,y;
-    gcd(x,p,ans,y);
-    rtn ans;
+	stack<bool> va;
+	stack<char> op;
+	rep(i,sz(exp))
+	{
+		bool opn1,opn2;
+		switch (exp[i])
+		{
+		case '0':
+			va.push(false);
+			break;
+		case '1':
+			va.push(true);
+			break;
+		case '(':
+			op.push('(');
+			break;
+		case ')':
+			while (op.top()!='(')
+			{
+				if (op.top()=='!')
+				{
+					opn1=va.top();va.pop();
+					va.push(!opn1);
+				}
+				else if (op.top()=='&')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1&&opn2);
+				}
+				else if (op.top()=='|')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||opn2);
+				}
+				else if (op.top()=='=')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1==opn2);
+				}
+				else if (op.top()=='>')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||!opn2);
+				}
+				else if (op.top()=='^')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1^opn2);
+				}
+				else break;
+				op.pop();
+			}
+			op.pop();
+			break;
+		case '!':
+			op.push('!');
+			break;
+		case '&':
+			while (!op.empty())
+			{
+				if (op.top()=='!')
+				{
+					opn1=va.top();va.pop();
+					va.push(!opn1);
+				}
+				else if (op.top()=='&')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1&&opn2);
+				}
+				else break;
+				op.pop();
+			}
+			op.push('&');
+			break;
+		default:
+			while (!op.empty())
+			{
+				if (op.top()=='!')
+				{
+					opn1=va.top();va.pop();
+					va.push(!opn1);
+				}
+				else if (op.top()=='&')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1&&opn2);
+				}
+				else if (op.top()=='|')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||opn2);
+				}
+				else if (op.top()=='=')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1==opn2);
+				}
+				else if (op.top()=='>')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||!opn2);
+				}
+				else if (op.top()=='^')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1^opn2);
+				}
+				else break;
+				op.pop();
+			}
+			op.push(exp[i]);
+			break;
+		}
+	}
+	return va.top();
 }
 
 int main()
 {
-    f2[0]=1%P2;
-    ft(i,1,2000000) f2[i]=f2[i-1]*i%P2;
-    int T;
-    cin>>T;
-    whl(T--)
-    {
-        lli n,m,k;
-        cin>>n>>m>>k;
-        vec<lli> t1(k);
-        rep(i,k) cin>>t1[i];
-        srt(t1);
-        t1.pb(m);
-        lli ans=1;
-        rep(i,k)
-        {
-            lli x=t1[i+1]-t1[i];
-            lli cna1=(C(n+x-1,x)+P1)%P1;
-            lli cna2=(f2[n+x-1]*inv(f2[x],P2)%P2*inv(f2[n-1],P2)%P2+P2)%P2;
-            lli m[]={P1,P2};
-            lli a[]={cna1,cna2};
-            ans*=chinese_remainder(2,m,a);
-            ans%=P1*P2;
-        }
-        static int t;
-        cout<<"Case #"<<++t<<": ";
-        cout<<ans<<endl;
-    }
+	str s;
+	cin>>s;
+	s="("+s+")";
+	str exp;
+	rep(i,sz(s))
+	{
+		if (s[i]=='|') exp.pb('|'),i++;
+		else if (s[i]=='<') exp.pb('='),i++,i++;
+		else if (s[i]=='=') exp.pb('>'),i++;
+		else if (s[i]=='#') exp.pb('^');
+		else exp.pb(s[i]);
+	}
+	vi lst;
+	rep(i,1024)
+	{
+		str get=exp;
+		rep(j,sz(get))
+			if ('a'<=get[j]&&get[j]<='j')
+			{
+				if ((i&(1<<(get[j]-'a')))!=0) get[j]='1';
+				else get[j]='0';
+			}
+		if (calc(get)) lst.pb(i);
+	}
+	rep(i,sz(lst))
+	{
+		for (int j=0;j<10;j++)
+		{
+			if ((lst[i]&(1<<j))==0) cout<<('!');
+			cout<<((char)('a'+j));
+			if (j+1<10) cout<<('&');
+		}
+		if (i+1<sz(lst)) cout<<("||");
+		else cout<<endl;
+	}
+	if (!sz(lst)) cout<<"a&!a"<<endl;
 }
