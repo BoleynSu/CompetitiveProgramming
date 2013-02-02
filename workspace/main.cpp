@@ -127,8 +127,8 @@ lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
 db pi=acos(-1.0);
-int dx[]={-1,1,0,0,-1,-1,1,1,0};
-int dy[]={0,0,-1,1,-1,1,-1,1,0};
+//int dx[]={-1,1,0,0,-1,-1,1,1,0};
+//int dy[]={0,0,-1,1,-1,1,-1,1,0};
 int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
@@ -162,81 +162,163 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
-lli P1=97,P2=3761599;
-lli f2[2000000+1];
-lli gcd(lli a,lli b,lli& x,lli& y)
+const int w=100,l=100,h=20;
+const db a=45.0/(460.0*7860.0);
+const db dx=0.2/w,dy=0.2/l,dz=0.01/h,dT=1.0;
+const int times=200;
+db T[2][w][l][h];
+
+void circle()
 {
-    if (b)
-    {
-        lli g=gcd(b,a%b,y,x);
-        return y-=a/b*x,g;
-    }
-    else return x=1,y=0,a;
+	rep(x,w) rep(y,l) rep(z,h)
+		if (sqr(x-w/2)+sqr(y-l/2)<sqr(w/2))
+		{
+			if (z==0) T[0&1][x][y][z]=273+100;
+			else if (z==h-1) T[0&1][x][y][z]=273+190;
+			else T[0&1][x][y][z]=273+100;
+		}
+		else T[0&1][x][y][z]=273+190;
+	db second=0;
+	ft(i,1,times)
+	{
+		db dt=inf;
+		rep(x,w) rep(y,l) rep(z,h)
+			if (sqr(x-w/2)+sqr(y-l/2)<sqr(w/2-1))
+				if (z!=0&&z!=h-1)
+				{
+					db delta=dT/abs(a*(
+							(T[(i-1)&1][x+1][y][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x-1][y][z])/sqr(dx)
+							+(T[(i-1)&1][x][y+1][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y-1][z])/sqr(dy)
+							+(T[(i-1)&1][x][y][z+1]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y][z-1])/sqr(dz)));
+					cmin(dt,delta);
+				}
+		second+=dt;
+		rep(x,w) rep(y,l) rep(z,h)
+			if (sqr(x-w/2)+sqr(y-l/2)<sqr(w/2-1))
+			{
+				if (z==0) T[i&1][x][y][z]=273+100;
+				else if (z==h-1) T[i&1][x][y][z]=273+190;
+				else
+				{
+					T[i&1][x][y][z]=T[(i-1)&1][x][y][z]+dt*a*(
+							(T[(i-1)&1][x+1][y][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x-1][y][z])/sqr(dx)
+							+(T[(i-1)&1][x][y+1][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y-1][z])/sqr(dy)
+							+(T[(i-1)&1][x][y][z+1]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y][z-1])/sqr(dz));
+				}
+			}
+			else T[i&1][x][y][z]=273+190;
+		cout<<"i="<<i<<endl;
+		cout<<"t=",pdb(3,second)<<" dt=",pdb(10,dt)<<" T[O]="<<T[i&1][w/2][h/2][h/2]<<endl;
+		if (i==times)
+		{
+			//ListDensityPlot[{}, InterpolationOrder -> 3, ColorFunction -> "TemperatureMap", PerformanceGoal -> "Quality"]
+			ofstream cout("E:\\out.txt");
+			rep(x,w) rep(y,l) if ((sqr(x-w/2)+sqr(y-l/2)<sqr(w/2-1)))
+				cout<<"{"<<x<<","<<y<<",",pdb(5,T[i&1][x][y][1]-273)<<"},";
+			cout<<endl;
+			rep(x,w) rep(y,l) if ((sqr(x-w/2)+sqr(y-l/2)<sqr(w/2-1)))
+			{
+				db ans=0;
+				rep(z,h) ans+=T[i&1][x][y][z];
+				ans/=h;
+				cout<<"{"<<x<<","<<y<<",",pdb(5,ans-273)<<"},";
+			}
+			cout<<endl;
+		}
+		if (i%100==99)
+		{
+			cout<<"quit?"<<endl;
+			char c;
+			if (cin>>c,c=='q')
+			{
+				//ListContourPlot[{}, InterpolationOrder -> 3, ColorFunction -> "TemperatureMap", PerformanceGoal -> "Quality"]
+				ofstream cout("E:\\out.txt");
+				//rep(x,w) rep(y,l) if ((sqr(x-w/2)+sqr(y-l/2)<sqr(w/2-1)))
+				//	cout<<"{"<<x<<","<<y<<",",pdb(5,T[i&1][x][y][1]-273)<<"},";
+				//cout<<endl;
+				cout<<"ListContourPlot[{";
+				rep(x,w) rep(y,l) if ((sqr(x-w/2)+sqr(y-l/2)<sqr(w/2-1)))
+				{
+					db ans=0;
+					rep(z,h) ans+=T[i&1][x][y][z];
+					ans/=h;
+					cout<<"{"<<x<<","<<y<<",",pdb(5,ans-273)<<"},";
+				}
+				cout<<"}, InterpolationOrder -> 3, ColorFunction -> \"TemperatureMap\", PerformanceGoal -> \"Quality\"]"<<endl;
+			}
+		}
+	}
 }
-lli chinese_remainder(int n,lli m[],lli a[])
+
+void rectangular()
 {
-    lli lcm=1;
-    rep(i,n) lcm*=m[i];
-    lli ans=0;
-    rep(i,n)
-    {
-        lli Mi=lcm/m[i],x,y;
-        gcd(Mi,m[i],x,y);
-        ans+=Mi*x*a[i];
-        ans%=lcm;
-    }
-    if (ans<0) ans+=lcm;
-    return ans;
-}
-lli c[100][100];
-lli C(lli n,lli m)
-{
-    if (n>=P1) rtn C(n/P1,m/P1)*C(n%P1,m%P1)%P1;
-    else if (n<0||n<m||m<0) rtn 0;
-    else
-    {
-        if (!c[n][m])
-        {
-            if (m==0) c[n][m]=1%P1;
-            else c[n][m]=(C(n-1,m)+C(n-1,m-1))%P1;
-        }
-        rtn c[n][m];
-    }
-}
-lli inv(lli x,lli p)
-{
-    lli ans,y;
-    gcd(x,p,ans,y);
-    rtn ans;
+	rep(x,w) rep(y,l) rep(z,h)
+		if (x!=0&&x!=w-1&&y!=0&&y!=l-1&&z!=h-1) T[0&1][x][y][z]=273+100;
+		else T[0&1][x][y][z]=273+190;
+
+	db second=0;
+	int i;
+
+	for (i=1;;i++)
+	{
+		db dt=inf;
+		rep(x,w) rep(y,l) rep(z,h)
+			if (x!=0&&x!=w-1&&y!=0&&y!=l-1&&z!=0&&z!=h-1)
+			{
+				db delta=dT/abs(a*(
+						(T[(i-1)&1][x+1][y][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x-1][y][z])/sqr(dx)
+						+(T[(i-1)&1][x][y+1][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y-1][z])/sqr(dy)
+						+(T[(i-1)&1][x][y][z+1]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y][z-1])/sqr(dz)));
+				cmin(dt,delta);
+			}
+		second+=dt;
+
+		rep(x,w) rep(y,l) rep(z,h)
+			if (x!=0&&x!=w-1&&y!=0&&y!=l-1&&z!=h-1)
+			{
+				if (z==0) T[i&1][x][y][z]=273+100;
+				else
+				{
+					T[i&1][x][y][z]=T[(i-1)&1][x][y][z]+dt*a*(
+							(T[(i-1)&1][x+1][y][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x-1][y][z])/sqr(dx)
+							+(T[(i-1)&1][x][y+1][z]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y-1][z])/sqr(dy)
+							+(T[(i-1)&1][x][y][z+1]-2*T[(i-1)&1][x][y][z]+T[(i-1)&1][x][y][z-1])/sqr(dz));
+				}
+			}
+			else T[i&1][x][y][z]=273+190;
+
+		cout<<"i="<<i<<endl;
+		db TC=0,TO=0;
+		for (int x:{1,w-2}) for (int y:{1,l-2}) rep(z,h) TC+=T[i&1][x][y][z];
+		TC/=4*h;
+		rep(z,h) TO+=T[i&1][w/2][l/2][z];
+		TO/=h;
+		cout<<"t=",pdb(3,second)<<" dt=",pdb(10,dt)<<" T[O]="<<TO<<" T[C]="<<TC<<endl;
+		/*
+		if (i%100==99)
+		{
+			cout<<"quit?"<<endl;
+			char c;
+			if (cin>>c,c=='q') break;
+		}
+		*/
+		if (i==times) break;
+	}
+
+	ofstream cout("D:\\out.m");
+	cout<<"ListContourPlot[{";
+	rep(x,w) rep(y,l) if (x!=0&&x!=w-1&&y!=0&&y!=l-1)
+	{
+		db ans=0;
+		rep(z,h) ans+=T[i&1][x][y][z];
+		ans/=h;
+		cout<<"{"<<x<<","<<y<<",",pdb(5,ans-273)<<"}";
+		if (x!=w-2||y!=l-2) cout<<",";
+	}
+	cout<<"}, InterpolationOrder -> 3, ColorFunction -> \"TemperatureMap\", PerformanceGoal -> \"Quality\"]"<<endl;
 }
 
 int main()
 {
-    f2[0]=1%P2;
-    ft(i,1,2000000) f2[i]=f2[i-1]*i%P2;
-    int T;
-    cin>>T;
-    whl(T--)
-    {
-        lli n,m,k;
-        cin>>n>>m>>k;
-        vec<lli> t1(k);
-        rep(i,k) cin>>t1[i];
-        srt(t1);
-        t1.pb(m);
-        lli ans=1;
-        rep(i,k)
-        {
-            lli x=t1[i+1]-t1[i];
-            lli cna1=(C(n+x-1,x)+P1)%P1;
-            lli cna2=(f2[n+x-1]*inv(f2[x],P2)%P2*inv(f2[n-1],P2)%P2+P2)%P2;
-            lli m[]={P1,P2};
-            lli a[]={cna1,cna2};
-            ans*=chinese_remainder(2,m,a);
-            ans%=P1*P2;
-        }
-        static int t;
-        cout<<"Case #"<<++t<<": ";
-        cout<<ans<<endl;
-    }
+	rectangular();
 }
