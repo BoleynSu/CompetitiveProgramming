@@ -218,7 +218,7 @@ Euler circuit
 After the contest:
 #C AC
 This problem is really interesting. When I read it, I thought it was a max flow problem, and then I thought it was a shortest path problem. However, it turned out to be a problem solved by solving linear equations.
-Because "for any pair of junctions (x, y) the sum of traffics along any path from x to y doesn't change depending on the choice of the path", when can define H[x] for each node x, let H[x]-H[y] = the flow from y to x, then sum{H[x]-H[y]|y in neighbors of x} = 0 for each node x except 1 and n. If we let H[1]=0 and H[n]= a big enough number, then we can calculate H[x] for each x. After that, we can check whether |H[x]-H[y]| <= the capacity of the road connecting x and y, if not, we can let every H[x]=H[x]*(the capacity)/abs(H[x]-H[y]).
+Because "for any pair of junctions (x, y) the sum of traffics along any path from x to y doesn't change depending on the choice of the path", we can define H[x] for each node x, let H[x]-H[y] = the flow from y to x, then sum{H[x]-H[y]|y in neighbors of x} = 0 for each node x except 1 and n. If we let H[1]=0 and H[n]= a big enough number, then we can calculate H[x] for each x. After that, we can check whether |H[x]-H[y]| <= the capacity of the road connecting x and y, if not, we can let every H[x]=H[x]*(the capacity)/abs(H[x]-H[y]).
 
 
 
