@@ -89,18 +89,18 @@ void get_convex_hull(Polygon& PO)
 {
 	srt(PO);
 	Polygon CH;
-    rep(i,sz(PO))
-    {
-        while (sz(CH)>=2&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
-        CH.pb(PO[i]);
-    }
-    for (int i=sz(PO)-1,t=sz(CH)+1;i>=0;--i)
-    {
-        while (sz(CH)>=t&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
-        CH.pb(PO[i]);
-    }
-    CH.pop_back();
-    PO.swap(CH);
+	rep(i,sz(PO))
+	{
+		while (sz(CH)>=2&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
+		CH.pb(PO[i]);
+	}
+	for (int i=sz(PO)-1,t=sz(CH)+1;i>=0;--i)
+	{
+		while (sz(CH)>=t&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
+		CH.pb(PO[i]);
+	}
+	CH.pop_back();
+	PO.swap(CH);
 }
 
 }
