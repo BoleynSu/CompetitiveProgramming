@@ -2,6 +2,8 @@
  * Package: StandardCodeLibrary.ComputationalGeometry
  * Description:
  * Ray Casting Algorithm 射线法判断点是否在简单多边形内
+ * Andrew's Monotone Chain算法  求凸包
+ * 半品面交 O(nlogn)算法
  * */
 #include <Core>
 
