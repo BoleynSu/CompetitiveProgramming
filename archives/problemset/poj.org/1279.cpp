@@ -263,12 +263,12 @@ void convex_hull(Polygon& CH,Polygon& PO)
 	srt(PO);
 	rep(i,sz(PO))
 	{
-		whl(sz(CH)>=2&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();//如果要将在凸包上的非顶点也放入凸包内 <=变<
+		whl(sz(CH)>=2&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
 		CH.pb(PO[i]);
 	}
 	for (int i=sz(PO)-2,t=sz(CH)+1;i>=0;--i)
 	{
-		whl(sz(CH)>=t&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();//如果要将在凸包上的非顶点也放入凸包内 <=变<
+		whl(sz(CH)>=t&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
 		CH.pb(PO[i]);
 	}
 	CH.pop_back();
@@ -280,7 +280,7 @@ bool halfplane_intersection_compare(const Halfplane& a,const Halfplane& b)
 	Vector u=a.y-a.x,v=b.y-b.x;
 	db du=atan2(u.y,u.x),dv=atan2(v.y,v.x);
 	if (dbcmp(du,dv)) return dbcmp(du,dv)<0;
-	else return sgn(cross(a.x,a.y,b.x))<0;
+	else return sgn(cross(a.x,a.y,b.x))<=0;
 }
 bool halfplane_intersection_judge(const Halfplane& a,const Halfplane& b,const Halfplane& c)
 {
@@ -291,7 +291,7 @@ bool halfplane_intersection_judge(const Halfplane& a,const Halfplane& b,const Ha
 		if (sgn(cross(a.y-a.x,b.y-b.x)))
 		{
 			Point ab=intersection(a,b);
-			return sgn(cross(c.x,c.y,ab))<0;//如果交集可以退化成线或者点 <=变<
+			return sgn(cross(c.x,c.y,ab))<=0;
 		}
 		else return false;
 	}
@@ -339,18 +339,21 @@ using namespace StandardCodeLibrary::ComputationalGeometry2D;
 
 int main()
 {
-	int n;
-	whl(cin>>n,n)
+	int t;
+	cin>>t;
+	whl(t--)
 	{
+		int n;
+		cin>>n;
 		Polygon p(n);
 		rep(i,n) cin>>p[i];
 		vec<Halfplane> hp(n);
 		rep(i,n) hp[i]=mp(p[(i+1)%n],p[i]);
 		vec<Halfplane> thp;
 		Polygon tp;
-		static int f;
-		cout<<"Floor #"<<++f<<endl;
-		cout<<"Surveillance is "<<(halfplane_intersection(tp,thp,hp)?"":"im")<<"possible."<<endl;
-		cout<<endl;
+		halfplane_intersection(tp,thp,hp);
+		db ans=0;
+		rep(i,sz(tp)) ans+=cross(tp[i],tp[(i+1)%sz(tp)]);
+		pdb(2,ans/2)<<endl;
 	}
 }
