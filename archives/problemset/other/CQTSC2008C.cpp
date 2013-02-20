@@ -162,6 +162,45 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 //end #include <Core>
 
+int a[1<<16];
+int cnt[16][1<<16];
+
 int main()
 {
+	int n,m;
+	cin>>n>>m;
+	rep(i,n)
+	{
+		int ai;
+		cin>>ai;
+		a[ai]++;
+	}
+	rep(i,16)
+	{
+		int sz=1<<(i+1);
+		int tcnt[sz];
+		clr(tcnt);
+		rep(j,1<<16) tcnt[j&(sz-1)]+=a[j];
+		rep(j,sz>>1) cnt[i][0]+=tcnt[j+(sz>>1)];
+		repf(j,1,sz) cnt[i][j]=cnt[i][j-1]+tcnt[(j-1)&(sz-1)]-tcnt[(j+(sz>>1)-1)&(sz-1)];
+		//rep(j,sz) cout<<i<<","<<j<<":"<<cnt[i][j]<<endl;
+	}
+	int delta=0;
+	rep(i,m)
+	{
+		char cmd;
+		cin>>cmd;
+		if (cmd=='C')
+		{
+			int d;
+			cin>>d;
+			delta-=d;
+		}
+		else
+		{
+			int i;
+			cin>>i;
+			cout<<cnt[i][delta&((1<<(i+1))-1)]<<endl;
+		}
+	}
 }
