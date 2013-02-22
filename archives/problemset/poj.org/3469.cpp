@@ -1,4 +1,3 @@
-//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -127,8 +126,8 @@ lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
 db pi=acos(-1.0);
-int dx[]={-1,1,0,0,-1,-1,1,1,0};
-int dy[]={0,0,-1,1,-1,1,-1,1,0};
+int dx[]={1,0,-1,0,1,-1,-1,1,0};
+int dy[]={0,1,0,-1,1,1,-1,-1,0};
 int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
@@ -160,194 +159,128 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
-//end #include <Core>
 
-//begin #include <ComputationalGeometry>
 /*
- * Package: StandardCodeLibrary.ComputationalGeometry
- * Description:
- * Ray Casting Algorithm 射线法判断点是否在简单多边形内
+ * Package: StandardCodeLibrary.GraphTheory.Dinic'sAlgorithm
+ * Usage:
+ * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * add_edge:
+ * 输入int u,v,c
+ * add_edge(u,v,c) 加一条u到v的容量为c的有向边,加一条v到u的容量为0的有向边
+ * build_graph:构图,详细见函数内的注释
+ * dinic:
+ * 输出int
+ * dinic()=最大流
  * */
 //#include <Core>
 
 namespace StandardCodeLibrary
 {
-namespace ComputationalGeometry2D
+namespace GraphTheory
+{
+namespace DinicsAlgorithm
 {
 
-//数据类型定义
-typedef db Number;//数值类型
-typedef pr<Number,Number> Point;//点
-typedef Point Vector;//向量
-typedef pr<Point,Point> Segment;//线段
-typedef Segment Line;
-typedef Segment Halfplane;//半平面
-typedef vec<Point> Polygon;//多边形
-
-//基本运算
-//符号函数 正数返回1 负数返回-1 0返回0
-using ::sgn;
-//比较函数 大于返回1 小于返回-1 等于返回0
-using ::dbcmp;
-//点积
-using ::dot;
-inline
-Number dot(const Vector& a,const Vector& b,const Vector& c)
+const int oo=0x7f7f7f7f;
+const int MAXV=1000000;
+const int MAXE=1000000;
+typedef struct struct_edge* edge;
+struct struct_edge{int v,c;edge n,b;};
+struct_edge pool[MAXE];
+edge top;
+int S,T;
+edge adj[MAXV];
+void build_graph(int s,int t)
 {
-	rtn dot(b-a,c-a);
+	top=pool,clr(adj);
+	S=s,T=t;//源,汇
+	//add_edge(u,v,c);
 }
-//叉积
-using ::cross;
-inline
-Number cross(const Vector& a,const Vector& b,const Vector& c)
+void add_edge(int u,int v,int c)
 {
-	rtn cross(b-a,c-a);
+	top->v=v,top->c=c,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->c=0,top->n=adj[v],adj[v]=top++;
+	adj[u]->b=adj[v],adj[v]->b=adj[u];
 }
-//长度
-inline
-Number len(const Vector& v)
+int d[MAXV];
+int q[MAXV];
+int qh,qt;
+bool relabel()
 {
-	rtn sqrt(dot(v,v));
-}
-inline
-Number len(const Segment& s)
-{
-	rtn len(s.x-s.y);
-}
-//距离
-inline
-Number dis(const Point& a,const Point& b)
-{
-	rtn len(b-a);
-}
-
-//判断点是否在线段上
-//如果点在线段上返回1 不在线段上但在直线上 返回-1 不在直线上返回0
-int point_on_segment(const Point& p,const Segment& s)
-{
-	if (sgn(cross(p,s.x,s.y))) rtn 0;
-	else rtn sgn(dot(p,s.x,s.y))<=0?1:-1;
-}
-
-//Ray Casting Algorithm 射线法判断点是否在简单多边形内
-//在内部返回1 在外部返回-1 在边上返回0
-int point_in_polygon(const Point& p,const vec<Segment>& e)
-{
-	rep(i,sz(e)) if (point_on_segment(p,e[i])==1) rtn 0;
-	bool in=false;
-	rep(i,sz(e))
-		if ((dbcmp(e[i].x.y,p.y)>0)!=(dbcmp(e[i].y.y,p.y)>0)
-			&&dbcmp(p.x,(e[i].y.x-e[i].x.x)/(e[i].y.y-e[i].x.y)*(p.y-e[i].x.y)+e[i].x.x)<0)
-			in=!in;
-	return in?1:-1;
-}
-
-//求线段交点
-//如果平行则返回(+inf,+inf) 否则返回交点 交点为线段所在直线的交点
-Point intersection(const Line& a,const Line& b)
-{
-	Vector va=a.y-a.x,vb=b.y-b.x;
-	if (!sgn(cross(va,vb))) rtn Point(+inf,+inf);
-	else rtn a.x+va*(cross(b.x-a.x,vb)/cross(va,vb));
-}
-
-//Andrew's Monotone Chain算法  求凸包
-void convex_hull(Polygon& CH,Polygon& PO)
-{
-	CH.clear();
-	srt(PO);
-	rep(i,sz(PO))
+	fl(d,oo),d[q[qh=qt=0]=T]=0;
+	whl(qh<=qt)
 	{
-		whl(sz(CH)>=2&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();//如果要将在凸包上的非顶点也放入凸包内 <=变<
-		CH.pb(PO[i]);
+		int u=q[qh++];
+		for (edge i=adj[u];i;i=i->n)
+			if (i->b->c&&cmin(d[i->v],d[u]+1))
+				if ((q[++qt]=i->v)==S) rtn true;
 	}
-	for (int i=sz(PO)-2,t=sz(CH)+1;i>=0;--i)
-	{
-		whl(sz(CH)>=t&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();//如果要将在凸包上的非顶点也放入凸包内 <=变<
-		CH.pb(PO[i]);
-	}
-	CH.pop_back();
+	rtn false;
 }
-
-//半平面交 返回false表示交集为空 返回true时 CH为交集对应的凸包 AHP为HP中有效的部分
-bool halfplane_intersection_compare(const Halfplane& a,const Halfplane& b)
+//递归增广
+int augment(int u,int e)
 {
-	Vector u=a.y-a.x,v=b.y-b.x;
-	db du=atan2(u.y,u.x),dv=atan2(v.y,v.x);
-	if (dbcmp(du,dv)) return dbcmp(du,dv)<0;
-	else return sgn(cross(a.x,a.y,b.x))<0;
+	if (u==T) return e;
+	int f=0;
+	for (edge i=adj[u];i&&e;i=i->n)
+		if (i->c&&d[u]==d[i->v]+1)
+			if (int df=augment(i->v,min(e,i->c)))
+				i->c-=df,i->b->c+=df,e-=df,f+=df;
+	return f;
 }
-bool halfplane_intersection_judge(const Halfplane& a,const Halfplane& b,const Halfplane& c)
+//非递归增广
+int st,us[MAXV],es[MAXV],fs[MAXV],f,df;
+edge is[MAXV],cur[MAXV];
+#define push(nu,ne) u=nu,e=ne,st++,us[st]=u,es[st]=e,fs[st]=0,is[st]=cur[u]
+#define pop() df=fs[st],st--,st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
+int improved_augment(int u,int e)
 {
-	Vector u=a.y-a.x,v=b.y-b.x;
-	db du=atan2(u.y,u.x),dv=atan2(v.y,v.x);
-	if (dbcmp(du,dv))
+	f=0,st=-1,cpy(cur,adj);
+	push(u,e);
+	whl(st>=0)
 	{
-		if (sgn(cross(a.y-a.x,b.y-b.x)))
-		{
-			Point ab=intersection(a,b);
-			return sgn(cross(c.x,c.y,ab))<0;//如果交集可以退化成线或者点 <=变<
-		}
-		else return false;
+		if (us[st]==T) fs[st]=es[st],pop();
+		else if (!is[st]||!es[st]) pop();
+		else if (is[st]->c&&d[us[st]]==d[is[st]->v]+1) cur[us[st]]=is[st],push(is[st]->v,min(es[st],is[st]->c));
+		else is[st]=is[st]->n;
 	}
-	else return true;
+	rtn f;
 }
-bool halfplane_intersection(Polygon& CH,vec<Halfplane>& AHP,vec<Halfplane> HP)
+#undef pop
+#undef push
+int dinic()
 {
-	HP.pb(Halfplane(Point(-inf,-inf),Point(+inf,-inf))),
-	HP.pb(Halfplane(Point(+inf,-inf),Point(+inf,+inf))),
-	HP.pb(Halfplane(Point(+inf,+inf),Point(-inf,+inf))),
-	HP.pb(Halfplane(Point(-inf,+inf),Point(-inf,-inf)));
-	sort(all(HP),halfplane_intersection_compare);
-	deque<Halfplane> q;
-	q.pb(HP.front());
-	repf(i,1,sz(HP))
-	{
-		Halfplane t;
-		do t=q.back(),q.pop_back();
-		whl(sz(q)&&halfplane_intersection_judge(q.back(),t,HP[i]));
-		q.pb(t);
-		do t=q.front(),q.pop_front();
-		whl(sz(q)&&halfplane_intersection_judge(q.front(),t,HP[i]));
-		q.push_front(t);
-		q.pb(HP[i]);
-	}
-	Halfplane t;
-	do t=q.back(),q.pop_back();
-	whl(sz(q)&&halfplane_intersection_judge(q.back(),t,q.front()));
-	q.pb(t);
-	if (sz(q)<3) return false;
-	else
-	{
-		CH.resize(sz(q)),AHP.resize(sz(q));
-		rep(i,sz(q)) AHP[i]=q[i];
-		for (int i=0,j=sz(AHP)-1;i<sz(AHP);j=i++)
-			CH[i]=intersection(AHP[i],AHP[j]);
-		return true;
-	}
+	int f=0;
+	while (relabel()) f+=improved_augment(S,oo);
+	return f;
 }
 
 }
 }
-//end  #include <ComputationalGeometry>
-using namespace StandardCodeLibrary::ComputationalGeometry2D;
+}
+
+using namespace StandardCodeLibrary::GraphTheory::DinicsAlgorithm;
 
 int main()
 {
-	int n;
-	whl(cin>>n)
+	int n,m,a,b,c;
+	while(~scanf("%d%d",&n,&m))
 	{
-		vec<Halfplane> hp(n);
-		rep(i,n) cin>>hp[i];
-		hp.pb(mp(mp(0,0),mp(10000,0)));
-		hp.pb(mp(mp(10000,0),mp(10000,10000)));
-		hp.pb(mp(mp(10000,10000),mp(0,10000)));
-		hp.pb(mp(mp(0,10000),mp(0,0)));
-		vec<Halfplane> thp;
-		Polygon tp;
-		halfplane_intersection(tp,thp,hp);
-		db ans=0;
-		rep(i,sz(tp)) ans+=cross(tp[i],tp[(i+1)%sz(tp)]);
-		pdb(1,ans/2)<<endl;
+		build_graph(0,n+1);
+		for(int i=1;i<=n;i++)
+		{
+			scanf("%d%d",&a,&b);
+			add_edge(0,i,a);
+			add_edge(i,n+1,b);
+		}
+		for(int i=0;i<m;i++)
+		{
+			scanf("%d%d%d",&a,&b,&c);
+			add_edge(a,b,c);
+			add_edge(b,a,c);
+		}
+		printf("%d\n",dinic());
 	}
+	return 0;
 }

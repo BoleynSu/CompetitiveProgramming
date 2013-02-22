@@ -28,17 +28,17 @@ struct_edge pool[MAXE];
 edge top;
 int S,T;
 edge adj[MAXV];
+void build_graph(int s,int t)
+{
+	top=pool,clr(adj);
+	S=s,T=t;//源,汇
+	//add_edge(u,v,c,d);
+}
 void add_edge(int u,int v,int c,int d)
 {
 	top->v=v,top->c=c,top->d=d,top->n=adj[u],adj[u]=top++;
 	top->v=u,top->c=0,top->d=-d,top->n=adj[v],adj[v]=top++;
 	adj[u]->b=adj[v],adj[v]->b=adj[u];
-}
-void build_graph()
-{
-	top=pool,clr(adj);
-	//S,T;//源,汇
-	//add_edge(u,v,c,d);
 }
 int d[MAXV];
 int q[MAXV];

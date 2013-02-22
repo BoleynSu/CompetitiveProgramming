@@ -1,5 +1,5 @@
 /*
- * Package: StandardCodeLibrary.GraphTheory.Dinic'sAlgorithm】
+ * Package: StandardCodeLibrary.GraphTheory.Dinic'sAlgorithm
  * Usage:
  * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
@@ -17,7 +17,7 @@ namespace StandardCodeLibrary
 {
 namespace GraphTheory
 {
-namespace Dinic_sAlgorithm
+namespace DinicsAlgorithm
 {
 
 const int oo=0x7f7f7f7f;
@@ -29,17 +29,17 @@ struct_edge pool[MAXE];
 edge top;
 int S,T;
 edge adj[MAXV];
+void build_graph(int s,int t)
+{
+	top=pool,clr(adj);
+	S=s,T=t;//源,汇
+	//add_edge(u,v,c);
+}
 void add_edge(int u,int v,int c)
 {
 	top->v=v,top->c=c,top->n=adj[u],adj[u]=top++;
 	top->v=u,top->c=0,top->n=adj[v],adj[v]=top++;
 	adj[u]->b=adj[v],adj[v]->b=adj[u];
-}
-void build_graph()
-{
-	top=pool,clr(adj);
-	//S,T;//源,汇
-	//add_edge(u,v,c);
 }
 int d[MAXV];
 int q[MAXV];

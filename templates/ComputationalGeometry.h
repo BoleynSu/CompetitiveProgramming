@@ -166,4 +166,3 @@ bool halfplane_intersection(Polygon& CH,vec<Halfplane>& AHP,vec<Halfplane> HP)
 
 }
 }
-

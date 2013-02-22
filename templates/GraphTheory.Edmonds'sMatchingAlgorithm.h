@@ -21,7 +21,7 @@ namespace StandardCodeLibrary
 {
 namespace GraphTheory
 {
-namespace Edmonds_sMatchingAlgorithm
+namespace EdmondssMatchingAlgorithm
 {
 
 const int MAXV=100;
@@ -33,19 +33,17 @@ int V;
 struct_edge pool[MAXE];
 edge top;
 edge adj[MAXV];
+void build_graph(int v)
+{
+	top=pool;
+	clr(adj);
+	V=v;//点数 V必须严格等于图中的点的数目
+	//add_edge(u,v);
+}
 void add_edge(int u,int v)
 {
 	top->v=v,top->n=adj[u],adj[u]=top++;
 	top->v=u,top->n=adj[v],adj[v]=top++;
-}
-void build_graph()
-{
-	top=pool;
-	clr(adj);
-	//V;//点数
-	//Warning:
-	//V必须严格等于图中的点的数目
-	//add_edge(u,v);
 }
 int match[MAXV];
 int qh,qt;

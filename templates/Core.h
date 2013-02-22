@@ -126,8 +126,8 @@ lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
 db pi=acos(-1.0);
-int dx[]={-1,1,0,0,-1,-1,1,1,0};
-int dy[]={0,0,-1,1,-1,1,-1,1,0};
+int dx[]={1,0,-1,0,1,-1,-1,1,0};
+int dy[]={0,1,0,-1,1,1,-1,-1,0};
 int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}

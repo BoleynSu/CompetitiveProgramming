@@ -1,8 +1,3 @@
-/*
-ID: sujiao1
-PROG: fc
-LANG: C++
-*/
 //begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core

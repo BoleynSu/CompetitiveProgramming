@@ -1,4 +1,3 @@
-//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -127,8 +126,8 @@ lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
 db pi=acos(-1.0);
-int dx[]={-1,1,0,0,-1,-1,1,1,0};
-int dy[]={0,0,-1,1,-1,1,-1,1,0};
+int dx[]={1,0,-1,0,1,-1,-1,1,0};
+int dy[]={0,1,0,-1,1,1,-1,-1,0};
 int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
@@ -160,8 +159,128 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
-//end #include <Core>
+
+/*
+ * Package: StandardCodeLibrary.GraphTheory.Dinic'sAlgorithm
+ * Usage:
+ * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * add_edge:
+ * 输入int u,v,c
+ * add_edge(u,v,c) 加一条u到v的容量为c的有向边,加一条v到u的容量为0的有向边
+ * build_graph:构图,详细见函数内的注释
+ * dinic:
+ * 输出int
+ * dinic()=最大流
+ * */
+//#include <Core>
+
+namespace StandardCodeLibrary
+{
+namespace GraphTheory
+{
+namespace DinicsAlgorithm
+{
+
+const int oo=0x7f7f7f7f;
+const int MAXV=1000000;
+const int MAXE=1000000;
+typedef struct struct_edge* edge;
+struct struct_edge{int v,c;edge n,b;};
+struct_edge pool[MAXE];
+edge top;
+int S,T;
+edge adj[MAXV];
+void build_graph(int s,int t)
+{
+	top=pool,clr(adj);
+	S=s,T=t;//源,汇
+	//add_edge(u,v,c);
+}
+void add_edge(int u,int v,int c)
+{
+	top->v=v,top->c=c,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->c=0,top->n=adj[v],adj[v]=top++;
+	adj[u]->b=adj[v],adj[v]->b=adj[u];
+}
+int d[MAXV];
+int q[MAXV];
+int qh,qt;
+bool relabel()
+{
+	fl(d,oo),d[q[qh=qt=0]=T]=0;
+	whl(qh<=qt)
+	{
+		int u=q[qh++];
+		for (edge i=adj[u];i;i=i->n)
+			if (i->b->c&&cmin(d[i->v],d[u]+1))
+				if ((q[++qt]=i->v)==S) rtn true;
+	}
+	rtn false;
+}
+//递归增广
+int augment(int u,int e)
+{
+	if (u==T) return e;
+	int f=0;
+	for (edge i=adj[u];i&&e;i=i->n)
+		if (i->c&&d[u]==d[i->v]+1)
+			if (int df=augment(i->v,min(e,i->c)))
+				i->c-=df,i->b->c+=df,e-=df,f+=df;
+	return f;
+}
+//非递归增广
+int st,us[MAXV],es[MAXV],fs[MAXV],f,df;
+edge is[MAXV],cur[MAXV];
+#define push(nu,ne) u=nu,e=ne,st++,us[st]=u,es[st]=e,fs[st]=0,is[st]=cur[u]
+#define pop() df=fs[st],st--,st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
+int improved_augment(int u,int e)
+{
+    f=0,st=-1,cpy(cur,adj);
+    push(u,e);
+    whl(st>=0)
+    {
+        if (us[st]==T) fs[st]=es[st],pop();
+        else if (!is[st]||!es[st]) pop();
+        else if (is[st]->c&&d[us[st]]==d[is[st]->v]+1) cur[us[st]]=is[st],push(is[st]->v,min(es[st],is[st]->c));
+        else is[st]=is[st]->n;
+    }
+    rtn f;
+}
+#undef pop
+#undef push
+int dinic()
+{
+	int f=0;
+	while (relabel()) f+=improved_augment(S,oo);
+	return f;
+}
+
+}
+}
+}
+
+using namespace StandardCodeLibrary::GraphTheory::DinicsAlgorithm;
 
 int main()
 {
+    int n,m,a,b,c;
+    while(~scanf("%d%d",&n,&m))
+    {
+    	build_graph(0,n+1);
+        for(int i=1;i<=n;i++)
+        {
+            scanf("%d%d",&a,&b);
+            add_edge(0,i,a);
+            add_edge(i,n+1,b);
+        }
+        for(int i=0;i<m;i++)
+        {
+            scanf("%d%d%d",&a,&b,&c);
+            add_edge(a,b,c);
+            add_edge(b,a,c);
+        }
+        printf("%d\n",dinic());
+    }
+    return 0;
 }
