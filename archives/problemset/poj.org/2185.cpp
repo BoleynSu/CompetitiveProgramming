@@ -235,7 +235,6 @@ void get_ext(const String& t,vi& ext)
 }
 void get_extend(const String& t,const vi& ext,const String& s,vi& extend)
 {
-	extend.resize(sz(s));
 	int j=0,a=0;
 	whl(j<sz(s)&&j<sz(t)&&s[j]==t[j]) j++;
 	extend[0]=j;
@@ -284,9 +283,8 @@ int get(const vec<vec<char> >& m)
 	{
 		vi ext,extend;
 		get_ext(m[i],ext);
-		get_extend(m[i],ext,m[i],extend);
 		lli t=sz(m[i]);
-		repf(j,1,sz(m[i])) if (j+extend[j]==sz(m[i]))
+		repf(j,1,sz(m[i])) if (j+ext[j]==sz(m[i]))
 		{
 			t=j;
 			break;
