@@ -4,10 +4,11 @@
  * KMP算法;
  * 扩展KMP算法;
  * 最长回文子串 Manacher's Algorithm;
- * AC自动机;
+ * AC自动机 Aho-Corasick Algorithm;
  * 后缀数组DC3;
  * */
 #include <Core>
+#include <StringAlgorithms.AhoCorasickAlgorithm>
 
 namespace StandardCodeLibrary
 {

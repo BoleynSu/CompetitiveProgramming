@@ -192,7 +192,7 @@ int qry(int l,int r)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 #undef idx
 
 int main()

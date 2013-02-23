@@ -205,7 +205,7 @@ lli qry(int l,int r,int p)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 #undef idx
 
 int l[MAXN],r[MAXN];

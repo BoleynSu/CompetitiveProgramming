@@ -193,7 +193,7 @@ pii qry(int l,int r,int p,int v)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 #undef idx
 
 char op[MAXN][7];

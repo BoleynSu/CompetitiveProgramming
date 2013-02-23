@@ -220,7 +220,7 @@ int qry(int l,int r,int ln)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 #undef nd
 
 int main()

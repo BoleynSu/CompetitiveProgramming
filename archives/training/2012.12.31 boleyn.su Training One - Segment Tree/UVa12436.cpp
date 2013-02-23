@@ -256,7 +256,7 @@ node qry(lli l,lli r,lli L,lli R)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 #undef nd
 
 int main()

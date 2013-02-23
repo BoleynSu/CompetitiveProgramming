@@ -1,0 +1,4 @@
+#ifndef SCL_STRING_ALGORITHMS_ACA
+#define SCL_STRING_ALGORITHMS_ACA
+#include <StringAlgorithms.AhoCorasickAlgorithm.h>
+#endif

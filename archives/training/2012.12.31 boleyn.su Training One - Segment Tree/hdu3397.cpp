@@ -274,7 +274,7 @@ int qry_max(int l,int r,int L,int R)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 #undef nd
 
 int main()

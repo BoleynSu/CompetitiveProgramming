@@ -180,7 +180,7 @@ int qry(int l,int r,int wi)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 //#undef idx
 
 int main()

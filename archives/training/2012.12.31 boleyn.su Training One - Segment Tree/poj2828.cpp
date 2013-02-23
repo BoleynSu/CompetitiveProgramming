@@ -179,7 +179,7 @@ int qry(int l,int r,int k)
 }
 #undef rc
 #undef lc
-#undef p
+#undef rt
 #undef idx
 
 int p[MAXN],v[MAXN];
