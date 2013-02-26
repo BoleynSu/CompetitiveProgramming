@@ -10,7 +10,9 @@ struct struct_node{type k;int s;struct_node* c[1<<1];};
 typedef struct_node* node;
 struct_node pool[MAXNODE];
 node top,null;
+
 struct Initializer{Initializer(){top=pool,null=top++,null->s=0,null->c[false]=null->c[true]=null;}}initializer;
+
 void rotate(node& x,bool d)
 {
 	node y=x->c[!d];
