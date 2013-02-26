@@ -23,6 +23,7 @@ int bit_sum(const vector<int> & st,int x)
 
 int main()
 {
+<<<<<<< HEAD
 	ios::sync_with_stdio(false);
 	cin.tie(0);
 	cout.tie(0);
@@ -98,5 +99,8 @@ int main()
 			}
 		}
 	}
+=======
+	puts("linux");
+>>>>>>> refs/remotes/master
 }
 
