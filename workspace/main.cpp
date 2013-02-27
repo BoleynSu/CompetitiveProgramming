@@ -162,4 +162,32 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
+	int n,p;
+	cin>>n>>p;
+	vpii sg;
+	sg.pb(mp(1,0));
+	sg.pb(mp(3,0));
+	int i=0,j=0;
+	whl(sg.back().x<p)
+	{
+		whl(sg[i+1].x<=sg.back().x/3) i++;
+		whl(sg[j+1].x<=sg.back().x-sg.back().x/3) j++;
+		vb mex(3);
+		mex[sg[i].y]=mex[sg[j].y]=true;
+		whl(mex[sg.back().y]) sg.back().y++;
+		int len=min((sg[i+1].x-1)*3+2-sg.back().x+1,(sg[j+1].x-1)/2*3+(sg[j+1].x-1)%2-sg.back().x+1);
+		pii t=sg.back();
+		sg.pop_back();
+		if (sg.back().y!=t.y) sg.pb(t);
+		sg.pb(mp(t.x+len,0));
+	}
+	sg.back().x=p;
+	vi cnt(3);
+	rep(i,sz(sg)-1) cnt[sg[i].y]=(cnt[sg[i].y]+lli(sg[i+1].x-sg[i].x)*lli(p-sg[i].x+p-sg[i+1].x+1)/2%MOD)%MOD;
+	vvi f(n+1,vi(4));
+	f[0][0]=1;
+	ft(i,1,n) rep(j,4) rep(k,3) f[i][j]=(f[i][j]+lli(f[i-1][j^k])*lli(cnt[k])%MOD)%MOD;
+	int ans=0;
+	repf(i,1,4) ans=(ans+f[n][i])%MOD;
+	cout<<ans<<endl;
 }
