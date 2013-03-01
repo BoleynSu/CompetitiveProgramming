@@ -160,20 +160,25 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+bool check(lli ans,int i,lli& l,lli& r)
+{
+	static bool smaller;
+	int lb=(l>>i)&1,rb=(r>>i)&1;
+	if (lb<rb) smaller=true;
+	if (smaller) rtn true;
+	else rtn false;
+}
+
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	if (m==3)
+	lli l,r;
+	cin>>l>>r;
+	lli ans=0;
+	fdt(i,60,0)
 	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
+		if (check(ans,i,l,r)) ans|=1ll<<i;
 	}
-	else
-	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
-	}
+	cout<<ans<<endl;
 }
+
+

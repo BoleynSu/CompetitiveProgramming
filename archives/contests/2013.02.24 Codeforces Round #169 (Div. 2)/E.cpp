@@ -162,18 +162,78 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	if (m==3)
+	int n,qry;
+	cin>>n>>qry;
+	vvi adj(n);
+	repf(i,1,n)
 	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
+		int a,b;
+		cin>>a>>b,--a,--b;
+		adj[a].pb(b);
+		adj[b].pb(a);
 	}
-	else
+	vi d(n,oo);
+	vi rt(n);
+	qi q;
+	vvi st(n);
+	cmin(d[0],0);
+	q.push(0);
+	whl(sz(q))
 	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
+		int u=q.front();
+		q.pop();
+		rep(i,sz(adj[u]))
+		{
+			int v=adj[u][i];
+			if (cmin(d[v],d[u]+1))
+			{
+				rt[v]=u?rt[u]:v;
+				st[rt[v]].resize(d[v]);
+				q.push(v);
+			}
+		}
+	}
+	int als=0;
+	vi alst(n);
+	rep(i,qry)
+	{
+		int t;
+		cin>>t;
+		if (t)
+		{
+			int v;
+			cin>>v,--v;
+			if (v) cout<<als+bit_sum(alst,d[v]-1)+bit_sum(st[rt[v]],d[v]-1)<<endl;
+			else cout<<als<<endl;
+		}
+		else
+		{
+			int v,x,qd;
+			cin>>v>>x>>qd,--v;
+			if (v)
+			{
+				int alp=qd-d[v];
+				if (alp>=0)
+				{
+					als+=x;
+					bit_inc(alst,alp,-x),
+					bit_inc(st[rt[v]],alp,x),
+					bit_inc(st[rt[v]],d[v]+qd,-x);
+				}
+				else
+				{
+					bit_inc(st[rt[v]],d[v]-qd-1,x);
+					bit_inc(st[rt[v]],d[v]+qd,-x);
+				}
+			}
+			else
+			{
+				als+=x;
+				bit_inc(alst,qd,-x);
+			}
+			//rep(v,n) cerr<<als+bit_sum(alst,d[v]-1)<<" "<<bit_sum(st[rt[v]],d[v]-1)<<endl;
+		}
 	}
 }
+
+

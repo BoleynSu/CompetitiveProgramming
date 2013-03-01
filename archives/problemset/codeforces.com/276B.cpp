@@ -162,18 +162,14 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	if (m==3)
-	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
-	}
-	else
-	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
-	}
+	str s;
+	cin>>s;
+	mci cnt;
+	rep(i,sz(s)) cnt[s[i]]++;
+	int odd=0;
+	ft(i,'a','z') odd+=cnt[i]%2;
+	if (odd%2||odd==0) cout<<"First"<<endl;
+	else cout<<"Second"<<endl;
 }
+
+

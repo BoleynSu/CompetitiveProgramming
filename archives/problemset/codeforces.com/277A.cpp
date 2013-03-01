@@ -164,16 +164,26 @@ int main()
 {
 	int n,m;
 	cin>>n>>m;
-	if (m==3)
+	vvi lst(m);
+	bool az=true;
+	rep(i,n)
 	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
+		int k;
+		cin>>k;
+		if (k) az=false;
+		rep(j,k)
+		{
+			int a;
+			cin>>a,--a;
+			lst[a].pb(i);
+		}
 	}
-	else
-	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
-	}
+	if (az) rtn cout<<n<<endl,0;
+	vi st(n);
+	make_set(st);
+	rep(i,m) repf(j,1,sz(lst[i])) union_set(st,lst[i].front(),lst[i][j]);
+	si s;
+	rep(i,n) s.ins(find_set(st,st[i]));
+	cout<<sz(s)-1<<endl;
 }
+

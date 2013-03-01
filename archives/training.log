@@ -52,7 +52,7 @@ It must be a straight line, a point, a triangle or a tetrahedron.
 
 2012.12.09 ACME Training Four - The 7th(2012) ACM Programming Contest of HUST - Preliminary Contest[team]
 
-link: http://acm.hust.edu.cn:8080/judge/contest/view.action?cid=18005
+link: http://acm.hust.edu.cn/vjudge/contest/view.action?cid=18005#overview
 
 #B AC 31 mins 1 wrong try by WHD
 #A AC 50 mins by WDP
@@ -91,3 +91,49 @@ WHD used a right algorithm to solve this problem, but made a small mistake. Afte
 
 
 
+ACME Training Six to Eight - SGU problems solving[long-term,individual]
+
+本次训练为刷SGU前100题，我负责100-139，wdp负责140-169，whd负责170-199。
+link:
+http://acm.hust.edu.cn/vjudge/contest/view.action?cid=18930#overview
+http://acm.hust.edu.cn/vjudge/contest/view.action?cid=18976#overview
+http://acm.hust.edu.cn/vjudge/contest/view.action?cid=19067#overview
+
+100  A+B 
+101  Domino 欧拉回路
+102  Coprimes 最大公约数
+103  Traffic Lights 动态计算边权的最短路
+104  Little Shop of Flowers 动态规划
+105  Div 3 数学题
+106  The Equation 扩展欧几里得算法解不定方程
+107  987654321 problem 暴力打表
+108  Self-numbers II 类似宽搜的算法
+109  Magic of David Copperfield II 二分染色 构造
+110  Dungeon 计算几何
+111  Very simple problem 高精度开根号运算 牛顿迭代法
+112  a^b - b^a 高精度
+113  Nearly prime numbers 简单数论
+114  Telecasting station 贪心
+115  Calendar 时间处理
+116  Index of super-prime 数论 动态规划
+117  Counting 快速幂
+118  Digital root 高精度
+119  Magic pairs 数学
+120  Arhipelago 计算几何
+121  Bridges painting 构造法
+122  The book 构造法 Ore定理 
+123  The sum 递推
+124  Broken line 计算几何 射线法判断点是否在简单多边形内
+125  Shtirlits 搜索
+126  Boxes 2406 数学 二进制下的欧几里得算法
+127  Telephone directory
+130  Circle 动态规划
+131  Hardwood floor 状态压缩的动态规划
+132  Another Chocolate Maniac 状态压缩的动态规划 DFS预处理可行转移
+133  Border 排序
+134  Centroid 树形DP
+135  Drawing Lines 数学题
+136  Erasing Edges 计算几何
+137  Funny Strings 数论 构造法
+138  Games of Chess 构造法
+139  Help Needed! 判断15数码是否有解

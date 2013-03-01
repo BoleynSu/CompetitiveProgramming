@@ -159,21 +159,112 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+/*
+ * Package: StandardCodeLibrary.GraphTheory.MinCostMaxFlow
+ * Usage:
+ * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * add_edge:
+ * 输入int u,v,c,d
+ * add_edge(u,v,c,d) 加一条u到v的容量为c代价为d的有向边,加一条v到u的容量为0代价为-d的有向边
+ * build_graph:构图,详细见函数内的注释
+ * min_cost_max_flow:
+ * min_cost_max_flow(最大流,最小费用)
+ * */
+//#include <Core>
+
+namespace StandardCodeLibrary
+{
+namespace GraphTheory
+{
+namespace MinCostMaxFlow
+{
+
+const lli oo=0x7f7f7f7f7f7f7f7fll;
+const lli MAXE=1000000;
+const lli MAXV=1000000;
+typedef struct struct_edge* edge;
+struct struct_edge{lli v,c,d;edge n,b;};
+struct_edge pool[MAXE];
+edge top;
+lli S,T;
+edge adj[MAXV];
+void build_graph(lli s,lli t)
+{
+	top=pool,clr(adj);
+	S=s,T=t;//源,汇
+	//add_edge(u,v,c,d);
+}
+void add_edge(lli u,lli v,lli c,lli d)
+{
+	top->v=v,top->c=c,top->d=d,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->c=0,top->d=-d,top->n=adj[v],adj[v]=top++;
+	adj[u]->b=adj[v],adj[v]->b=adj[u];
+}
+lli d[MAXV];
+lli q[MAXV];
+bool inq[MAXV];
+lli qh,qt;
+edge p[MAXV];
+void min_cost_max_flow(lli& flow,lli& cost)
+{
+	flow=0,cost=0;
+	lp
+	{
+		fl(d,oo),inq[q[qh=qt=0]=S]=true,d[S]=0,p[S]=0;
+		whl(qh<=qt)
+		{
+			lli u=q[(qh++)%MAXV];
+			inq[u]=false;
+			for (edge i=adj[u];i;i=i->n)
+				if (i->c&&cmin(d[i->v],d[u]+i->d))
+				{
+					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
+					p[i->v]=i;
+				}
+		}
+		if (d[T]==oo) break;
+		else
+		{
+			lli delta=oo;
+			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
+			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta;
+			flow+=delta;
+			cost+=d[T]*delta;
+		}
+	}
+}
+
+}
+}
+}
+using namespace StandardCodeLibrary::GraphTheory::MinCostMaxFlow;
 
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	if (m==3)
-	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
-	}
+	inf=1e8;
+	int n;
+	cin>>n;
+	vpii p(n);
+	rep(i,n) cin>>p[i];
+	int maxy=-::oo,cnt=0;
+	rep(i,n) cmax(maxy,p[i].y);
+	rep(i,n) if (p[i].y==maxy) cnt++;
+	if (cnt!=1) cout<<-1<<endl;
 	else
 	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
+		build_graph(n+n,n+n+1);
+		rep(i,n)
+		{
+			add_edge(S,i,2,0);
+			rep(j,n) if (p[j].y<p[i].y) add_edge(i,n+j,1,sqrt(sqr(p[i].x-p[j].x)+sqr(p[j].y-p[i].y))*inf);
+			add_edge(n+i,T,1,0);
+		}
+		lli flow,cost;
+		min_cost_max_flow(flow,cost);
+		prt(flow);
+		if (flow!=n-1) cout<<-1<<endl;
+		else pdb(100,db(cost)/inf)<<endl;
 	}
 }
+

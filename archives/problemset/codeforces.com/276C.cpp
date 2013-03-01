@@ -162,18 +162,23 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	if (m==3)
+	int n,q;
+	cin>>n>>q;
+	vi a(n),b(n);
+	rep(i,n) cin>>a[i];
+	vi st(n);
+	rep(i,q)
 	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
+		int l,r;
+		cin>>l>>r;
+		bit_inc(st,l-1,1);
+		bit_inc(st,r,-1);
 	}
-	else
-	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
-	}
+	rep(i,n) b[i]=bit_sum(st,i);
+	srt(a),srt(b);
+	lli ans=0;
+	rep(i,n) ans+=lli(a[i])*lli(b[i]);
+	cout<<ans<<endl;
 }
+
+

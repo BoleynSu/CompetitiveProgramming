@@ -162,18 +162,143 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	if (m==3)
+	int n,m,k;
+	cin>>n>>m>>k;
+	map<int,vpii> x,y;
+	rep(i,k)
 	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
+		pii a,b;
+		cin>>a>>b;
+		if (a.x==b.x) x[a.x].pb(mp(min(a.y,b.y),max(a.y,b.y)));
+		else y[a.y].pb(mp(min(a.x,b.x),max(a.x,b.x)));
 	}
-	else
+	mii sgx,sgy;
+	feach(it,x)
 	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
+		int len=m;
+		int i=it->x;
+		vpii& lst=it->y;
+		lst.pb(mp(0,0));
+		srt(lst);
+		rep(j,sz(lst))
+		{
+			int k=j,end=lst[j].y;
+			whl(k+1<sz(lst)&&lst[k+1].x<=end) cmax(end,lst[k+1].y),k++;
+			len-=end-lst[j].x;
+			j=k;
+		}
+		if (0<i&&i<n) sgx[i]=len;
 	}
+	feach(it,y)
+	{
+		int len=n;
+		int i=it->x;
+		vpii& lst=it->y;
+		lst.pb(mp(0,0));
+		srt(lst);
+		rep(j,sz(lst))
+		{
+			int k=j,end=lst[j].y;
+			whl(k+1<sz(lst)&&lst[k+1].x<=end) cmax(end,lst[k+1].y),k++;
+			len-=end-lst[j].x;
+			j=k;
+		}
+		if (0<i&&i<m) sgy[i]=len;
+	}
+
+	if ((n-1-sz(sgx))&1)
+	{
+		repf(i,1,n) if (!sgx.count(i))
+		{
+			sgx[i]=m;
+			x[i].pb(mp(0,0));
+			break;
+		}
+	}
+	else if (n-1-sz(sgx))
+	{
+		repf(i,1,n) if (!sgx.count(i))
+		{
+			sgx[i]=m;
+			x[i].pb(mp(0,0));
+			break;
+		}
+		repf(i,1,n) if (!sgx.count(i))
+		{
+			sgx[i]=m;
+			x[i].pb(mp(0,0));
+			break;
+		}
+	}
+	if ((m-1-sz(sgy))&1)
+	{
+		repf(i,1,m) if (!sgy.count(i))
+		{
+			sgy[i]=n;
+			y[i].pb(mp(0,0));
+			break;
+		}
+	}
+	else if (m-1-sz(sgy))
+	{
+		repf(i,1,m) if (!sgy.count(i))
+		{
+			sgy[i]=n;
+			y[i].pb(mp(0,0));
+			break;
+		}
+		repf(i,1,m) if (!sgy.count(i))
+		{
+			sgy[i]=n;
+			y[i].pb(mp(0,0));
+			break;
+		}
+	}
+
+	int sg=0;
+	feach(it,sgx) sg^=it->y;
+	feach(it,sgy) sg^=it->y;
+	if (sg)
+	{
+		cout<<"FIRST"<<endl;
+		feach(it,sgx) if ((sg^it->y)<it->y)
+		{
+			sg^=it->y;
+			vpii& lst=x[it->x];
+			rep(j,sz(lst))
+			{
+				int k=j,end=lst[j].y;
+				whl(k+1<sz(lst)&&lst[k+1].x<=end) cmax(end,lst[k+1].y),k++;
+				int delta=k+1<sz(lst)?lst[k+1].x-end:m-end;
+				prt(delta);
+				if (delta>=sg)
+				{
+					cout<<it->x<<" "<<end+sg<<" "<<it->x<<" "<<m<<endl;
+					rtn 0;
+				}
+				else sg-=delta;
+				j=k;
+			}
+		}
+		feach(it,sgy) if ((sg^it->y)<it->y)
+		{
+			sg^=it->y;
+			vpii& lst=y[it->x];
+			rep(j,sz(lst))
+			{
+				int k=j,end=lst[j].y;
+				whl(k+1<sz(lst)&&lst[k+1].x<=end) cmax(end,lst[k+1].y),k++;
+				int delta=k+1<sz(lst)?lst[k+1].x-end:n-end;
+				if (delta>=sg)
+				{
+					cout<<end+sg<<" "<<it->x<<" "<<n<<" "<<it->x<<endl;
+					rtn 0;
+				}
+				else sg-=delta;
+				j=k;
+			}
+		}
+	}
+	else cout<<"SECOND"<<endl;
 }
+

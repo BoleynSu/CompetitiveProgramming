@@ -177,3 +177,4 @@ int main()
 		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
 	}
 }
+
