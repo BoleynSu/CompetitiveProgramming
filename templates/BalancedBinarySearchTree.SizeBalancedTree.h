@@ -1,4 +1,11 @@
+/*
+ * Package: StandardCodeLibrary.BalancedBinarySearchTree.SizeBalancedTree
+ * Usage:
+ * MAXNODE:SizeBalancedTree最多有多少个节点
+ * */
 #include <Core>
+namespace StandardCodeLibrary
+{
 namespace BinarySearchTree
 {
 namespace SizeBalancedTree
@@ -140,5 +147,6 @@ public:
 	node succ(const type& k){rtn SizeBalancedTree::succ(rt,k);}
 };
 
+}
 }
 }
