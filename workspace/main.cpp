@@ -160,20 +160,176 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+/*
+ * Package: StandardCodeLibrary.StringAlgorithms.AhoCorasickAlgorithm
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace StringAlorithm
+{
+namespace AhoCorasickAlgorithm
+{
+
+const int MAXNODE=1000000;
+const int MAXALPHABET=26;
+typedef int info;
+struct struct_node{struct_node* n[MAXALPHABET];struct_node* f;info i;int v;};
+typedef struct_node* node;
+struct_node pool[MAXNODE];
+node top;
+int cnt;
+
+struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
+
+class AC_Automation
+{
+	node rt;
+	virtual void update(info&,const info&)=0;
+	virtual void calculate(info&)=0;
+public:
+	AC_Automation():rt(top++){}
+	void insert(vi s,const info& i)
+	{
+		node u=rt;
+		rep(i,sz(s))
+		{
+			if (!u->n[s[i]]) u->n[s[i]]=top++;
+			u=u->n[s[i]];
+		}
+		update(u->i,i);
+	}
+	void build()
+	{
+		que<node> q;
+		rt->f=rt,q.push(rt);
+		whl(sz(q))
+		{
+			node u=q.front();
+			q.pop();
+			rep(c,MAXALPHABET) if (u->n[c])
+			{
+				if (u==rt) u->n[c]->f=rt;
+				else
+				{
+					node v=u->f;
+					whl(v!=rt&&!v->n[c]) v=v->f;
+					if (v->n[c]) v=v->n[c];
+					u->n[c]->f=v;
+				}
+				q.push(u->n[c]);
+			}
+		}
+	}
+	void query(vi s)
+	{
+		cnt++;
+		node u=rt;
+		rep(i,sz(s))
+		{
+			whl(u!=rt&&!u->n[s[i]]) u=u->f;
+			if (u->n[s[i]]) u=u->n[s[i]];
+			node v=u;
+			whl(v!=rt&&v->v!=cnt)
+				calculate(v->i),v->v=cnt,v=v->f;
+		}
+	}
+};
+
+}
+}
+}
+using namespace StandardCodeLibrary::StringAlorithm::AhoCorasickAlgorithm;
+
+struct MyAC_Automation:AC_Automation
+{
+	bool mark;
+	int match[2500];
+	MyAC_Automation(){clr(match);}
+	void update(info& i,const info& u)
+	{
+		i=u;
+	}
+	void calculate(info& i)
+	{
+		if (i) match[i-1]=mark;
+	}
+};
+
+char s[5000000+1];
+char S[2500][1100+1];
+
 int main()
 {
-	int n,m;
-	cin>>n>>m;
-	if (m==3)
+	int T;
+	scanf("%d",&T);
+	getchar();
+	while (T--)
 	{
-		if (n==3) cout<<mp(0,0)<<endl<<mp(0,1)<<endl<<mp(1,0)<<endl;
-		else if (n==4) cout<<mp(0,0)<<endl<<mp(0,3)<<endl<<mp(3,0)<<endl<<mp(1,1)<<endl;
-		else cout<<-1<<endl;
-	}
-	else
-	{
-		int inf=1000000;
-		rep(i,m) cout<<mp(i,inf+i*i)<<endl;
-		rep(i,n-m) cout<<mp(i,-(inf+i*i))<<endl;
+		StandardCodeLibrary::StringAlorithm::AhoCorasickAlgorithm::Initializer();
+		MyAC_Automation ac;
+		int n;
+		scanf("%d",&n);
+		getchar();
+		rep(i,n)
+		{
+			char* p=S[i];
+			for (;;)
+			{
+				char c=getchar();
+				if (c=='\n')
+				{
+					*p=0;
+					break;
+				}
+				else if (c=='[')
+				{
+					int k;
+					scanf("%d",&k);
+					c=getchar();
+					while (k--) *p++=c;
+					getchar();
+				}
+				else *p++=c;
+			}
+			vi lst;
+			forin(it,S[i]) lst.pb(*it-'A');
+			ac.insert(lst,i+1);
+		}
+		ac.build();
+		char* p=s;
+		for (;;)
+		{
+			char c=getchar();
+			if (c=='\n')
+			{
+				*p=0;
+				break;
+			}
+			else if (c=='[')
+			{
+				int k;
+				scanf("%d",&k);
+				c=getchar();
+				while (k--) *p++=c;
+				getchar();
+			}
+			else *p++=c;
+		}
+		vi lst;
+		forin(i,s) lst.pb(*i-'A');
+		ac.mark=true;
+		ac.query(lst);
+		rep(i,n) if (ac.match[i])
+		{
+			vi lst;
+			forin(it,S[i]) lst.pb(*it-'A');
+			ac.mark=false;
+			ac.query(lst);
+			ac.match[i]=true;
+		}
+		int ans=0;
+		rep(i,n) if (ac.match[i]) ans++;
+		printf("%d\n",ans);
 	}
 }

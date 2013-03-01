@@ -24,10 +24,10 @@ struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
 class AC_Automation
 {
 	node rt;
-public:
-	AC_Automation():rt(top++){}
 	virtual void update(info&,const info&)=0;
 	virtual void calculate(info&)=0;
+public:
+	AC_Automation():rt(top++){}
 	void insert(vi s,const info& i)
 	{
 		node u=rt;
@@ -41,8 +41,7 @@ public:
 	void build()
 	{
 		que<node> q;
-		rt->f=rt;
-		q.push(rt);
+		rt->f=rt,q.push(rt);
 		whl(sz(q))
 		{
 			node u=q.front();
@@ -71,11 +70,7 @@ public:
 			if (u->n[s[i]]) u=u->n[s[i]];
 			node v=u;
 			whl(v!=rt&&v->v!=cnt)
-			{
-				v->v=cnt;
-				calculate(v->i);
-				v=v->f;
-			}
+				calculate(v->i),v->v=cnt,v=v->f;
 		}
 	}
 };
