@@ -1,25 +1,23 @@
 /*
- * Package: StandardCodeLibrary.StringAlgorithms
+ * Package: StandardCodeLibrary.viAlgorithms
  * Description:
  * KMP算法;
  * 扩展KMP算法;
  * 最长回文子串 Manacher's Algorithm;
  * AC自动机 Aho-Corasick Algorithm;
- * 后缀数组DC3;
+ * 后缀数组倍增法;
  * */
 #include <Core>
 #include <StringAlgorithms.AhoCorasickAlgorithm>
+#include <StringAlgorithms.SuffixArray>
 
 namespace StandardCodeLibrary
 {
-namespace StringAlorithm
+namespace viAlorithm
 {
 
-typedef char Char;
-typedef vec<Char> String;
-
 //KMP算法
-void get_pi(const String t,vi& pi)
+void get_pi(const vi t,vi& pi)
 {
 	pi.resize(sz(t)),pi[0]=-1;
 	int j=-1;
@@ -30,7 +28,7 @@ void get_pi(const String t,vi& pi)
 		pi[i]=j;
 	}
 }
-void get_match(const String& t,const vi& pi,const String& s,vi& match)
+void get_match(const vi& t,const vi& pi,const vi& s,vi& match)
 {
 	int j=-1;
 	rep(i,sz(s))
@@ -44,7 +42,7 @@ void get_match(const String& t,const vi& pi,const String& s,vi& match)
 		}
 	}
 }
-int KMP(const String& t,const String& s)
+int KMP(const vi& t,const vi& s)
 {
 	vi pi;
 	get_pi(t,pi);
@@ -55,7 +53,7 @@ int KMP(const String& t,const String& s)
 }
 
 //扩展KMP算法
-void get_ext(const String& t,vi& ext)
+void get_ext(const vi& t,vi& ext)
 {
 	ext.resize(sz(t)),ext[0]=sz(t);
 	if (sz(t)==1) rtn;
@@ -73,7 +71,7 @@ void get_ext(const String& t,vi& ext)
 		}
 	}
 }
-void get_extend(const String& t,const vi& ext,const String& s,vi& extend)
+void get_extend(const vi& t,const vi& ext,const vi& s,vi& extend)
 {
 	extend.resize(sz(s));
 	int j=0,a=0;
@@ -92,9 +90,9 @@ void get_extend(const String& t,const vi& ext,const String& s,vi& extend)
 }
 
 //最长回文子串 Manacher's Algorithm
-void longest_palindromic_substring(const String& str,String& ans_str,Char split='#')
+void longest_palindromic_substring(const vi& str,vi& ans_str,int split=0)
 {
-	String S;
+	vi S;
 	rep(i,sz(str)) S.pb(split),S.pb(str[i]);
 	S.pb(split);
 	vi p(sz(S));

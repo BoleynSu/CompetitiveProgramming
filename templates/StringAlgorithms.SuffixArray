@@ -1,0 +1,4 @@
+#ifndef SCL_STRING_ALGORITHMS_SA
+#define SCL_STRING_ALGORITHMS_SA
+#include <StringAlgorithms.SuffixArray.h>
+#endif

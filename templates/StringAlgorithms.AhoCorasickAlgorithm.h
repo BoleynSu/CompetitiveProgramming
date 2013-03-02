@@ -8,7 +8,7 @@
 
 namespace StandardCodeLibrary
 {
-namespace StringAlorithm
+namespace StringAlgorithms
 {
 namespace AhoCorasickAlgorithm
 {
