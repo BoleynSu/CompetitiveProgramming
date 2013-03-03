@@ -1,149 +1,165 @@
 import java.io.BufferedInputStream;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.math.BigInteger;
 import java.util.Scanner;
+import java.security.SecureRandom;
 
+class PollardRho {
+    private final static BigInteger ZERO = new BigInteger("0");
+    private final static BigInteger ONE  = new BigInteger("1");
+    private final static BigInteger TWO  = new BigInteger("2");
+    private final static SecureRandom random = new SecureRandom();
 
-class Constants
-{
-	public static final double eps=1e-3;
+    public static BigInteger rho(BigInteger N) {
+        BigInteger divisor;
+        BigInteger c  = new BigInteger(N.bitLength(), random);
+        BigInteger x  = new BigInteger(N.bitLength(), random);
+        BigInteger xx = x;
+
+        // check divisibility by 2
+        if (N.mod(TWO).compareTo(ZERO) == 0) return TWO;
+
+        do {
+            x  =  x.multiply(x).mod(N).add(c).mod(N);
+            xx = xx.multiply(xx).mod(N).add(c).mod(N);
+            xx = xx.multiply(xx).mod(N).add(c).mod(N);
+            divisor = x.subtract(xx).gcd(N);
+        } while((divisor.compareTo(ONE)) == 0);
+
+        return divisor;
+    }
+
+    public static BigInteger factor(BigInteger N){
+        for (BigInteger i=TWO;i.compareTo(N)<0;i=i.add(ONE)) if (N.mod(i).equals(ZERO)) return i;
+        return N;
+    	/*if (N.isProbablePrime(50)) return N;
+        BigInteger divisor = rho(N);
+        return factor(divisor);*/
+    }
+
 }
-class Point
-{
-	public double x,y;
-	public Point(double x,double y)
-	{
-		this.x=x;
-		this.y=y;
-	}
-	public Point add(Point other)
-	{
-		return new Point(x+other.x,y+other.y);
-	}
-	public Point subtract(Point other)
-	{
-		return new Point(x-other.x,y-other.y);
-	}
-	public Point multiply(double other)
-	{
-		return new Point(x*other,y*other);
-	}
-	public Point divide(double other)
-	{
-		return new Point(x/other,y/other);
-	}
-	public double cross(Point other)
-	{
-		return x*other.y-y*other.x;
-	}
-	public double dot(Point other)
-	{
-		return x*other.x+y*other.y;
-	}
-	public double length()
-	{
-		return Math.sqrt(x*x+y*y);
-	}
-	public boolean in(Point[] other)
-	{
-		boolean in=false;
-		for (int i=0,j=other.length-1;i<other.length;j=i++)
-			if ((other[j].y>y)!=(other[i].y>y)
-				&&x<(other[i].x-other[j].x)/(other[i].y-other[j].y)*(y-other[j].y)+other[j].x)
-				in=!in;
-		return in;
-	}
-}
-class Segment
-{
-	public Point x,y;
-	public Segment(Point x,Point y)
-	{
-		this.x=x;
-		this.y=y;
-	}
-	public Point intersection(Segment other)
-	{
-		Point va=y.subtract(x),vb=other.y.subtract(other.x);
-		if (Math.abs(va.cross(vb))<Constants.eps) return null;
-		else return x.add(va.multiply(other.x.subtract(x).cross(vb)/va.cross(vb)));
-	}
-}
-class MyComparator implements Comparator<Point>
-{
-	private Point o;
-	public MyComparator(Point o)
-	{
-		this.o=o;
-	}
-	@Override
-	public int compare(Point a,Point b)
-	{
-		double alpha=Math.atan2(a.y-o.y,a.x-o.x);
-		double beta=Math.atan2(b.y-o.y,b.x-o.x);
-		return
-			alpha>beta?-1:
-			alpha<beta?1:
-			0;
-	}
-}
+
 public class Main
 {
 	public static void main(String[] arg)
 	{
-		new Main();
+		try
+		{
+			new Main();
+		}
+		catch(Exception e)
+		{
+		}
 	}
 	public Main()
 	{
+		//2854240469829088704
 		Scanner cin=new Scanner(new BufferedInputStream(System.in));
-		int testcase=0;
-		while (cin.hasNextInt())
+		while (cin.hasNextBigInteger())
 		{
-			System.out.printf("Gallery #%d\n",++testcase);
-			int n=cin.nextInt();
-			Point[] p=new Point[n];
-			for (int i=0;i<p.length;i++) p[i]=new Point(cin.nextDouble(),cin.nextDouble());
-			int l=cin.nextInt();
-			for (int t=0;t<l;t++)
+			BigInteger x=cin.nextBigInteger();
+			int cnt=0;
+			BigInteger[] fac=new BigInteger[1000];
+			int[] num=new int[1000];
+			BigInteger t=x;
+			while (!t.equals(BigInteger.ONE))
 			{
-				Point o=new Point(cin.nextDouble(),cin.nextDouble());
-				int pIndex=-1;
-				for (int i=0;i<p.length;i++) if (Math.abs(p[i].subtract(o).length())<Constants.eps) pIndex=i;
-				Point[] q=new Point[pIndex==-1?p.length:p.length-1];
-				int qIndex=0;
-				for (int i=0;i<p.length;i++) if (i!=pIndex) q[qIndex++]=p[i];
-				Arrays.sort(q,new MyComparator(o));
-				//for (int i=0;i<q.length;i++) System.out.println(q[i].x+","+q[i].y);
-				double answer=0;
-				for (int i=0,j=q.length-1;i<q.length;j=i++)
+//				while (t.compareTo(new BigInteger("2854240469829088704"))==0)
+//				{
+//					System.out.println("ASSART");
+//				}
+				fac[cnt]=PollardRho.factor(t);
+				num[cnt]=0;
+				do
 				{
-					double get=Double.MAX_VALUE;
-					boolean found=false,in=false;
-					for (int ii=0,jj=p.length-1;ii<p.length;jj=ii++)
-					{
-						Point a=new Segment(p[jj],p[ii]).intersection(new Segment(o,q[j]));
-						Point b=new Segment(p[jj],p[ii]).intersection(new Segment(o,q[i]));
-						if (a!=null
-							&&b!=null
-							&&a.subtract(o).dot(q[j].subtract(o))>-Constants.eps
-							&&b.subtract(o).dot(q[i].subtract(o))>-Constants.eps
-							&&p[jj].subtract(a).dot(p[ii].subtract(a))<Constants.eps
-							&&p[jj].subtract(b).dot(p[ii].subtract(b))<Constants.eps
-							&&Math.abs(a.subtract(o).cross(b.subtract(o)))/2>Constants.eps
-							&&get>Math.abs(a.subtract(o).cross(b.subtract(o)))/2)
-						{
-							get=Math.abs(a.subtract(o).cross(b.subtract(o)))/2;
-							in=o.add(a).add(b).divide(3).in(p);
-							found=true;
-						}
-					}
-					if (!found||!in) get=0;
-					//System.out.println(get);
-					//System.out.println(q[j].x+" "+q[j].y+" "+q[i].x+" "+q[i].y);
-					answer+=get;
+					t=t.divide(fac[cnt]);
+					num[cnt]++;
 				}
-				System.out.printf("%.2f\n",answer);
+				while (t.mod(fac[cnt]).equals(BigInteger.ZERO));
+				cnt++;
 			}
+			BigInteger[] stack=new BigInteger[1000];
+			int[] step=new int[1000];
+			int top=0;
+			stack[top]=BigInteger.ONE;
+			step[top]=0;
+			int anss=0;
+			long[] alst=new long[1000],blst=new long[1000];
+			for (;;)
+			{
+				if (top==cnt)
+				{
+					BigInteger y=stack[top];
+					BigInteger delta=x.divide(y).multiply(BigInteger.valueOf(4)).subtract(y.multiply(y)).multiply(BigInteger.valueOf(3));
+					if (delta.signum()>=0)
+					{
+						BigInteger sqrt_delta=delta.shiftRight(delta.bitLength()/2);
+						for (;;)
+						{
+							if (sqrt_delta.equals(BigInteger.ZERO)) break;
+							BigInteger sqrt_delta_=sqrt_delta.add(delta.divide(sqrt_delta)).divide(BigInteger.valueOf(2));
+							if (sqrt_delta_.subtract(sqrt_delta).abs().compareTo(BigInteger.valueOf(1))<=0) break;
+							sqrt_delta=sqrt_delta_;
+						}
+						if (sqrt_delta.multiply(sqrt_delta).compareTo(delta)>0) sqrt_delta=sqrt_delta.subtract(BigInteger.ONE);
+						if (sqrt_delta.multiply(sqrt_delta).compareTo(delta)<0) sqrt_delta=sqrt_delta.add(BigInteger.ONE);
+						if (sqrt_delta.multiply(sqrt_delta).compareTo(delta)==0)
+						{
+							BigInteger a=y.multiply(BigInteger.valueOf(3)).subtract(sqrt_delta);
+							if (a.mod(BigInteger.valueOf(6)).equals(BigInteger.ZERO)&&a.signum()>0)
+							{
+								a=a.divide(BigInteger.valueOf(6));
+								alst[anss]=a.longValue();
+								blst[anss]=y.subtract(a).longValue();
+								anss++;
+							}
+						}						
+					}
+					top--;
+					if (top>=0)
+					{
+						step[top]++;
+						stack[top]=stack[top].multiply(fac[top]);
+					}
+					else break;
+				}
+				else
+				{
+					if (step[top]>num[top])
+					{
+						top--;
+						if (top>=0)
+						{
+							step[top]++;
+							stack[top]=stack[top].multiply(fac[top]);
+						}
+						else break;
+					}
+					else
+					{
+						top++;
+						stack[top]=stack[top-1];
+						step[top]=0;
+					}
+				}
+			}
+			
+			System.out.print(anss);
+			for (int i=0;i<anss;i++)
+			{
+				for (int j=i+1;j<anss;j++)
+					if (alst[i]>alst[j])
+					{
+						long swap;
+						swap=alst[i];
+						alst[i]=alst[j];
+						alst[j]=swap;
+						swap=blst[i];
+						blst[i]=blst[j];
+						blst[j]=swap;
+					}
+				System.out.print(" ("+alst[i]+","+blst[i]+")");
+			}
+			System.out.println();
 		}
 		cin.close();
 	}
