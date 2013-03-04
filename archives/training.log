@@ -137,3 +137,31 @@ http://acm.hust.edu.cn/vjudge/contest/view.action?cid=19067#overview
 137  Funny Strings 数论 构造法
 138  Games of Chess 构造法
 139  Help Needed! 判断15数码是否有解
+
+
+
+2013.03.02 ACME Training Nine - ZOJ Monthly, November 2012[team]
+
+link: http://acm.hust.edu.cn/vjudge/contest/view.action?cid=19683#overview
+
+#F AC 11 mins
+Brute force
+#A AC 23 mins
+SG function
+#I AC 86 mins 4 wrong tries
+Brute force
+#G AC 171 mins 3 wrong tries
+Math
+#J AC 208 mins
+DP
+#D AC 210 mins
+AC by whd
+#C AC 287 mins
+System of difference constraints
+Shortest path
+
+After contest:
+#H AC
+Math,brute force,dfs
+#B AC
+Math
