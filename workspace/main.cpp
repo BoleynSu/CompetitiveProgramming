@@ -161,29 +161,6 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-db digamma_(db x)
-{
-	rtn log(1/(
-				+1/x
-				+1/(2*x*x)
-				+5/(24*x*x*x)
-				+1/(16*x*x*x*x)
-				+47/(5760*x*x*x*x*x)
-				-5/(2304*x*x*x*x*x*x)
-				));
-}
-db digamma(db x)
-{
-	if (x<1000) rtn digamma(x+1)-1/x;
-	else rtn digamma_(x);
-}
-
 int main()
 {
-	db x;
-	whl(cin>>x)
-	{
-		pdb(12,0.5772156649015328+digamma(x+1))<<endl;
-	}
 }
-
