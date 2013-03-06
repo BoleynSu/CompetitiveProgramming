@@ -161,6 +161,175 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+/*
+ * Package: StandardCodeLibrary.StringAlgorithms.SuffixArray
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace StringAlgorithms
+{
+namespace SuffixArray
+{
+
+const int LOG2_MAXLENGTH=22;
+const int MAXLENGTH=(1<<LOG2_MAXLENGTH)-1;
+typedef char string[MAXLENGTH];
+string s;
+int len;
+int srt[MAXLENGTH];
+int SA[MAXLENGTH];
+int rnk[MAXLENGTH];
+int TSA[MAXLENGTH];
+int Trnk[MAXLENGTH];
+void get_SA()
+{
+	rep(i,len) srt[i]=0;
+	rep(i,len) srt[s[i]]++;
+	repf(i,1,len) srt[i]+=srt[i-1];
+	rep(i,len) SA[--srt[s[i]]]=i;
+	rnk[SA[0]]=0;
+	repf(i,1,len)
+		rnk[SA[i]]=rnk[SA[i-1]]+(s[SA[i]]!=s[SA[i-1]]);
+	for (int block=1;rnk[SA[len-1]]!=len-1;block<<=1)
+	{
+		rep(i,len) srt[rnk[SA[i]]]=i;
+		fdt(i,len-1,0) if (SA[i]-block>=0) TSA[srt[rnk[SA[i]-block]]--]=SA[i]-block;
+		repf(i,len-block,len) TSA[srt[rnk[i]]--]=i;
+		memmove(SA,TSA,sizeof(SA));
+		memmove(Trnk,rnk,sizeof(Trnk));
+		rnk[SA[0]]=0;
+		repf(i,1,len)
+			rnk[SA[i]]=rnk[SA[i-1]]+(Trnk[SA[i]]!=Trnk[SA[i-1]]
+									||Trnk[SA[i]+block]!=Trnk[SA[i-1]+block]);
+	}
+}
+int ht[MAXLENGTH];
+void get_height()
+{
+	for (int i=0,h=0;i<len;i++)
+	{
+		if (h) h--;
+		if (rnk[i])
+		{
+			int j=SA[rnk[i]-1];
+			whl(s[i+h]==s[j+h]) h++;
+		}
+		ht[rnk[i]]=h;
+	}
+}
+int log2[MAXLENGTH];
+int rmq[LOG2_MAXLENGTH+1][MAXLENGTH];
+void get_RMQ()
+{
+	log2[1]=0;
+	ft(i,2,len) log2[i]=log2[i-1]+(i==(i&(-i)));
+	rep(i,len) rmq[0][i]=i;
+	ft(log,1,log2[len])
+	{
+		int exp=1<<log,exp_div_2=exp>>1;
+		rep(i,len-exp+1)
+		{
+			int a=rmq[log-1][i];
+			int b=rmq[log-1][i+exp_div_2];
+			rmq[log][i]=ht[a]<ht[b]?a:b;
+		}
+	}
+}
+int RMQ(int a,int b)
+{
+	int log=log2[b-a+1];
+	int exp=1<<log;
+	a=rmq[log][a],b=rmq[log][b-exp+1];
+	rtn ht[a]<ht[b]?a:b;
+}
+int LCP(int a,int b)
+{
+	if (a==b) rtn len-a;
+	a=rnk[a],b=rnk[b];
+	if (a>b) rtn ht[RMQ(b+1,a)];
+	else rtn ht[RMQ(a+1,b)];
+}
+
+}
+}
+}
+
+using namespace StandardCodeLibrary::StringAlgorithms::SuffixArray;
+
+pii segs[100000];
+int b[100000],e[100000];
+
+void gets(char* s,int& len)
+{
+	len=0;
+	whl((s[len]=getchar())!='\n') len++;
+	s[len]='\0';
+}
+
 int main()
 {
+	char* t=(char*)(rnk);
+	int szt;
+	gets(t,szt);
+	int n;
+	scanf("%d\n",&n);
+	rep(i,szt) s[len++]=t[i];
+	s[len++]='#';
+	rep(i,n)
+	{
+		char* si=(char*)(rnk);
+		int szsi;
+		gets(si,szsi);
+		b[i]=len;
+		rep(j,szsi) s[len++]=si[j];
+		e[i]=len;
+		rep(j,szsi) s[len++]=si[j];
+		s[len]='$';
+	}
+	whl(len<128) s[len++]='.';
+	s[len++]='\0';
+
+	get_SA();
+	get_height();
+	get_RMQ();
+	vi st(len);
+	rep(i,szt) bit_inc(st,rnk[i],1);
+	rep(i,n)
+	{
+		int szsegs=e[i]-b[i];
+		repf(j,b[i],e[i])
+		{
+			int mid=rnk[j];
+			int l,r,L,R;
+			L=-1,R=mid;
+			whl(L+1!=R)
+			{
+				int M=(L+R)>>1;
+				if (LCP(SA[M],SA[mid])>=szsegs) R=M;
+				else L=M;
+			}
+			l=R;
+			L=mid,R=len;
+			whl(L+1!=R)
+			{
+				int M=(L+R)>>1;
+				if (LCP(SA[M],SA[mid])>=szsegs) L=M;
+				else R=M;
+			}
+			r=L;
+			segs[j-b[i]]=mp(l,r);
+		}
+		sort(segs,segs+szsegs);
+		int k=0;
+		rep(j,szsegs)
+		{
+			segs[k]=segs[j];
+			whl(j+1<szsegs&&segs[j+1].x<=segs[k].y) cmax(segs[k].y,segs[++j].y);
+			k++;
+		}
+		int ans=0;
+		rep(i,k) ans+=bit_sum(st,segs[i].y)-bit_sum(st,segs[i].x-1);
+		pf("%d\n",ans);
+	}
 }
