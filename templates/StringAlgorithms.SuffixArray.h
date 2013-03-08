@@ -67,7 +67,7 @@ void get_RMQ()
 {
 	log2=Trnk-1;
 	log2[1]=0;
-	ft(i,2,len) log2[i]=log2[i-1]+(i==(i&(-i)));
+	ft(i,2,len) log2[i]=log2[i>>1]+1;
 	rep(i,len) rmq[0][i]=i;
 	ft(log,1,log2[len])
 	{

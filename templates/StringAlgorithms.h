@@ -1,5 +1,5 @@
 /*
- * Package: StandardCodeLibrary.viAlgorithms
+ * Package: StandardCodeLibrary.StringAlgorithms
  * Description:
  * KMP算法;
  * 扩展KMP算法;
@@ -13,7 +13,7 @@
 
 namespace StandardCodeLibrary
 {
-namespace viAlorithm
+namespace StringAlgorithms
 {
 
 //KMP算法

@@ -26,6 +26,7 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
+#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
@@ -113,6 +114,9 @@ typedef set<str> ss;
 typedef que<int> qi;
 typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
+#if __GNUC__>=4 and __GNUC_MINOR__>=6
+using __gnu_cxx::rope;
+#endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -125,8 +129,8 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-db pi=acos(-1.0);
 db gamma=0.5772156649015328606;
+db pi=acos(-1.0);
 int dx[]={1,0,-1,0,1,-1,-1,1,0};
 int dy[]={0,1,0,-1,1,1,-1,-1,0};
 int MOD=1000000007;

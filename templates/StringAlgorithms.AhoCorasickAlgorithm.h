@@ -28,7 +28,7 @@ class AC_Automation
 {
 	node rt;
 	virtual void update(info&,const info&)=0;
-	virtual void calculate(info&)=0;
+	virtual void calculate(const info&)=0;
 public:
 	AC_Automation():rt(top++){}
 	void insert(vi s,const info& i)

@@ -26,6 +26,7 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
+#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
@@ -113,6 +114,9 @@ typedef set<str> ss;
 typedef que<int> qi;
 typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
+#if __GNUC__>=4 and __GNUC_MINOR__>=6
+using __gnu_cxx::rope;
+#endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -172,41 +176,46 @@ namespace StringAlgorithms
 namespace SuffixArray
 {
 
-const int LOG2_MAXLENGTH=22;
-const int MAXLENGTH=(1<<LOG2_MAXLENGTH)-1;
+const int LOG2_MAXLENGTH=20;
+const int MAXLENGTH=1<<LOG2_MAXLENGTH;
 typedef char string[MAXLENGTH];
 string s;
 int len;
-int srt[MAXLENGTH];
-int SA[MAXLENGTH];
-int rnk[MAXLENGTH];
-int TSA[MAXLENGTH];
-int Trnk[MAXLENGTH];
+int _a[MAXLENGTH],_b[MAXLENGTH],_c[MAXLENGTH],_d[MAXLENGTH];
+int* srt;
+int* SA=_a;
+int* rnk=_b;
+int* TSA=_c;
+int* Trnk=_d;
 void get_SA()
 {
-	rep(i,len) srt[i]=0;
+	srt=Trnk;
+	rep(i,256) srt[i]=0;
 	rep(i,len) srt[s[i]]++;
-	repf(i,1,len) srt[i]+=srt[i-1];
+	repf(i,1,256) srt[i]+=srt[i-1];
 	rep(i,len) SA[--srt[s[i]]]=i;
 	rnk[SA[0]]=0;
 	repf(i,1,len)
 		rnk[SA[i]]=rnk[SA[i-1]]+(s[SA[i]]!=s[SA[i-1]]);
 	for (int block=1;rnk[SA[len-1]]!=len-1;block<<=1)
 	{
+		srt=Trnk;
 		rep(i,len) srt[rnk[SA[i]]]=i;
 		fdt(i,len-1,0) if (SA[i]-block>=0) TSA[srt[rnk[SA[i]-block]]--]=SA[i]-block;
 		repf(i,len-block,len) TSA[srt[rnk[i]]--]=i;
-		memmove(SA,TSA,sizeof(SA));
-		memmove(Trnk,rnk,sizeof(Trnk));
+		int* swap;
+		swap=SA,SA=TSA,TSA=swap;
+		swap=rnk,rnk=Trnk,Trnk=swap;
 		rnk[SA[0]]=0;
 		repf(i,1,len)
 			rnk[SA[i]]=rnk[SA[i-1]]+(Trnk[SA[i]]!=Trnk[SA[i-1]]
 									||Trnk[SA[i]+block]!=Trnk[SA[i-1]+block]);
 	}
 }
-int ht[MAXLENGTH];
+int* ht;
 void get_height()
 {
+	ht=TSA;
 	for (int i=0,h=0;i<len;i++)
 	{
 		if (h) h--;
@@ -218,12 +227,13 @@ void get_height()
 		ht[rnk[i]]=h;
 	}
 }
-int log2[MAXLENGTH];
+int* log2;
 int rmq[LOG2_MAXLENGTH+1][MAXLENGTH];
 void get_RMQ()
 {
+	log2=Trnk-1;
 	log2[1]=0;
-	ft(i,2,len) log2[i]=log2[i-1]+(i==(i&(-i)));
+	ft(i,2,len) log2[i]=log2[i>>1]+1;
 	rep(i,len) rmq[0][i]=i;
 	ft(log,1,log2[len])
 	{
@@ -257,79 +267,72 @@ int LCP(int a,int b)
 
 using namespace StandardCodeLibrary::StringAlgorithms::SuffixArray;
 
-pii segs[100000];
-int b[100000],e[100000];
-
-void gets(char* s,int& len)
+#define nd(l,r) (st[((l)+(r))|((l)!=(r))])
+#define rt nd(l,r)
+#define lc nd(l,m)
+#define rc nd(m+1,r)
+struct node{lli sum;int lzv;bool lz;};
+node st[(100000<<1)+1];
+void upd(int l,int r,int L,int R,int v)
 {
-	len=0;
-	whl((s[len]=getchar())!='\n') len++;
-	s[len]='\0';
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R)
+	{
+		rt.sum=lli(r-l+1)*v;
+		rt.lzv=v;
+		rt.lz=true;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.lz)
+		{
+			rt.lz=false;
+			lc.sum=lli(m-l+1)*rt.lzv;
+			lc.lzv=rt.lzv;
+			lc.lz=true;
+			rc.sum=lli(r-m)*rt.lzv;
+			rc.lzv=rt.lzv;
+			rc.lz=true;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+		rt.sum=lc.sum+rc.sum;
+	}
+}
+lli qry(int l,int r,int L,int R)
+{
+	if (R<l||r<L) rtn 0;
+	else if (L<=l&&r<=R) rtn rt.sum;
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.lz)
+		{
+			rt.lz=false;
+			lc.sum=lli(m-l+1)*rt.lzv;
+			lc.lzv=rt.lzv;
+			lc.lz=true;
+			rc.sum=lli(r-m)*rt.lzv;
+			rc.lzv=rt.lzv;
+			rc.lz=true;
+		}
+		rtn qry(l,m,L,R)+qry(m+1,r,L,R);
+	}
 }
 
 int main()
 {
-	char* t=(char*)(rnk);
-	int szt;
-	gets(t,szt);
-	int n;
-	scanf("%d\n",&n);
-	rep(i,szt) s[len++]=t[i];
-	s[len++]='#';
-	rep(i,n)
-	{
-		char* si=(char*)(rnk);
-		int szsi;
-		gets(si,szsi);
-		b[i]=len;
-		rep(j,szsi) s[len++]=si[j];
-		e[i]=len;
-		rep(j,szsi) s[len++]=si[j];
-		s[len]='$';
-	}
-	whl(len<128) s[len++]='.';
-	s[len++]='\0';
-
+	cin>>s;
+	len=strlen(s)+1;
 	get_SA();
 	get_height();
 	get_RMQ();
-	vi st(len);
-	rep(i,szt) bit_inc(st,rnk[i],1);
-	rep(i,n)
+	lli ans=-len;
+	rep(i,len)
 	{
-		int szsegs=e[i]-b[i];
-		repf(j,b[i],e[i])
-		{
-			int mid=rnk[j];
-			int l,r,L,R;
-			L=-1,R=mid;
-			whl(L+1!=R)
-			{
-				int M=(L+R)>>1;
-				if (LCP(SA[M],SA[mid])>=szsegs) R=M;
-				else L=M;
-			}
-			l=R;
-			L=mid,R=len;
-			whl(L+1!=R)
-			{
-				int M=(L+R)>>1;
-				if (LCP(SA[M],SA[mid])>=szsegs) L=M;
-				else R=M;
-			}
-			r=L;
-			segs[j-b[i]]=mp(l,r);
-		}
-		sort(segs,segs+szsegs);
-		int k=0;
-		rep(j,szsegs)
-		{
-			segs[k]=segs[j];
-			whl(j+1<szsegs&&segs[j+1].x<=segs[k].y) cmax(segs[k].y,segs[++j].y);
-			k++;
-		}
-		int ans=0;
-		rep(i,k) ans+=bit_sum(st,segs[i].y)-bit_sum(st,segs[i].x-1);
-		pf("%d\n",ans);
+		upd(0,len-1,ht[i],len-1,i-1);
+		ans+=lli(len-SA[i])*i-qry(0,len-1,0,len-SA[i]-1);
+		prt(ans);
 	}
+	cout<<ans<<endl;
 }
