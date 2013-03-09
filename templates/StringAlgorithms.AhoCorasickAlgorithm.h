@@ -26,6 +26,7 @@ struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
 
 class AC_Automation
 {
+protected:
 	node rt;
 	virtual void update(info&,const info&)=0;
 	virtual void calculate(const info&)=0;
