@@ -1,0 +1,4 @@
+#ifndef SCL_STRING_ALGORITHMS_SAM
+#define SCL_STRING_ALGORITHMS_SAM
+#include <StringAlgorithms.SuffixAutomation.h>
+#endif
