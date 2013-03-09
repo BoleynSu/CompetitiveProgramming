@@ -166,132 +166,241 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
 /*
- * Package: StandardCodeLibrary.StringAlgorithms.SuffixArray
+ * Package: StandardCodeLibrary.StringAlgorithms
+ * Description:
+ * KMP算法;
+ * 扩展KMP算法;
+ * 最长回文子串 Manacher's Algorithm;
+ * AC自动机 Aho-Corasick Algorithm;
+ * 后缀数组倍增法;
+ * 后缀自动机;
  * */
 
 namespace StandardCodeLibrary
 {
 namespace StringAlgorithms
 {
-namespace SuffixArray
-{
 
-const int LOG2_MAXLENGTH=20;
-const int MAXLENGTH=1<<LOG2_MAXLENGTH;
-typedef char string[MAXLENGTH];
-string s;
-int len;
-int _a[MAXLENGTH],_b[MAXLENGTH],_c[MAXLENGTH],_d[MAXLENGTH];
-int* srt;
-int* SA=_a;
-int* rnk=_b;
-int* TSA=_c;
-int* Trnk=_d;
-void get_SA()
+//KMP算法
+void get_pi(const vi t,vi& pi)
 {
-	srt=Trnk;
-	rep(i,len) srt[i]=0;
-	rep(i,len) srt[s[i]]++;
-	repf(i,1,len) srt[i]+=srt[i-1];
-	rep(i,len) SA[--srt[s[i]]]=i;
-	rnk[SA[0]]=0;
-	repf(i,1,len)
-		rnk[SA[i]]=rnk[SA[i-1]]+(s[SA[i]]!=s[SA[i-1]]);
-	for (int block=1;rnk[SA[len-1]]!=len-1;block<<=1)
+	pi.resize(sz(t)),pi[0]=-1;
+	int j=-1;
+	repf(i,1,sz(t))
 	{
-		srt=Trnk;
-		rep(i,len) srt[rnk[SA[i]]]=i;
-		fdt(i,len-1,0) if (SA[i]-block>=0) TSA[srt[rnk[SA[i]-block]]--]=SA[i]-block;
-		repf(i,len-block,len) TSA[srt[rnk[i]]--]=i;
-		int* swap;
-		swap=SA,SA=TSA,TSA=swap;
-		swap=rnk,rnk=Trnk,Trnk=swap;
-		rnk[SA[0]]=0;
-		repf(i,1,len)
-			rnk[SA[i]]=rnk[SA[i-1]]+(Trnk[SA[i]]!=Trnk[SA[i-1]]
-									||Trnk[SA[i]+block]!=Trnk[SA[i-1]+block]);
+		whl(j!=-1&&t[j+1]!=t[i]) j=pi[j];
+		if (t[j+1]==t[i]) j++;
+		pi[i]=j;
 	}
 }
-int* ht;
-void get_height()
+void get_match(const vi& t,const vi& pi,const vi& s,vi& match)
 {
-	ht=TSA;
-	for (int i=0,h=0;i<len;i++)
+	int j=-1;
+	rep(i,sz(s))
 	{
-		if (h) h--;
-		if (rnk[i])
+		whl(j!=-1&&t[j+1]!=s[i]) j=pi[j];
+		if (t[j+1]==s[i]) j++;
+		if (j==sz(t)-1)
 		{
-			int j=SA[rnk[i]-1];
-			whl(s[i+h]==s[j+h]) h++;
-		}
-		ht[rnk[i]]=h;
-	}
-}
-int* log2;
-int rmq[LOG2_MAXLENGTH+1][MAXLENGTH];
-void get_RMQ()
-{
-	log2=Trnk-1;
-	log2[1]=0;
-	ft(i,2,len) log2[i]=log2[i>>1]+1;
-	rep(i,len) rmq[0][i]=i;
-	ft(log,1,log2[len])
-	{
-		int exp=1<<log,exp_div_2=exp>>1;
-		rep(i,len-exp+1)
-		{
-			int a=rmq[log-1][i];
-			int b=rmq[log-1][i+exp_div_2];
-			rmq[log][i]=ht[a]<ht[b]?a:b;
+			match.pb(i-j);
+			j=pi[j];
 		}
 	}
 }
-int RMQ(int a,int b)
+int KMP(const vi& t,const vi& s)
 {
-	int log=log2[b-a+1];
-	int exp=1<<log;
-	a=rmq[log][a],b=rmq[log][b-exp+1];
-	rtn ht[a]<ht[b]?a:b;
+	vi pi;
+	get_pi(t,pi);
+	vi match;
+	get_match(t,pi,s,match);
+	if (sz(match)) rtn match.front();
+	else rtn -1;
 }
-int LCP(int a,int b)
+
+//扩展KMP算法
+void get_ext(const vi& t,vi& ext)
 {
-	if (a==b) rtn len-a;
-	a=rnk[a],b=rnk[b];
-	if (a>b) rtn ht[RMQ(b+1,a)];
-	else rtn ht[RMQ(a+1,b)];
+	ext.resize(sz(t)),ext[0]=sz(t);
+	if (sz(t)==1) rtn;
+	int j=0,a=1;
+	whl(1+j<sz(t)&&t[1+j]==t[j]) j++;
+	ext[1]=j;
+	repf(i,2,sz(t))
+	{
+		if (i+ext[i-a]<a+ext[a]) ext[i]=ext[i-a];
+		else
+		{
+			j=max(a+ext[a]-i,0);
+			whl(i+j<sz(t)&&t[i+j]==t[j]) j++;
+			ext[a=i]=j;
+		}
+	}
 }
+void get_extend(const vi& t,const vi& ext,const vi& s,vi& extend)
+{
+	extend.resize(sz(s));
+	int j=0,a=0;
+	whl(j<sz(s)&&j<sz(t)&&s[j]==t[j]) j++;
+	extend[0]=j;
+	repf(i,1,sz(s))
+	{
+		if (i+ext[i-a]<a+extend[a]) extend[i]=ext[i-a];
+		else
+		{
+			j=max(a+extend[a]-i,0);
+			whl(i+j<sz(s)&&j<sz(t)&&s[i+j]==t[j]) j++;
+			extend[a=i]=j;
+		}
+	}
+}
+
+//最长回文子串 Manacher's Algorithm
+void longest_palindromic_substring(const vi& str,vi& ans_str,int split=0)
+{
+	vi S;
+	rep(i,sz(str)) S.pb(split),S.pb(str[i]);
+	S.pb(split);
+	vi p(sz(S));
+	int ans,ansi,mid;
+	ans=(p[mid=0]=1)-1;
+	repf(i,1,sz(S))
+	{
+	    p[i]=p[mid]+mid>i?min(p[mid]+mid-i,p[mid*2-i]):1;
+	    whl(i>=p[i]&&i+p[i]<sz(S)&&S[i-p[i]]==S[i+p[i]]) p[i]++;
+	    if (cmax(ans,p[i]-1)) ansi=i;
+	    if (p[i]+i>p[mid]+mid) mid=i;
+	}
+	ans_str.clear();
+	ft(i,ansi-ans,ansi+ans)
+		if (S[i]!=split) ans_str.pb(S[i]);
+}
+
+}
+}
+
+/*
+ * Package: StandardCodeLibrary.StringAlgorithms.SuffixAutomation
+ * Usage:
+ * MAXNODE:后缀自动机最多有多少个节点
+ * MAXALPHABET:字母表大小
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace StringAlgorithms
+{
+namespace SuffixAutomation
+{
+
+const int MAXNODE=2000000+1;
+const int MAXALPHABET=26;
+struct struct_node{struct_node* n[MAXALPHABET];struct_node* lnk;int len;bool isc;};
+typedef struct_node* node;
+struct_node pool[MAXNODE];
+node top;
+
+struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
+
+class SuffixAutomation
+{
+protected:
+	node rt,lst;
+public:
+	SuffixAutomation():rt(top++),lst(rt){rt->isc=true;}
+	void extend(int c)
+	{
+		node u=top++;
+		u->len=lst->len+1;
+		node v=lst;
+		whl(v&&!v->n[c]) v->n[c]=u,v=v->lnk;
+		if (v)
+		{
+			node vnc=v->n[c];
+			if (v->len+1==vnc->len) u->lnk=vnc;
+			else
+			{
+				node nvnc=top++;
+				memcpy(nvnc,vnc,sizeof(struct_node));
+				nvnc->len=v->len+1;
+				nvnc->isc=true;
+				vnc->lnk=nvnc;
+				whl(v&&v->n[c]==vnc) v->n[c]=nvnc,v=v->lnk;
+				u->lnk=nvnc;
+			}
+		}
+		else u->lnk=rt;
+		lst=u;
+	}
+};
 
 }
 }
 }
 
-using namespace StandardCodeLibrary::StringAlgorithms::SuffixArray;
+using namespace StandardCodeLibrary::StringAlgorithms;
+using namespace StandardCodeLibrary::StringAlgorithms::SuffixAutomation;
 
-int blng[MAXLENGTH];
-int total;
-int cnt[MAXLENGTH];
+struct SAM:SuffixAutomation::SuffixAutomation
+{
+	map<node,int> sc;
+	map<node,vec<node> > lnks;
+	void init_dp()
+	{
+		for (node i=pool;i!=top;i++)
+			if (i->lnk) lnks[i->lnk].pb(i);
+	}
+	lli dp_sc(node u)
+	{
+		if (!sc.count(u))
+		{
+			if (u!=rt)
+			{
+				sc[u]=!u->isc;
+				const vec<node>& lnksunc=lnks[u];
+				feach(it,lnksunc) sc[u]+=dp_sc(*it);
+			}
+			else sc[u]=0;
+		}
+		rtn sc[u];
+	}
+	int qry(str& s)
+	{
+		vi lst(sz(s)),pi;
+		rep(i,sz(s)) lst[i]=s[i]-'a';
+		get_pi(lst,pi);
+
+		int cycle=sz(s)%(sz(s)-1-pi[sz(s)-1])?sz(s):(sz(s)-1-pi[sz(s)-1]);
+
+		int ans=0;
+		node u=rt;
+		int mat=0;
+		rep(i,sz(s)+cycle-1)
+		{
+			int si=lst[i>=sz(s)?i-sz(s):i];
+			whl(u!=rt&&!u->n[si]) u=u->lnk,mat=u->len;
+			if (u->n[si]) u=u->n[si],mat++;
+			if (mat>=sz(s))
+			{
+				ans+=dp_sc(u);
+				whl(u!=rt&&u->lnk->len>=sz(s)-1) u=u->lnk,mat=u->len;
+			}
+		}
+		rtn ans;
+	}
+};
 
 int main()
 {
-	int n,k;
-	cin>>n>>k;
-	fl(blng,-1);
+	str s;
+	cin>>s;
+	SAM sam;
+	rep(i,sz(s)) sam.extend(s[i]-'a');
+	sam.init_dp();
+	int n;
+	cin>>n;
 	rep(i,n)
 	{
-		cin>>s+len;
-		int l=strlen(s+len);
-		rep(j,l) blng[len+j]=i;
-		len+=l;
-		s[len++]='#';
-	}
-	whl(len<256) s[len++]="#";
-	s[len++]='\0';
-	get_SA();
-	get_height();
-	get_RMQ();
-	int j=0;
-	rep(i,len)
-	{
-
+		cin>>s;
+		cout<<sam.qry(s)<<endl;
 	}
 }
