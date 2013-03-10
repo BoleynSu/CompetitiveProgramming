@@ -20,6 +20,8 @@ namespace Math
 namespace NumberTheory
 {
 
+typedef unsigned long long big;
+
 //O(n)的筛法求素数表
 //MAXPS=[1,MAXP]中素数的个数
 const int MAXP=10000000;
@@ -44,86 +46,93 @@ void make_prime_table()
 	}
 }
 
-//带mod的乘法
-lli mulWithMod(lli x,lli y,lli z)
+//带mod的加法 0<=a,b<mod
+#define add(a,b,mod) ((a)>=(mod)-(b)?(b)-((mod)-(a)):(a)+(b))
+//带mod的乘法 0<=a,b<mod
+big mul(big a,big b,big mod)
 {
-	lli ret=0;
-	x%=z;
-	y%=z;
-	whl(y)
+	big c=0;
+	while (b)
 	{
-		if (y&1)
-		{
-			ret+=x;
-			if (ret>=z) ret-=z;
-		}
-		x<<=1;
-		if (x>=z) x-=z;
-		y>>=1;
+		if (b&1) c=add(c,a,mod);
+		a=add(a,a,mod);
+		b>>=1;
 	}
-	rtn ret;
+	return c;
 }
-
-//带mod的指数函数
-lli powWithMod(lli x,lli y,lli z)
+//带mod的指数函数 0<=a,b<mod
+big pow(big a,big b,big mod)
 {
-	lli ret=1;
-	x%=z;
-	whl(y)
+	big c=1;
+	while (b)
 	{
-		if (y&1) ret=mulWithMod(ret,x,z);
-		y>>=1;
-		x=mulWithMod(x,x,z);
+		if (b&1) c=mul(c,a,mod);
+		a=mul(a,a,mod);
+		b>>=1;
 	}
-	rtn ret;
+	return c;
 }
-
-//Rabin-Miller素数测试
-bool isProbablePrime(lli n,lli k=50)
+//Rabin-Miller素数测试 n>1且n为奇数
+bool witness(big n)
 {
-	if (n<=1) rtn false;
-	else if (n<=3) rtn true;
+	big nm1=n-1;
+	big a=rand()%nm1+1;
+	big d=nm1;
+	while ((d&1)==0) d>>=1;
+	big x=pow(a,d,n);
+	if (x==1) return true;
+	for (;;)
+	{
+		if (x==nm1) return true;
+		d<<=1;
+		if (d==nm1) return false;
+		x=mul(x,x,n);
+	}
+}
+//Rabin-Miller素数测试 n>=2
+bool isprime(big n,int k=20)
+{
+	if (n%2==0) return n==2;
 	else
 	{
-		lli d=n-1;
-		whl(!(d&1)) d>>=1;
-		rep(i,k)
-		{
-			lli a=rand()%(n-3)+2;//2 to n-2
-			lli x=powWithMod(a,d,n);
-			if (x==1) continue;
-			whl(d!=n-1&&x!=n-1&&x!=1)
-			{
-				x=mulWithMod(x,x,n);
-				d<<=1;
-			}
-			if (x!=n-1) rtn false;
-		}
-		rtn true;
+		for (int i=0;i<k;i++)
+			if (!witness(n))
+				return false;
+		return true;
 	}
 }
-
-//Pollard's rho大数分解
-lli factor(lli n,lli k=50)
+//Pollard's rho大数分解 n>1且n为合数
+big rho(big n)
 {
-	if (isProbablePrime(n,k)) rtn n;
-	lp
+	if (n%2==0) return big(2);
+	else
 	{
-		lli d=1,x=rand()%(n-1)+1,//1 to n-1
-				y=rand()%(n-1)+1,//1 to n-1
-				c=rand()%n;
-		if (c==0) c++;//c!=0
-		if (c==n-2) c++;//c!=n-2
-		lli loop=0;
-		whl(d==1)
+		big d;
+		big c=rand()%n;
+		big x=rand()%n;
+		big y=x;
+		do
 		{
-			loop++;
-			if (((-loop)&loop)==loop) y=x;
-			x=(mulWithMod(x,x,n)+c)%n;
-			if (x==y) break;
-			d=gcd(y-x+n,n);
-			if (d!=1&&d!=n) rtn factor(d,k);
+			x=add(mul(x,x,n),c,n);
+			y=add(mul(y,y,n),c,n);
+			y=add(mul(y,y,n),c,n);
+			if (x>y) d=gcd(x-y,n);
+			else d=gcd(y-x,n);
 		}
+		while(d==1);
+		return d;
+	}
+}
+//Pollard's rho大数分解 n>1
+big factor(big n,int k=20)
+{
+	if (isprime(n,k)) return n;
+	else
+	{
+		big d;
+		do d=rho(n);
+		while (d==1||d==n);
+		return factor(d);
 	}
 }
 

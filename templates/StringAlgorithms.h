@@ -2,7 +2,7 @@
  * Package: StandardCodeLibrary.StringAlgorithms
  * Description:
  * KMP算法;
- * 扩展KMP算法;
+ * 扩展KMP算法 Z Algorithm;
  * 最长回文子串 Manacher's Algorithm;
  * AC自动机 Aho-Corasick Algorithm;
  * 后缀数组倍增法;

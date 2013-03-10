@@ -292,6 +292,5 @@ int main()
 	int j=0;
 	rep(i,len)
 	{
-
 	}
 }
