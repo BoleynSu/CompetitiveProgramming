@@ -168,8 +168,8 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 /*
  * Package: StandardCodeLibrary.StringAlgorithms
  * Description:
- * KMP算法;
- * 扩展KMP算法;
+ * KMP算法 Knuth-Morris-Pratt Algorithm;
+ * Z Algorithm;
  * 最长回文子串 Manacher's Algorithm;
  * AC自动机 Aho-Corasick Algorithm;
  * 后缀数组倍增法;
@@ -190,11 +190,12 @@ void get_pi(const vi t,vi& pi)
 	{
 		whl(j!=-1&&t[j+1]!=t[i]) j=pi[j];
 		if (t[j+1]==t[i]) j++;
-		pi[i]=j;
+		pi[i]=(j!=-1&&i+1<sz(t)&&t[j+1]==t[i+1])?pi[j]:j;
 	}
 }
 void get_match(const vi& t,const vi& pi,const vi& s,vi& match)
 {
+	match.clear();
 	int j=-1;
 	rep(i,sz(s))
 	{
@@ -217,39 +218,19 @@ int KMP(const vi& t,const vi& s)
 	else rtn -1;
 }
 
-//扩展KMP算法
-void get_ext(const vi& t,vi& ext)
+//Z Algorithm
+void z_algorithm(const vi& s,vi& z)
 {
-	ext.resize(sz(t)),ext[0]=sz(t);
-	if (sz(t)==1) rtn;
-	int j=0,a=1;
-	whl(1+j<sz(t)&&t[1+j]==t[j]) j++;
-	ext[1]=j;
-	repf(i,2,sz(t))
-	{
-		if (i+ext[i-a]<a+ext[a]) ext[i]=ext[i-a];
-		else
-		{
-			j=max(a+ext[a]-i,0);
-			whl(i+j<sz(t)&&t[i+j]==t[j]) j++;
-			ext[a=i]=j;
-		}
-	}
-}
-void get_extend(const vi& t,const vi& ext,const vi& s,vi& extend)
-{
-	extend.resize(sz(s));
+	z.resize(sz(s)),z[0]=0;
 	int j=0,a=0;
-	whl(j<sz(s)&&j<sz(t)&&s[j]==t[j]) j++;
-	extend[0]=j;
 	repf(i,1,sz(s))
 	{
-		if (i+ext[i-a]<a+extend[a]) extend[i]=ext[i-a];
+		if (i+z[i-a]<a+z[a]) z[i]=z[i-a];
 		else
 		{
-			j=max(a+extend[a]-i,0);
-			whl(i+j<sz(s)&&j<sz(t)&&s[i+j]==t[j]) j++;
-			extend[a=i]=j;
+			j=max(a+z[a]-i,0);
+			whl(i+j<sz(s)&&s[i+j]==s[j]) j++;
+			z[a=i]=j;
 		}
 	}
 }

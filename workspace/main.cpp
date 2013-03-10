@@ -190,11 +190,12 @@ void get_pi(const vi t,vi& pi)
 	{
 		whl(j!=-1&&t[j+1]!=t[i]) j=pi[j];
 		if (t[j+1]==t[i]) j++;
-		pi[i]=(i+1<sz(t)&&t[i+1]==t[j+1])?pi[j]:j;
+		pi[i]=(j!=-1&&i+1<sz(t)&&t[j+1]==t[i+1])?pi[j]:j;
 	}
 }
 void get_match(const vi& t,const vi& pi,const vi& s,vi& match)
 {
+	match.clear();
 	int j=-1;
 	rep(i,sz(s))
 	{
@@ -270,40 +271,13 @@ void read(vi& v)
 
 int main()
 {
+	vi t;
+	read(t);
+	vi pi;
+	get_pi(t,pi);
 	vi s;
 	read(s);
-	vi rs=s;
-	reverse(all(rs));
-	int m;
-	cin>>m;
-	int ans=0;
-	rep(i,m)
-	{
-		vi t;
-		read(t);
-		vi rt=t;
-		reverse(all(rt));
-		vi gt=t,grt=rt;
-		gt.pb('$');
-		gt.insert(gt.end(),all(s));
-		grt.pb('$');
-		grt.insert(grt.end(),all(rs));
-		vi z,rz;
-		z_algorithm(gt,z);
-		z_algorithm(grt,rz);
-		vec<lli> f(sz(t)+1,+oo),rf(sz(rt)+1,+oo);
-		rep(i,sz(s)) cmin<lli>(f[z[sz(t)+1+i]],i);
-		rep(i,sz(rs)) cmin<lli>(rf[rz[sz(rt)+1+i]],i);
-		fdt(i,sz(t),1) cmin(f[i-1],f[i]);
-		fdt(i,sz(rt),1) cmin(rf[i-1],rf[i]);
-		repf(i,1,sz(t))
-		{
-			if (sz(s)>=f[i]+rf[sz(t)-i]+sz(t))
-			{
-				ans++;
-				break;
-			}
-		}
-	}
-	cout<<ans<<endl;
+	vi match;
+	get_match(t,pi,s,match);
+	rep(i,sz(match)) cout<<match[i]<<endl;
 }

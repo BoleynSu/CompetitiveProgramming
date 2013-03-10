@@ -27,11 +27,12 @@ void get_pi(const vi t,vi& pi)
 	{
 		whl(j!=-1&&t[j+1]!=t[i]) j=pi[j];
 		if (t[j+1]==t[i]) j++;
-		pi[i]=(i+1<sz(t)&&t[i+1]==t[j+1])?pi[j]:j;
+		pi[i]=(j!=-1&&i+1<sz(t)&&t[j+1]==t[i+1])?pi[j]:j;
 	}
 }
 void get_match(const vi& t,const vi& pi,const vi& s,vi& match)
 {
+	match.clear();
 	int j=-1;
 	rep(i,sz(s))
 	{
