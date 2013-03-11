@@ -135,6 +135,7 @@ big factor(big n,int k=20)
 		return factor(d);
 	}
 }
+#undef add
 
 //计算phi
 lli phi(lli x,lli k=50)

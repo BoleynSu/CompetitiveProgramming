@@ -15,9 +15,8 @@ namespace SuffixAutomation
 
 const int MAXNODE=1000000;
 const int MAXALPHABET=26;
-struct struct_node{struct_node* n[MAXALPHABET];struct_node* lnk;int len;bool isc;};
-typedef struct_node* node;
-struct_node pool[MAXNODE];
+typedef struct struct_node* node;
+struct struct_node{node n[MAXALPHABET];node lnk;int len;bool isc;}pool[MAXNODE];
 node top;
 
 struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;

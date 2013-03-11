@@ -16,9 +16,8 @@ namespace AhoCorasickAlgorithm
 const int MAXNODE=1000000;
 const int MAXALPHABET=26;
 typedef bool info;
-struct struct_node{struct_node* n[MAXALPHABET];struct_node* f;info i;int v;};
-typedef struct_node* node;
-struct_node pool[MAXNODE];
+typedef struct struct_node* node;
+struct struct_node{node n[MAXALPHABET];node f;info i;int v;}pool[MAXNODE];
 node top;
 int cnt;
 

@@ -166,6 +166,44 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+namespace my
+{
+const int MAXE=1000000;
+typedef int cost_type;
+typedef struct struct_node* node;
+struct struct_node{int v;cost_type d;struct_node* n;}pool[MAXE];
+}
+
 int main()
 {
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

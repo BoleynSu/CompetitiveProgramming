@@ -27,11 +27,10 @@ namespace EdmondssMatchingAlgorithm
 const int MAXV=100;
 const int MAXE=MAXV*MAXV*2;
 const int NOT_NODE=-1;
-struct struct_edge{int v;struct_edge* n;};
-typedef struct_edge* edge;
-int V;
-struct_edge pool[MAXE];
+typedef struct struct_edge* edge;
+struct struct_edge{int v;edge n;}pool[MAXE];
 edge top;
+int V;
 edge adj[MAXV];
 void build_graph(int v)
 {

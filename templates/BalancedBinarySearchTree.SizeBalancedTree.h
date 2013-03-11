@@ -13,9 +13,8 @@ namespace SizeBalancedTree
 
 typedef int type;
 const int MAXNODE=1000000;
-struct struct_node{type k;int s;struct_node* c[1<<1];};
-typedef struct_node* node;
-struct_node pool[MAXNODE];
+typedef struct struct_node* node;
+struct struct_node{type k;int s;struct_node* c[1<<1];}pool[MAXNODE];
 node top,null;
 
 struct Initializer{Initializer(){top=pool,null=top++,null->s=0,null->c[false]=null->c[true]=null;}}initializer;
