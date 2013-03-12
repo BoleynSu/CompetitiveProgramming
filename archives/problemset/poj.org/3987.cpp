@@ -21,7 +21,7 @@ str++;
 }
 p->count=c;
 }
-void build_ac_automation(node const root)
+void build_ac_automaton(node const root)
 {
 q[head=tail=0]=root;
  while (head<=tail)
@@ -104,7 +104,7 @@ int main()
 			}
 			insert(root,s,i);
 		}
-		build_ac_automation(root);
+		build_ac_automaton(root);
 		scanf("%s",si);
 		char* j=so;
 		for (char* i=si;*i;i++)

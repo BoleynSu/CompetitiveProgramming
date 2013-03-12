@@ -41,7 +41,7 @@ void insert(node root,char* str,int id)
     }
     p->id=id;
 }
-void build_ac_automation(node root)
+void build_ac_automaton(node root)
 {
     q[head=tail=0]=root;
     while (head<=tail)
@@ -97,7 +97,7 @@ int main()
         top->id=-1;
         node root=top++;
         for (int i=0;i<n;i++) insert(root,DNA[i],i);
-        build_ac_automation(root);
+        build_ac_automaton(root);
         #define P(x) ((x)-pool)
         #define rP(x) (pool+(x))
         #define L(x) ((x)&1)

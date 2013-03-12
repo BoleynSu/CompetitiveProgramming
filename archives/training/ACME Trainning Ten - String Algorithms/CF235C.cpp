@@ -260,7 +260,7 @@ void longest_palindromic_substring(const vi& str,vi& ans_str,int split=0)
 }
 
 /*
- * Package: StandardCodeLibrary.StringAlgorithms.SuffixAutomation
+ * Package: StandardCodeLibrary.StringAlgorithms.SuffixAutomaton
  * Usage:
  * MAXNODE:后缀自动机最多有多少个节点
  * MAXALPHABET:字母表大小
@@ -270,7 +270,7 @@ namespace StandardCodeLibrary
 {
 namespace StringAlgorithms
 {
-namespace SuffixAutomation
+namespace SuffixAutomaton
 {
 
 const int MAXNODE=2000000+1;
@@ -282,12 +282,12 @@ node top;
 
 struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
 
-class SuffixAutomation
+class SuffixAutomaton
 {
 protected:
 	node rt,lst;
 public:
-	SuffixAutomation():rt(top++),lst(rt){rt->isc=true;}
+	SuffixAutomaton():rt(top++),lst(rt){rt->isc=true;}
 	void extend(int c)
 	{
 		node u=top++;
@@ -319,9 +319,9 @@ public:
 }
 
 using namespace StandardCodeLibrary::StringAlgorithms;
-using namespace StandardCodeLibrary::StringAlgorithms::SuffixAutomation;
+using namespace StandardCodeLibrary::StringAlgorithms::SuffixAutomaton;
 
-struct SAM:SuffixAutomation::SuffixAutomation
+struct SAM:SuffixAutomaton::SuffixAutomaton
 {
 	map<node,int> sc;
 	map<node,vec<node> > lnks;

@@ -23,14 +23,14 @@ int cnt;
 
 struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
 
-class ACAutomation
+class ACAutomaton
 {
 protected:
 	node rt;
 	virtual void update(info&,const info&)=0;
 	virtual void calculate(const info&)=0;
 public:
-	ACAutomation():rt(top++){}
+	ACAutomaton():rt(top++){}
 	void insert(vi s,const info& i)
 	{
 		node u=rt;

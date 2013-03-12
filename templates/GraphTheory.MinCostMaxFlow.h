@@ -59,8 +59,8 @@ void min_cost_max_flow(flow_type& flow,cost_type& cost)
 			for (edge i=adj[u];i;i=i->n)
 				if (i->c&&cmin(d[i->v],d[u]+i->d))
 				{
-					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
 					p[i->v]=i;
+					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
 				}
 		}
 		if (d[T]==oo) break;
@@ -68,9 +68,60 @@ void min_cost_max_flow(flow_type& flow,cost_type& cost)
 		{
 			flow_type delta=oo;
 			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
-			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta;
+			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
 			flow+=delta;
-			cost+=d[T]*delta;
+		}
+	}
+}
+int V=MAXV;
+cost_type h[MAXV];
+void min_cost_max_flow_faster(flow_type& flow,cost_type& cost,bool has_negative_edges=true)
+{
+	flow=0,cost=0;
+	if (has_negative_edges)
+	{
+		fl(h,oo),inq[q[qh=qt=0]=S]=true,h[S]=0,p[S]=0;
+		whl(qh<=qt)
+		{
+			int u=q[(qh++)%MAXV];
+			inq[u]=false;
+			for (edge i=adj[u];i;i=i->n)
+				if (i->c&&cmin(d[i->v],h[u]+i->d))
+				{
+					p[i->v]=i;
+					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
+				}
+		}
+	}
+	else clr(h);
+	lp
+	{
+		fl(d,oo),fl(inq,false);
+		prq<pr<cost_type,int> > Q;
+		d[S]=0,p[S]=0,Q.push(mp(-d[S],S));
+		whl(sz(Q))
+		{
+			int u=Q.top().y;
+			Q.pop();
+			if (!inq[u])
+			{
+				inq[u]=true;
+				for (edge i=adj[u];i;i=i->n)
+				{
+					if (i->c&&!inq[i->v]&&cmin(d[i->v],d[u]+i->d+h[u]-h[i->v]))
+						p[i->v]=i,Q.push(mp(-d[i->v],i->v));
+					if (i->c) asrtWA(i->d+h[u]-h[i->v]>=0);
+				}
+			}
+		}
+		rep(i,V) h[i]+=d[i];
+		if (d[T]==oo) break;
+		else
+		{
+			flow_type delta=oo;
+			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
+			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
+			flow+=delta;
 		}
 	}
 }

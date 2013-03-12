@@ -51,16 +51,17 @@ void spfa()
 {
 	fl(d,oo),fl(vis,false);
 	qi Q;
-	d[S]=0,pre[S]=-1,Q.push(S);
+	d[S]=0,pre[S]=-1,Q.push(S),vis[S]=true;
 	whl(sz(Q))
 	{
 		int u=Q.front();
+		vis[u]=false;
 		Q.pop();
 		for (edge i=adj[u];i;i=i->n)
 			if (cmin(d[i->v],d[u]+i->d))
 			{
 				pre[i->v]=u;
-				if (!vis[i->v]) Q.push(i->v);
+				if (!vis[i->v]) Q.push(i->v),vis[i->v]=true;
 			}
 	}
 }
@@ -68,7 +69,7 @@ void dijkstra()
 {
 	fl(d,oo),fl(vis,false);
 	prq<pr<cost_type,int> > Q;
-	d[S]=0,pre[S]=-1,Q.push(mp(d[S],S));
+	d[S]=0,pre[S]=-1,Q.push(mp(-d[S],S));
 	whl(sz(Q))
 	{
 		int u=Q.top().y;
@@ -88,22 +89,22 @@ void johnson_spfa()
 {
 	fl(h,0),fl(vis,false);
 	qi Q;
-	h[S]=0;
-	rep(i,V) h[i]=0,Q.push(i);
+	rep(i,V) h[i]=0,Q.push(i),vis[i]=true;
 	whl(sz(Q))
 	{
 		int u=Q.front();
+		vis[u]=false;
 		Q.pop();
 		for (edge i=adj[u];i;i=i->n)
 			if (cmin(h[i->v],h[u]+i->d)&&!vis[i->v])
-				Q.push(i->v);
+				Q.push(i->v),vis[i->v]=true;
 	}
 }
 void johnson_dijkstra(int S)
 {
 	fl(d,oo),fl(vis,false);
 	prq<pr<cost_type,int> > Q;
-	d[S]=0,pre[S]=-1,Q.push(mp(d[S],S));
+	d[S]=0,pre[S]=-1,Q.push(mp(-d[S],S));
 	whl(sz(Q))
 	{
 		int u=Q.top().y;

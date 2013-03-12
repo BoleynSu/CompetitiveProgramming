@@ -34,7 +34,7 @@ p->flag=true;
 int L;
 typedef long long lli;
 lli A[200][200];
-void build_ac_automation(node const root)
+void build_ac_automaton(node const root)
 {
 q[head=tail=0]=root;
  while (head<=tail)
@@ -116,7 +116,7 @@ int main()
 		scanf("%s",s);
 		insert(root,s);
 	}
-	build_ac_automation(root);
+	build_ac_automaton(root);
 	//printf("%d\n",top-pool);
 	L=top-pool;
 	//for (int i=0;i<L;i++)

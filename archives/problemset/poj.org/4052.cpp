@@ -182,13 +182,13 @@ int cnt;
 
 struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
 
-class AC_Automation
+class AC_Automaton
 {
 	node rt;
 	virtual void update(info&,const info&)=0;
 	virtual void calculate(info&)=0;
 public:
-	AC_Automation():rt(top++){}
+	AC_Automaton():rt(top++){}
 	void insert(vi s,const info& i)
 	{
 		node u=rt;
@@ -241,11 +241,11 @@ public:
 }
 using namespace StandardCodeLibrary::StringAlorithm::AhoCorasickAlgorithm;
 
-struct MyAC_Automation:AC_Automation
+struct MyAC_Automaton:AC_Automaton
 {
 	bool mark;
 	int match[2500];
-	MyAC_Automation(){clr(match);}
+	MyAC_Automaton(){clr(match);}
 	void update(info& i,const info& u)
 	{
 		i=u;
@@ -267,7 +267,7 @@ int main()
 	while (T--)
 	{
 		StandardCodeLibrary::StringAlorithm::AhoCorasickAlgorithm::Initializer();
-		MyAC_Automation ac;
+		MyAC_Automaton ac;
 		int n;
 		scanf("%d",&n);
 		getchar();

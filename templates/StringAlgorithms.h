@@ -11,7 +11,7 @@
 #include <Core>
 #include <StringAlgorithms.AhoCorasickAlgorithm>
 #include <StringAlgorithms.SuffixArray>
-#include <StringAlgorithms.SuffixAutomation>
+#include <StringAlgorithms.SuffixAutomaton>
 
 namespace StandardCodeLibrary
 {

@@ -79,7 +79,7 @@ Brute force
 Greedy
 #A AC 113 mins 2 wrong tries by WHD
 #C AC 126 mins 1 wrong try
-AC automation
+AC automaton
 #H AC 153 mins 1 wrong try
 Math
 #F AC 224 mins 1 wrong try
