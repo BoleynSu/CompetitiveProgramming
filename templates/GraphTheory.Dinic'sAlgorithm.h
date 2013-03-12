@@ -40,7 +40,7 @@ void add_edge(int u,int v,flow_type c)
 	top->v=v,top->c=c,top->n=adj[u],adj[u]=top++;
 	top->v=u,top->c=0,top->n=adj[v],adj[v]=top++;
 	adj[u]->b=adj[v],adj[v]->b=adj[u];
-	//if (u==v) adj[u]->n->b=adj[u],adj[v]->b=adj[v]->n;
+	if (u==v) adj[u]->n->b=adj[u],adj[v]->b=adj[v]->n;//防止add_edge(u,u,c)时出现RE
 }
 int d[MAXV];
 int q[MAXV];
