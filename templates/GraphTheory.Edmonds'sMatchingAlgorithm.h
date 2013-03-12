@@ -4,10 +4,10 @@
  * MAXV:需要为点分配多少空间,点一定要从0到V-1，即MAXV应该等于最大点数
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
  * V:点数
+ * build_graph:构图,详细见函数内的注释
  * add_edge:
  * 输入int u,v
  * add_edge(u,v) 加一条u到v的边和一条v到u的边
- * build_graph:构图,详细见函数内的注释
  * edmonds:
  * 输出int
  * edmonds()=最大匹配数

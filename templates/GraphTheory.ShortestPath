@@ -1,0 +1,4 @@
+#ifndef SCL_GRAPH_THEORY_SP
+#define SCL_GRAPH_THEORY_SP
+#include <GraphTheory.ShortestPath.h>
+#endif

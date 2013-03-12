@@ -3,10 +3,10 @@
  * Usage:
  * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * build_graph:构图,详细见函数内的注释
  * add_edge:
  * 输入int u,v;flow_type c;cost_type d
  * add_edge(u,v,c,d) 加一条u到v的容量为c代价为d的有向边,加一条v到u的容量为0代价为-d的有向边
- * build_graph:构图,详细见函数内的注释
  * min_cost_max_flow:
  * min_cost_max_flow(最大流,最小费用)
  * */
