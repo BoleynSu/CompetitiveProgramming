@@ -5,7 +5,7 @@
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
  * build_graph:构图,详细见函数内的注释
  * add_edge:
- * 输入int u,v;flow_type c
+ * 输入int u,v;flow_type c;
  * add_edge(u,v,c) 加一条u到v的容量为c的有向边,加一条v到u的容量为0的有向边
  * dinic:
  * 输出flow_type

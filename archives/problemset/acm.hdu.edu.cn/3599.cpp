@@ -4,7 +4,7 @@
 #include <cstring>
 #include <cassert>
 using namespace std;
- 
+
 #define oo 0x0f0f0f0f
 #define MAXEDGE 510000
 #define MAXV 2002
@@ -89,5 +89,5 @@ int main()
         else printf("%d\n",min_cost_flow());
     }
 }
- 
+
 
