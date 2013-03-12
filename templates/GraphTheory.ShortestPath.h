@@ -12,9 +12,9 @@
  * dijkstra:
  * 运行后d[u]=S到u的距离
  * johnson_spfa:
- * 运行后计算出了h数组
+ * 要求点的标号在0到V-1之间,运行后计算出了h数组
  * johnson_dijkstra:
- * johnson_dijkstra(S)运行后d[u]=S到u的距离
+ * 要求点的标号在0到V-1之间,johnson_dijkstra(S)运行后d[u]=S到u的距离
  * */
 #include <Core>
 
@@ -82,7 +82,7 @@ void dijkstra()
 		}
 	}
 }
-int V;
+int V=MAXV;
 int h[MAXV];
 void johnson_spfa()
 {
