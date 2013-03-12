@@ -2,7 +2,7 @@
  * Package: StandardCodeLibrary.ComputationalGeometry
  * Description:
  * Ray Casting Algorithm 射线法判断点是否在简单多边形内
- * Andrew's Monotone Chain算法  求凸包
+ * Andrew's Monotone Chain算法 求凸包
  * 半品面交 O(nlogn)算法
  * */
 #include <Core>
@@ -17,7 +17,7 @@ typedef db Number;//数值类型
 typedef pr<Number,Number> Point;//点
 typedef Point Vector;//向量
 typedef pr<Point,Point> Segment;//线段
-typedef Segment Line;
+typedef Segment Line;//直线
 typedef Segment Halfplane;//半平面
 typedef vec<Point> Polygon;//多边形
 
