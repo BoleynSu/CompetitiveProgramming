@@ -166,50 +166,170 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int main()
+namespace my
 {
-	str s;
-	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
+
+
+const int oo=0x7f7f7f7f;
+const int MAXV=1000000;
+const int MAXE=1000000;
+typedef int cost_type;
+typedef struct struct_edge* edge;
+struct struct_edge{int v;cost_type d;edge n;}pool[MAXE];
+edge top;
+int S;
+edge adj[MAXV];
+cost_type d[MAXV];
+int pre[MAXV];
+bool vis[MAXV];
+void build_graph(int s)
+{
+	top=pool,clr(adj);
+	S=s;//源
+	//add_edge(u,v,d);
+}
+void add_edge(int u,int v,cost_type d)
+{
+	top->v=v,top->d=d,top->n=adj[u],adj[u]=top++;
+}
+void spfa()
+{
+	fl(d,oo),fl(vis,false);
+	qi Q;
+	d[S]=0,pre[S]=-1,Q.push(S),vis[S]=true;
+	whl(sz(Q))
 	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
-		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
+		int u=Q.front();
+		Q.pop();
+		for (edge i=adj[u];i;i=i->n)
+			if (cmin(d[i->v],d[u]+i->d))
 			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
+				pre[i->v]=u;
+				if (!vis[i->v]) Q.push(i->v),vis[i->v]=true;
 			}
-		}
-		ans.ins(max);
 	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
+}
+void dijkstra()
+{
+	fl(d,oo),fl(vis,false);
+	prq<pr<cost_type,int> > Q;
+	d[S]=0,pre[S]=-1,Q.push(mp(d[S],S));
+	whl(sz(Q))
+	{
+		int u=Q.top().y;
+		Q.pop();
+		if (!vis[u])
+		{
+			vis[u]=true;
+			for (edge i=adj[u];i;i=i->n)
+				if (!vis[i->v]&&cmin(d[i->v],d[u]+i->d))
+					pre[i->v]=u,Q.push(mp(-d[i->v],i->v));
+		}
+	}
+}
+int V=MAXV;
+int h[MAXV];
+void johnson_spfa()
+{
+	fl(h,0),fl(vis,false);
+	qi Q;
+	h[S]=0;
+	rep(i,V) h[i]=0,Q.push(i);
+	whl(sz(Q))
+	{
+		int u=Q.front();
+		Q.pop();
+		for (edge i=adj[u];i;i=i->n)
+			if (cmin(h[i->v],h[u]+i->d)&&!vis[i->v])
+				Q.push(i->v);
+	}
+}
+void johnson_dijkstra(int S)
+{
+	fl(d,oo),fl(vis,false);
+	prq<pr<cost_type,int> > Q;
+	d[S]=0,pre[S]=-1,Q.push(mp(d[S],S));
+	whl(sz(Q))
+	{
+		int u=Q.top().y;
+		Q.pop();
+		if (!vis[u])
+		{
+			vis[u]=true;
+			for (edge i=adj[u];i;i=i->n)
+				if (!vis[i->v]&&cmin(d[i->v],d[u]+i->d+h[u]-h[i->v]))
+					pre[i->v]=u,Q.push(mp(-d[i->v],i->v));
+		}
+	}
+	rep(i,V) d[i]+=h[i]-h[S];
 }
 
+}
+using namespace my;
 
+int main()
+{
+	int n,m;
+	cin>>n>>m;
+	build_graph(0);
+	map<pii,int> len;
+	map<pii,int> id;
+	ft(i,1,m)
+	{
+		int a,b,t;
+		cin>>a>>b>>t;
+		add_edge(a,b,t);
+		add_edge(b,a,t);
+		if (!len.count(mp(a,b))) id[mp(a,b)]=i,len[mp(a,b)]=t;
+		else if (cmin(len[mp(a,b)],t)) id[mp(a,b)]=i;
+		if (!len.count(mp(b,a))) id[mp(b,a)]=i,len[mp(b,a)]=t;
+		else if (cmin(len[mp(b,a)],t)) id[mp(b,a)]=i,len[mp(b,a)]=t;
+	}
+	int k;
+	cin>>k;
+	vi key(k);
+	cin>>key;
 
+	S=key.front();
+	dijkstra();
+	int maxi=0;
+	rep(i,k) if (d[key[maxi]]<d[key[i]]) maxi=i;
 
+	S=key[maxi];
+	dijkstra();
+	int maxj=0;
+	rep(i,k) if (d[key[maxj]]<d[key[i]]) maxj=i;
 
-
-
-
-
+	vvi adj(n+2);
+	vi deg(n+2);
+	ft(u,1,n)
+		for (edge i=my::adj[u];i;i=i->n)
+			if (d[u]+i->d==d[i->v])
+				adj[u].pb(i->v),deg[i->v]++;
+	vi pre(n+2);
+	vb isk(n+2);
+	vi f(n+2);
+	rep(i,k) isk[key[i]]=true;
+	qi q;
+	f[key[maxi]]=isk[key[maxi]],pre[key[maxi]]=-1,q.push(key[maxi]);
+	whl(sz(q))
+	{
+		int u=q.front();
+		q.pop();
+		rep(i,sz(adj[u]))
+		{
+			int v=adj[u][i];
+			if (cmax(f[v],f[u]+isk[v])) pre[v]=u;
+			if (--deg[v]==0) q.push(v);
+		}
+	}
+	int u=key[maxj];
+	vi ed;
+	whl(u!=-1) ed.pb(id[mp(u,pre[u])]),u=pre[u];
+	ed.pop_back();
+	cout<<sz(ed)<<endl;
+	rep(i,sz(ed)) cout<<ed[i]<<char(i+1==sz(ed)?'\n':' ');
+}
 
 
 

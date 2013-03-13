@@ -1,3 +1,4 @@
+//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -26,7 +27,6 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
@@ -114,9 +114,6 @@ typedef set<str> ss;
 typedef que<int> qi;
 typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
-using __gnu_cxx::rope;
-#endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -129,10 +126,9 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-//db gamma=0.5772156649015328606;
 db pi=acos(-1.0);
-int dx[]={1,0,-1,0,1,-1,-1,1,0};
-int dy[]={0,1,0,-1,1,1,-1,-1,0};
+int dx[]={-1,1,0,0,-1,-1,1,1,0};
+int dy[]={0,0,-1,1,-1,1,-1,1,0};
 int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
@@ -142,7 +138,6 @@ inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
 inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -162,79 +157,72 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//end #include <Core>
+
+pll solve(pll v,int n)
+{
+	{
+		lli l=0,r=v.x;
+		whl(l+1!=r)
+		{
+			lli mid=(l+r)>>1;
+			lli cnt=mid+mid*v.y/v.x;
+			if (cnt>n) r=mid;
+			else l=mid;
+		}
+		lli get=l+l*v.y/v.x;
+		if (get==n) rtn mp(l,-1);
+	}
+	{
+		lli l=0,r=v.y;
+		whl(l+1!=r)
+		{
+			lli mid=(l+r)>>1;
+			lli cnt=mid+mid*v.x/v.y;
+			if (cnt>n) r=mid;
+			else l=mid;
+		}
+		lli get=l+l*v.x/v.y;
+		if (get==n) rtn mp(-1,l);
+	}
+}
 
 int main()
 {
-	str s;
-	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
+	pr<pll,pll> seg;
+	lli n;
+	cin>>seg>>n;
+	pll v=seg.y-seg.x;
+	v.x=abs(v.x),v.y=abs(v.y);
+	lli g=gcd(v.x,v.y);
+	if (g==0||v.x+v.y-g<n) rtn cout<<"no solution"<<endl,0;
+	else
 	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
+		v/=g;
+		pll get=solve(v,n%(v.x+v.y-1));
+
+		pll delta=v*(n/(v.x+v.y-1));
+
+		if (seg.x.x>seg.y.x) delta.x=-delta.x;
+		if (seg.x.y>seg.y.y) delta.y=-delta.y;
+
+		if (get.x==-1)
 		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
-			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
-			}
+			if (seg.x.x<seg.y.x) delta.x+=get.y*v.x/v.y-(get.y==0);
+			else delta.x-=get.y*v.x/v.y+(get.y!=0);
+			if (seg.x.y<seg.y.y) delta.y+=get.y-1;
+			else delta.y-=get.y;
 		}
-		ans.ins(max);
+		else if (get.y==-1)
+		{
+			if (seg.x.x<seg.y.x) delta.x+=get.x-1;
+			else delta.x-=get.x;
+			if (seg.x.y<seg.y.y) delta.y+=get.x*v.y/v.x-(get.x==0);
+			else delta.y-=get.x*v.y/v.x+(get.x!=0);
+		}
+		cout<<pll(seg.x+delta)<<endl;
 	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

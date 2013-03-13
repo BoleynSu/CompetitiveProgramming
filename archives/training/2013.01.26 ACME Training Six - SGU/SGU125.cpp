@@ -1,3 +1,4 @@
+//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -26,13 +27,9 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
-#endif
-#ifdef  __GXX_EXPERIMENTAL_CXX0X__
-#define typeof decltype
 #endif
 using namespace std;
 
@@ -106,17 +103,14 @@ typedef vec<str> vs;
 typedef pr<int,int> pii;
 typedef pr<lli,lli> pll;
 typedef pr<db,db> pdd;
+typedef pr<str,int> psi;
 typedef map<int,int> mii;
 typedef map<str,int> msi;
 typedef map<char,int> mci;
 typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
-typedef vec<pii> vpii;
-typedef vec<pdd> vpdd;
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
-using __gnu_cxx::rope;
-#endif
+typedef prq<int> pqi;
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -125,29 +119,27 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
-int oo=(~0u)>>1;
-lli ooll=(~0ull)>>1;
-db inf=1e+10;
-db eps=1e-10;
-//db gamma=0.5772156649015328606;
-db pi=acos(-1.0);
-int dx[]={1,0,-1,0,1,-1,-1,1,0};
-int dy[]={0,1,0,-1,1,1,-1,-1,0};
-int MOD=1000000007;
+const int oo=(~0u)>>1;
+const lli ooll=(~0ull)>>1;
+const db inf=1e+10;
+const db eps=1e-10;
+const db pi=acos(-1.0);
+const int dx[]={-1,1,0,0,-1,-1,1,1,0};
+const int dy[]={0,0,-1,1,-1,1,-1,1,0};
+const int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
 template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:false;}
 template<typename type>inline type sqr(const type& x){rtn x*x;}
-inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
-inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
+inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
+inline int sgn(const db& x){rtn dbcmp(x,0);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
-template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
+template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
 template<typename type>inline pr<type,type> operator*(const pr<type,type>& a,const type& b){rtn mp(a.x*b,a.y*b);}
-template<typename type>inline pr<type,type> operator/(const pr<type,type>& a,const type& b){rtn mp(a.x/b,a.y/b);}
+template<typename type>inline pr<type,type> operator/(const pr<type,type>& a,const type b){rtn mp(a.x/b,a.y/b);}
 template<typename type>inline pr<type,type>& operator-=(pr<type,type>& a,const pr<type,type>& b){rtn a=a-b;}
 template<typename type>inline pr<type,type>& operator+=(pr<type,type>& a,const pr<type,type>& b){rtn a=a+b;}
 template<typename type>inline pr<type,type>& operator*=(pr<type,type>& a,const type& b){rtn a=a*b;}
@@ -162,79 +154,49 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//end #include <Core>
+
+int n;
+int a[3][3],b[3][3];
+bool chk_s(int x,int y)
+{
+	int cnt=0;
+	rep(d,4) if (x+dx[d]>=0&&x+dx[d]<n&&y+dy[d]>=0&&y+dy[d]<n&&a[x+dx[d]][y+dy[d]]>a[x][y]) cnt++;
+	rtn cnt==b[x][y];
+}
+bool chk_a(int x,int y)
+{
+	if (x&&!chk_s(x-1,y)) rtn false;
+	if (x==n-1&&y&&!chk_s(x,y-1)) rtn false;
+	if (x==n-1&&y==n-1&&!chk_s(x,y)) rtn false;
+	rtn true;
+}
+void dfs(int x,int y)
+{
+	if (x==n)
+	{
+		rep(i,n) rep(j,n) cout<<a[i][j]<<char(j+1==n?'\n':' ');
+		exit(0);
+	}
+	rep(i,9)
+	{
+		a[x][y]=i;
+		if (chk_a(x,y))
+		{
+			if (y+1<n) dfs(x,y+1);
+			else dfs(x+1,0);
+		}
+	}
+}
 
 int main()
 {
-	str s;
-	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
-	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
-		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
-			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
-			}
-		}
-		ans.ins(max);
-	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
+	cin>>n;
+	rep(i,n) rep(j,n) cin>>b[i][j];
+	dfs(0,0);
+	puts("NO SOLUTION");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

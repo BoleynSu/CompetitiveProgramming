@@ -129,7 +129,7 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-//db gamma=0.5772156649015328606;
+db gamma=0.5772156649015328606;
 db pi=acos(-1.0);
 int dx[]={1,0,-1,0,1,-1,-1,1,0};
 int dy[]={0,1,0,-1,1,1,-1,-1,0};
@@ -142,7 +142,6 @@ inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
 inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -162,79 +161,136 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+namespace StandardCodeLibrary
+{
+namespace StringAlgorithms
+{
+namespace Suffix_Automation
+{
+
+const int MAXNODE=1000000;
+const int MAXALPHABET=26;
+struct struct_node{struct_node* n[MAXALPHABET];struct_node* lnk;int len;bool isc;};
+typedef struct_node* node;
+struct_node pool[MAXNODE];
+node top;
+
+struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
+
+class Suffix_Automation
+{
+protected:
+	node rt,lst;
+public:
+	Suffix_Automation():rt(top++),lst(rt){rt->isc=true;}
+	void extend(int c)
+	{
+		node u=top++;
+		u->len=lst->len+1;
+		node v=lst;
+		whl(v&&!v->n[c]) v->n[c]=u,v=v->lnk;
+		if (v)
+		{
+			node vnc=v->n[c];
+			if (v->len+1==vnc->len) u->lnk=vnc;
+			else
+			{
+				node nvnc=top++;
+				memcpy(nvnc,vnc,sizeof(struct_node));
+				nvnc->len=v->len+1;
+				nvnc->isc=true;
+				vnc->lnk=nvnc;
+				whl(v&&v->n[c]==vnc) v->n[c]=nvnc,v=v->lnk;
+				u->lnk=nvnc;
+			}
+		}
+		else u->lnk=rt;
+		lst=u;
+	}
+};
+
+}
+}
+}
+
+using namespace StandardCodeLibrary::StringAlgorithms::Suffix_Automation;
+
+struct SAM:Suffix_Automation
+{
+	map<node,lli> sc;
+	map<node,lli> sz;
+	map<node,vec<node> > lnks;
+	void init_dp()
+	{
+		for (node i=pool;i!=top;i++)
+			if (i->lnk) lnks[i->lnk].pb(i);
+	}
+	lli dp_sc(node u)
+	{
+		if (!sc.count(u))
+		{
+			if (u!=rt)
+			{
+				sc[u]=!u->isc;
+				const vec<node>& lnksunc=lnks[u];
+				feach(it,lnksunc) sc[u]+=dp_sc(*it);
+			}
+			else sc[u]=0;
+		}
+		rtn sc[u];
+	}
+	lli dp_sz(node u)
+	{
+		if (!sz.count(u))
+		{
+			sz[u]=dp_sc(u);
+			rep(c,MAXALPHABET) if (u->n[c]) sz[u]+=dp_sz(u->n[c]);
+		}
+		rtn sz[u];
+	}
+	void sel(node u,lli k,vi& ans)
+	{
+		k-=dp_sc(u);
+		if (k>0)
+		{
+			rep(c,MAXALPHABET) if (u->n[c])
+			{
+				if (dp_sz(u->n[c])>=k)
+				{
+					ans.pb(c);
+					sel(u->n[c],k,ans);
+					rtn;
+				}
+				else k-=dp_sz(u->n[c]);
+			}
+		}
+	}
+	void sel(lli k,vi& ans)
+	{
+		sel(rt,k,ans);
+	}
+};
 
 int main()
 {
 	str s;
 	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
+	int k;
+	cin>>k;
+	if (k<=lli(sz(s))*(sz(s)+1)/2)
 	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
-		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
-			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
-			}
-		}
-		ans.ins(max);
+		SAM sam;
+		rep(i,sz(s)) sam.extend(s[i]-'a');
+		sam.init_dp();
+		vi ans;
+		sam.sel(k,ans);
+		rep(i,sz(ans)) cout<<char(ans[i]+'a');
+		cout<<endl;
 	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
+	else cout<<"No such line."<< endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

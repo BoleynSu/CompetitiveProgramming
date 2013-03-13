@@ -1,3 +1,4 @@
+//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -26,7 +27,6 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
@@ -106,17 +106,14 @@ typedef vec<str> vs;
 typedef pr<int,int> pii;
 typedef pr<lli,lli> pll;
 typedef pr<db,db> pdd;
+typedef pr<str,int> psi;
 typedef map<int,int> mii;
 typedef map<str,int> msi;
 typedef map<char,int> mci;
 typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
-typedef vec<pii> vpii;
-typedef vec<pdd> vpdd;
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
-using __gnu_cxx::rope;
-#endif
+typedef prq<int> pqi;
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -129,20 +126,18 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-//db gamma=0.5772156649015328606;
 db pi=acos(-1.0);
-int dx[]={1,0,-1,0,1,-1,-1,1,0};
-int dy[]={0,1,0,-1,1,1,-1,-1,0};
+int dx[]={-1,1,0,0,-1,-1,1,1,0};
+int dy[]={0,0,-1,1,-1,1,-1,1,0};
 int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
 template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:false;}
 template<typename type>inline type sqr(const type& x){rtn x*x;}
-inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
-inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
+inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
+inline int sgn(const db& x){rtn dbcmp(x,0);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
-template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
+template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -162,79 +157,159 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//end #include <Core>
+
+/*
+ * Package: StandardCodeLibrary.ComputationalGeometry
+ * Description:
+ * Ray Casting Algorithm 射线法判断点是否在简单多边形内
+ * */
+//#include <Core>
+
+namespace StandardCodeLibrary
+{
+namespace ComputationalGeometry2D
+{
+
+//数据类型定义
+typedef db Number;//数值类型
+typedef pr<Number,Number> Point;//点
+typedef Point Vector;//向量
+typedef pr<Point,Point> Segment;//线段
+typedef vec<Point> Polygon;//多边形
+
+//基本运算
+//符号函数 正数返回1 负数返回-1 0返回0
+using ::sgn;
+//比较函数 大于返回1 小于返回-1 等于返回0
+using ::dbcmp;
+//点积
+using ::dot;
+inline
+Number dot(const Point& a,const Point& b,const Point& c)
+{
+	rtn dot(b-a,c-a);
+}
+//叉积
+using ::cross;
+inline
+Number cross(const Point& a,const Point& b,const Point& c)
+{
+	rtn cross(b-a,c-a);
+}
+//长度
+inline
+Number len(const Vector& v)
+{
+	rtn sqrt(dot(v,v));
+}
+inline
+Number len(const Segment& s)
+{
+	rtn len(s.x-s.y);
+}
+//距离
+inline
+Number dis(const Point& a,const Point& b)
+{
+	rtn len(b-a);
+}
+
+//判断点是否在线段上
+//如果点在线段上返回1 不在线段上但在直线上 返回-1 不在直线上返回0
+int point_on_segment(const Point& p,const Segment& s)
+{
+	if (sgn(cross(p,s.x,s.y))) rtn 0;
+	else rtn sgn(dot(p,s.x,s.y))<=0?1:-1;
+}
+
+//Ray Casting Algorithm 射线法判断点是否在简单多边形内
+//在内部返回1 在外部返回-1 在边上返回0
+int point_in_polygon(const Point& p,const vec<Segment>& e)
+{
+	rep(i,sz(e)) if (point_on_segment(p,e[i])==1) rtn 0;
+	bool in=false;
+	rep(i,sz(e))
+		if ((dbcmp(e[i].x.y,p.y)>0)!=(dbcmp(e[i].y.y,p.y)>0)
+			&&dbcmp(p.x,(e[i].y.x-e[i].x.x)/(e[i].y.y-e[i].x.y)*(p.y-e[i].x.y)+e[i].x.x)<0)
+			in=!in;
+	return in?1:-1;
+}
+
+//求线段交点
+//如果平行则返回(+inf,+inf) 否则返回交点 交点为线段所在直线的交点
+Point intersection(const Segment a,const Segment& b)
+{
+	Vector va=a.y-a.x,vb=b.y-b.x;
+	if (!sgn(cross(va,vb))) rtn Point(+inf,+inf);
+	else rtn a.x+va*(cross(b.x-a.x,vb)/cross(va,vb));
+}
+
+//Andrew's Monotone Chain算法  求凸包
+void get_convex_hull(Polygon& PO)
+{
+	srt(PO);
+	Polygon CH;
+    rep(i,sz(PO))
+    {
+        while (sz(CH)>=2&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
+        CH.pb(PO[i]);
+    }
+    for (int i=sz(PO)-1,t=sz(CH)+1;i>=0;--i)
+    {
+        while (sz(CH)>=t&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();
+        CH.pb(PO[i]);
+    }
+    CH.pop_back();
+    PO.swap(CH);
+}
+
+}
+}
+
+using namespace StandardCodeLibrary::ComputationalGeometry2D;
 
 int main()
 {
-	str s;
-	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
+	eps=1e-3;
+	int n;
+	cin>>n;
+	Polygon PO(n);
+	rep(i,n) cin>>PO[i];
+
+	get_convex_hull(PO);
+
+	vec<Segment> edges;
+	for (int i=0,j=sz(PO)-1;i<sz(PO);j=i++) edges.pb(mp(PO[j],PO[i]));
+
+	int m;
+	cin>>m;
+	rep(i,m)
 	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
+		Segment seg;
+		cin>>seg;
+		vec<Point> ps;
+		if (point_in_polygon(seg.x,edges)==1) ps.pb(seg.x);
+		if (point_in_polygon(seg.y,edges)==1) ps.pb(seg.y);
+		bool online=false;
+		rep(i,sz(edges))
 		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
+			Point p=intersection(edges[i],seg);
+			if (point_on_segment(p,seg)==1&&point_on_segment(p,edges[i])==1)
 			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
+				bool fnd=false;
+				rep(i,sz(ps)) if (sgn(dis(p,ps[i]))==0) fnd=true;
+				if (!fnd) ps.pb(p);
 			}
+			if (sgn(cross(seg.x,edges[i].x,edges[i].y))==0
+				&&sgn(cross(seg.y,edges[i].x,edges[i].y))==0)
+				online=true;
 		}
-		ans.ins(max);
+		if (online||!sz(ps)) pdb(2,0.0)<<endl;
+		else pdb(2,dis(ps.front(),ps.back()))<<endl;
 	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

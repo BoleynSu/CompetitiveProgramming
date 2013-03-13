@@ -1,3 +1,4 @@
+//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -26,7 +27,6 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
@@ -106,17 +106,14 @@ typedef vec<str> vs;
 typedef pr<int,int> pii;
 typedef pr<lli,lli> pll;
 typedef pr<db,db> pdd;
+typedef pr<str,int> psi;
 typedef map<int,int> mii;
 typedef map<str,int> msi;
 typedef map<char,int> mci;
 typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
-typedef vec<pii> vpii;
-typedef vec<pdd> vpdd;
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
-using __gnu_cxx::rope;
-#endif
+typedef prq<int> pqi;
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -125,28 +122,27 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
-int oo=(~0u)>>1;
-lli ooll=(~0ull)>>1;
-db inf=1e+10;
-db eps=1e-10;
-db gamma=0.5772156649015328606;
-db pi=acos(-1.0);
-int dx[]={1,0,-1,0,1,-1,-1,1,0};
-int dy[]={0,1,0,-1,1,1,-1,-1,0};
-int MOD=1000000007;
+const int oo=(~0u)>>1;
+const lli ooll=(~0ull)>>1;
+const db inf=1e+10;
+const db eps=1e-10;
+const db pi=acos(-1.0);
+const int dx[]={-1,1,0,0,-1,-1,1,1,0};
+const int dy[]={0,0,-1,1,-1,1,-1,1,0};
+const int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
 template<typename type>inline bool cmin(type& a,const type& b){rtn b<a?a=b,true:false;}
 template<typename type>inline type sqr(const type& x){rtn x*x;}
-inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
-inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
+inline int dbcmp(const db& a,const db& b){rtn (a>b+eps)-(a<b-eps);}
+inline int sgn(const db& x){rtn dbcmp(x,0);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
-template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
+template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<"("<<x.x<<","<<x.y<<")";}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
 template<typename type>inline pr<type,type> operator*(const pr<type,type>& a,const type& b){rtn mp(a.x*b,a.y*b);}
-template<typename type>inline pr<type,type> operator/(const pr<type,type>& a,const type& b){rtn mp(a.x/b,a.y/b);}
+template<typename type>inline pr<type,type> operator/(const pr<type,type>& a,const type b){rtn mp(a.x/b,a.y/b);}
 template<typename type>inline pr<type,type>& operator-=(pr<type,type>& a,const pr<type,type>& b){rtn a=a-b;}
 template<typename type>inline pr<type,type>& operator+=(pr<type,type>& a,const pr<type,type>& b){rtn a=a+b;}
 template<typename type>inline pr<type,type>& operator*=(pr<type,type>& a,const type& b){rtn a=a*b;}
@@ -162,226 +158,69 @@ inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(prq<type>& a,prq<type>& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.push(b.top()),b.pop();}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//end #include <Core>
 
-/*
- * Package: StandardCodeLibrary.StringAlgorithms
- * Description:
- * KMP算法 Knuth-Morris-Pratt Algorithm;
- * Z Algorithm;
- * 最长回文子串 Manacher's Algorithm;
- * AC自动机 Aho-Corasick Algorithm;
- * 后缀数组倍增法;
- * 后缀自动机;
- * */
+typedef unsigned char State;
+#define oo 0x39393939
 
-namespace StandardCodeLibrary
-{
-namespace StringAlgorithms
-{
+const int MAXN=7,MAXM=70;
+int n,m;
+State st[MAXM];
+int ps2lsts[1<<MAXN][1<<MAXN];
+State ps2lst[1<<MAXN][1<<MAXN][1<<MAXN];
+int s3lsts[1<<MAXN];
+State s3lst[1<<MAXN][1<<MAXN];
+int f[1<<MAXN][1<<MAXN],g[1<<MAXN][1<<MAXN];
+int bit_count[1<<MAXN];
 
-//KMP算法
-void get_pi(const vi t,vi& pi)
+void dfs(State lst[],int& lsts,int s1,int s2)
 {
-	pi.resize(sz(t)),pi[0]=-1;
-	int j=-1;
-	repf(i,1,sz(t))
+	if (s1)
 	{
-		whl(j!=-1&&t[j+1]!=t[i]) j=pi[j];
-		if (t[j+1]==t[i]) j++;
-		pi[i]=(j!=-1&&i+1<sz(t)&&t[j+1]==t[i+1])?pi[j]:j;
+		int i=s1&-s1;
+		if (s2&i) dfs(lst,lsts,s1^i,s2^i);
+		if (s1&(i<<1)) dfs(lst,lsts,s1^i^(i<<1),s2);
 	}
+	else lst[lsts++]=s2;
 }
-void get_match(const vi& t,const vi& pi,const vi& s,vi& match)
-{
-	match.clear();
-	int j=-1;
-	rep(i,sz(s))
-	{
-		whl(j!=-1&&t[j+1]!=s[i]) j=pi[j];
-		if (t[j+1]==s[i]) j++;
-		if (j==sz(t)-1)
-		{
-			match.pb(i-j);
-			j=pi[j];
-		}
-	}
-}
-int KMP(const vi& t,const vi& s)
-{
-	vi pi;
-	get_pi(t,pi);
-	vi match;
-	get_match(t,pi,s,match);
-	if (sz(match)) rtn match.front();
-	else rtn -1;
-}
-
-//Z Algorithm
-void z_algorithm(const vi& s,vi& z)
-{
-	z.resize(sz(s)),z[0]=0;
-	int j=0,a=0;
-	repf(i,1,sz(s))
-	{
-		if (i+z[i-a]<a+z[a]) z[i]=z[i-a];
-		else
-		{
-			j=max(a+z[a]-i,0);
-			whl(i+j<sz(s)&&s[i+j]==s[j]) j++;
-			z[a=i]=j;
-		}
-	}
-}
-
-//最长回文子串 Manacher's Algorithm
-void longest_palindromic_substring(const vi& str,vi& ans_str,int split=0)
-{
-	vi S;
-	rep(i,sz(str)) S.pb(split),S.pb(str[i]);
-	S.pb(split);
-	vi p(sz(S));
-	int ans,ansi,mid;
-	ans=(p[mid=0]=1)-1;
-	repf(i,1,sz(S))
-	{
-	    p[i]=p[mid]+mid>i?min(p[mid]+mid-i,p[mid*2-i]):1;
-	    whl(i>=p[i]&&i+p[i]<sz(S)&&S[i-p[i]]==S[i+p[i]]) p[i]++;
-	    if (cmax(ans,p[i]-1)) ansi=i;
-	    if (p[i]+i>p[mid]+mid) mid=i;
-	}
-	ans_str.clear();
-	ft(i,ansi-ans,ansi+ans)
-		if (S[i]!=split) ans_str.pb(S[i]);
-}
-
-}
-}
-
-/*
- * Package: StandardCodeLibrary.StringAlgorithms.SuffixAutomaton
- * Usage:
- * MAXNODE:后缀自动机最多有多少个节点
- * MAXALPHABET:字母表大小
- * */
-
-namespace StandardCodeLibrary
-{
-namespace StringAlgorithms
-{
-namespace SuffixAutomaton
-{
-
-const int MAXNODE=2000000+1;
-const int MAXALPHABET=26;
-struct struct_node{struct_node* n[MAXALPHABET];struct_node* lnk;int len;bool isc;};
-typedef struct_node* node;
-struct_node pool[MAXNODE];
-node top;
-
-struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
-
-class SuffixAutomaton
-{
-protected:
-	node rt,lst;
-public:
-	SuffixAutomaton():rt(top++),lst(rt){rt->isc=true;}
-	void extend(int c)
-	{
-		node u=top++;
-		u->len=lst->len+1;
-		node v=lst;
-		whl(v&&!v->n[c]) v->n[c]=u,v=v->lnk;
-		if (v)
-		{
-			node vnc=v->n[c];
-			if (v->len+1==vnc->len) u->lnk=vnc;
-			else
-			{
-				node nvnc=top++;
-				memcpy(nvnc,vnc,sizeof(struct_node));
-				nvnc->len=v->len+1;
-				nvnc->isc=true;
-				vnc->lnk=nvnc;
-				whl(v&&v->n[c]==vnc) v->n[c]=nvnc,v=v->lnk;
-				u->lnk=nvnc;
-			}
-		}
-		else u->lnk=rt;
-		lst=u;
-	}
-};
-
-}
-}
-}
-
-using namespace StandardCodeLibrary::StringAlgorithms;
-using namespace StandardCodeLibrary::StringAlgorithms::SuffixAutomaton;
-
-struct SAM:SuffixAutomaton::SuffixAutomaton
-{
-	map<node,int> sc;
-	map<node,vec<node> > lnks;
-	void init_dp()
-	{
-		for (node i=pool;i!=top;i++)
-			if (i->lnk) lnks[i->lnk].pb(i);
-	}
-	lli dp_sc(node u)
-	{
-		if (!sc.count(u))
-		{
-			if (u!=rt)
-			{
-				sc[u]=!u->isc;
-				const vec<node>& lnksunc=lnks[u];
-				feach(it,lnksunc) sc[u]+=dp_sc(*it);
-			}
-			else sc[u]=0;
-		}
-		rtn sc[u];
-	}
-	int qry(str& s)
-	{
-		vi lst(sz(s)),pi;
-		rep(i,sz(s)) lst[i]=s[i]-'a';
-		get_pi(lst,pi);
-
-		int cycle=sz(s)%(sz(s)-1-pi[sz(s)-1])?sz(s):(sz(s)-1-pi[sz(s)-1]);
-
-		int ans=0;
-		node u=rt;
-		int mat=0;
-		rep(i,sz(s)+cycle-1)
-		{
-			int si=lst[i>=sz(s)?i-sz(s):i];
-			whl(u!=rt&&!u->n[si]) u=u->lnk,mat=u->len;
-			if (u->n[si]) u=u->n[si],mat++;
-			if (mat>=sz(s))
-			{
-				ans+=dp_sc(u);
-				whl(u!=rt&&u->lnk->len>=sz(s)-1) u=u->lnk,mat=u->len;
-			}
-		}
-		rtn ans;
-	}
-};
 
 int main()
 {
-	str s;
-	cin>>s;
-	SAM sam;
-	rep(i,sz(s)) sam.extend(s[i]-'a');
-	sam.init_dp();
-	int n;
-	cin>>n;
-	rep(i,n)
+	cin>>m>>n;
+	rep(i,m) rep(j,n)
 	{
-		cin>>s;
-		cout<<sam.qry(s)<<endl;
+		char c;
+		cin>>c;
+		st[i]=(st[i]<<1)|(c=='*');
 	}
+
+	State max=(1<<n);
+	rep(s2,max) rep(s3,max)
+	{
+		bool psb=true;
+		for (State i=1;i<max;i<<=1)
+			if ((!(s2&i)&&!(s3&i))||((i<<1)!=max&&!(s2&i)&&!(s2&(i<<1))))
+				psb=false;
+		if (psb) s3lst[s2][s3lsts[s2]++]=s3;
+	}
+	rep(s1,max) rep(s2,max) dfs(ps2lst[s1][s2],ps2lsts[s1][s2],s1,s2);
+	rep(s,max) for (State i=1;i!=max;i<<=1) if (s&i) bit_count[s]++;
+
+	fl(f,oo);
+	f[max-1][max-1]=0;
+	rep(i,m)
+	{
+		fl(g,oo);
+		rep(s1,max) if (!(s1&st[i]))
+			rep(s2,max) rep(ps2i,ps2lsts[s1][s2]) rep(s3i,s3lsts[s2])
+				cmin(g[s1|st[i]][s2],f[ps2lst[s1][s2][ps2i]][s3lst[s2][s3i]]+(bit_count[s1]+bit_count[s2^ps2lst[s1][s2][ps2i]])/2);
+		cpy(f,g);
+	}
+
+	int ans=oo;
+	rep(s2,max) rep(s3i,s3lsts[s2]) cmin(ans,f[s2][s3lst[s2][s3i]]);
+	cout<<ans<<endl;
 }

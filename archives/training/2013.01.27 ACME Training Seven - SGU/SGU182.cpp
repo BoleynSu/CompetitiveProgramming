@@ -1,3 +1,4 @@
+//begin #include <Core>
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -26,7 +27,6 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
@@ -114,9 +114,6 @@ typedef set<str> ss;
 typedef que<int> qi;
 typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
-using __gnu_cxx::rope;
-#endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -129,10 +126,9 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-//db gamma=0.5772156649015328606;
 db pi=acos(-1.0);
-int dx[]={1,0,-1,0,1,-1,-1,1,0};
-int dy[]={0,1,0,-1,1,1,-1,-1,0};
+int dx[]={-1,1,0,0,-1,-1,1,1,0};
+int dy[]={0,0,-1,1,-1,1,-1,1,0};
 int MOD=1000000007;
 
 template<typename type>inline bool cmax(type& a,const type& b){rtn a<b?a=b,true:false;}
@@ -142,7 +138,6 @@ inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
 inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -162,79 +157,177 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//end #include <Core>
+bool calc(str exp)
+{
+	stack<bool> va;
+	stack<char> op;
+	rep(i,sz(exp))
+	{
+		bool opn1,opn2;
+		switch (exp[i])
+		{
+		case '0':
+			va.push(false);
+			break;
+		case '1':
+			va.push(true);
+			break;
+		case '(':
+			op.push('(');
+			break;
+		case ')':
+			while (op.top()!='(')
+			{
+				if (op.top()=='!')
+				{
+					opn1=va.top();va.pop();
+					va.push(!opn1);
+				}
+				else if (op.top()=='&')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1&&opn2);
+				}
+				else if (op.top()=='|')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||opn2);
+				}
+				else if (op.top()=='=')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1==opn2);
+				}
+				else if (op.top()=='>')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||!opn2);
+				}
+				else if (op.top()=='^')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1^opn2);
+				}
+				else break;
+				op.pop();
+			}
+			op.pop();
+			break;
+		case '!':
+			op.push('!');
+			break;
+		case '&':
+			while (!op.empty())
+			{
+				if (op.top()=='!')
+				{
+					opn1=va.top();va.pop();
+					va.push(!opn1);
+				}
+				else if (op.top()=='&')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1&&opn2);
+				}
+				else break;
+				op.pop();
+			}
+			op.push('&');
+			break;
+		default:
+			while (!op.empty())
+			{
+				if (op.top()=='!')
+				{
+					opn1=va.top();va.pop();
+					va.push(!opn1);
+				}
+				else if (op.top()=='&')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1&&opn2);
+				}
+				else if (op.top()=='|')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||opn2);
+				}
+				else if (op.top()=='=')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1==opn2);
+				}
+				else if (op.top()=='>')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1||!opn2);
+				}
+				else if (op.top()=='^')
+				{
+					opn1=va.top();va.pop();
+					opn2=va.top();va.pop();
+					va.push(opn1^opn2);
+				}
+				else break;
+				op.pop();
+			}
+			op.push(exp[i]);
+			break;
+		}
+	}
+	return va.top();
+}
 
 int main()
 {
 	str s;
 	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
+	s="("+s+")";
+	str exp;
+	rep(i,sz(s))
 	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
-		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
-			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
-			}
-		}
-		ans.ins(max);
+		if (s[i]=='|') exp.pb('|'),i++;
+		else if (s[i]=='<') exp.pb('='),i++,i++;
+		else if (s[i]=='=') exp.pb('>'),i++;
+		else if (s[i]=='#') exp.pb('^');
+		else exp.pb(s[i]);
 	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
+	vi lst;
+	rep(i,1024)
+	{
+		str get=exp;
+		rep(j,sz(get))
+			if ('a'<=get[j]&&get[j]<='j')
+			{
+				if ((i&(1<<(get[j]-'a')))!=0) get[j]='1';
+				else get[j]='0';
+			}
+		if (calc(get)) lst.pb(i);
+	}
+	rep(i,sz(lst))
+	{
+		for (int j=0;j<10;j++)
+		{
+			if ((lst[i]&(1<<j))==0) cout<<('!');
+			cout<<((char)('a'+j));
+			if (j+1<10) cout<<('&');
+		}
+		if (i+1<sz(lst)) cout<<("||");
+		else cout<<endl;
+	}
+	if (!sz(lst)) cout<<"a&!a"<<endl;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

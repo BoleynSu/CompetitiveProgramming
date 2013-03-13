@@ -129,7 +129,7 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-//db gamma=0.5772156649015328606;
+db gamma=0.5772156649015328606;
 db pi=acos(-1.0);
 int dx[]={1,0,-1,0,1,-1,-1,1,0};
 int dy[]={0,1,0,-1,1,1,-1,-1,0};
@@ -142,7 +142,6 @@ inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
 inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -162,79 +161,151 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int main()
+/*
+ * Package: StandardCodeLibrary.StringAlgorithms
+ * Description:
+ * KMP算法 Knuth-Morris-Pratt Algorithm;
+ * Z Algorithm;
+ * 最长回文子串 Manacher's Algorithm;
+ * AC自动机 Aho-Corasick Algorithm;
+ * 后缀数组倍增法;
+ * 后缀自动机;
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace StringAlgorithms
+{
+
+//KMP算法
+void get_pi(const vi t,vi& pi)
+{
+	pi.resize(sz(t)),pi[0]=-1;
+	int j=-1;
+	repf(i,1,sz(t))
+	{
+		whl(j!=-1&&t[j+1]!=t[i]) j=pi[j];
+		if (t[j+1]==t[i]) j++;
+		pi[i]=(i+1<sz(t)&&t[i+1]==t[j+1])?pi[j]:j;
+	}
+}
+void get_match(const vi& t,const vi& pi,const vi& s,vi& match)
+{
+	int j=-1;
+	rep(i,sz(s))
+	{
+		whl(j!=-1&&t[j+1]!=s[i]) j=pi[j];
+		if (t[j+1]==s[i]) j++;
+		if (j==sz(t)-1)
+		{
+			match.pb(i-j);
+			j=pi[j];
+		}
+	}
+}
+int KMP(const vi& t,const vi& s)
+{
+	vi pi;
+	get_pi(t,pi);
+	vi match;
+	get_match(t,pi,s,match);
+	if (sz(match)) rtn match.front();
+	else rtn -1;
+}
+
+//Z Algorithm
+void z_algorithm(const vi& s,vi& z)
+{
+	z.resize(sz(s)),z[0]=0;
+	int j=0,a=0;
+	repf(i,1,sz(s))
+	{
+		if (i+z[i-a]<a+z[a]) z[i]=z[i-a];
+		else
+		{
+			j=max(a+z[a]-i,0);
+			whl(i+j<sz(s)&&s[i+j]==s[j]) j++;
+			z[a=i]=j;
+		}
+	}
+}
+
+//最长回文子串 Manacher's Algorithm
+void longest_palindromic_substring(const vi& str,vi& ans_str,int split=0)
+{
+	vi S;
+	rep(i,sz(str)) S.pb(split),S.pb(str[i]);
+	S.pb(split);
+	vi p(sz(S));
+	int ans,ansi,mid;
+	ans=(p[mid=0]=1)-1;
+	repf(i,1,sz(S))
+	{
+	    p[i]=p[mid]+mid>i?min(p[mid]+mid-i,p[mid*2-i]):1;
+	    whl(i>=p[i]&&i+p[i]<sz(S)&&S[i-p[i]]==S[i+p[i]]) p[i]++;
+	    if (cmax(ans,p[i]-1)) ansi=i;
+	    if (p[i]+i>p[mid]+mid) mid=i;
+	}
+	ans_str.clear();
+	ft(i,ansi-ans,ansi+ans)
+		if (S[i]!=split) ans_str.pb(S[i]);
+}
+
+}
+}
+
+using namespace StandardCodeLibrary::StringAlgorithms;
+
+void read(vi& v)
 {
 	str s;
 	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
-	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
-		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
-			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
-			}
-		}
-		ans.ins(max);
-	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
+	v.resize(sz(s));
+	rep(i,sz(s)) v[i]=s[i];
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+int main()
+{
+	vi s;
+	read(s);
+	vi rs=s;
+	reverse(all(rs));
+	int m;
+	cin>>m;
+	int ans=0;
+	rep(i,m)
+	{
+		vi t;
+		read(t);
+		vi rt=t;
+		reverse(all(rt));
+		vi gt=t,grt=rt;
+		gt.pb('$');
+		gt.insert(gt.end(),all(s));
+		grt.pb('$');
+		grt.insert(grt.end(),all(rs));
+		vi z,rz;
+		z_algorithm(gt,z);
+		z_algorithm(grt,rz);
+		vec<lli> f(sz(t)+1,+oo),rf(sz(rt)+1,+oo);
+		rep(i,sz(gt)) prt(z[i]);
+		rep(i,sz(s)) cmin<lli>(f[z[sz(t)+1+i]],i);
+		rep(i,sz(rs)) cmin<lli>(rf[rz[sz(rt)+1+i]],i);
+		fdt(i,sz(t),1) cmin(f[i-1],f[i]);
+		fdt(i,sz(rt),1) cmin(rf[i-1],rf[i]);
+		repf(i,1,sz(t))
+		{
+			prt(f[i]+rf[sz(t)-i]);
+			if (sz(s)>=f[i]+rf[sz(t)-i]+sz(t))
+			{
+				ans++;
+				break;
+			}
+		}
+	}
+	cout<<ans<<endl;
+}

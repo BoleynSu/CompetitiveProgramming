@@ -26,7 +26,6 @@
 #include <ctime>
 #include <climits>
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
-#include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
@@ -114,9 +113,6 @@ typedef set<str> ss;
 typedef que<int> qi;
 typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
-using __gnu_cxx::rope;
-#endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
@@ -129,7 +125,7 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-//db gamma=0.5772156649015328606;
+db gamma=0.5772156649015328606;
 db pi=acos(-1.0);
 int dx[]={1,0,-1,0,1,-1,-1,1,0};
 int dy[]={0,1,0,-1,1,1,-1,-1,0};
@@ -142,7 +138,6 @@ inline int sgn(const db& x){rtn (x>+eps)-(x<-eps);}
 inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -162,79 +157,140 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.insert(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+/*
+ * Package: StandardCodeLibrary.StringAlgorithms.SuffixArray
+ * */
+namespace StandardCodeLibrary
+{
+namespace StringAlgorithms
+{
+namespace SuffixArray
+{
+
+const int LOG2_MAXLENGTH=20;
+const int MAXLENGTH=1<<LOG2_MAXLENGTH;
+typedef int string[MAXLENGTH];
+string s;
+int len;
+int _a[MAXLENGTH],_b[MAXLENGTH],_c[MAXLENGTH],_d[MAXLENGTH];
+int* srt;
+int* SA=_a;
+int* rnk=_b;
+int* TSA=_c;
+int* Trnk=_d;
+void get_SA()
+{
+	srt=Trnk;
+	rep(i,len) srt[i]=0;
+	rep(i,len) srt[s[i]]++;
+	repf(i,1,len) srt[i]+=srt[i-1];
+	rep(i,len) SA[--srt[s[i]]]=i;
+	rnk[SA[0]]=0;
+	repf(i,1,len)
+		rnk[SA[i]]=rnk[SA[i-1]]+(s[SA[i]]!=s[SA[i-1]]);
+	for (int block=1;rnk[SA[len-1]]!=len-1;block<<=1)
+	{
+		srt=Trnk;
+		rep(i,len) srt[rnk[SA[i]]]=i;
+		fdt(i,len-1,0) if (SA[i]-block>=0) TSA[srt[rnk[SA[i]-block]]--]=SA[i]-block;
+		repf(i,len-block,len) TSA[srt[rnk[i]]--]=i;
+		int* swap;
+		swap=SA,SA=TSA,TSA=swap;
+		swap=rnk,rnk=Trnk,Trnk=swap;
+		rnk[SA[0]]=0;
+		repf(i,1,len)
+			rnk[SA[i]]=rnk[SA[i-1]]+(Trnk[SA[i]]!=Trnk[SA[i-1]]
+									||Trnk[SA[i]+block]!=Trnk[SA[i-1]+block]);
+	}
+}
+int* ht;
+void get_height()
+{
+	ht=TSA;
+	for (int i=0,h=0;i<len;i++)
+	{
+		if (h) h--;
+		if (rnk[i])
+		{
+			int j=SA[rnk[i]-1];
+			whl(s[i+h]==s[j+h]) h++;
+		}
+		ht[rnk[i]]=h;
+	}
+}
+int* log2;
+int rmq[LOG2_MAXLENGTH+1][MAXLENGTH];
+void get_RMQ()
+{
+	log2=Trnk-1;
+	log2[1]=0;
+	ft(i,2,len) log2[i]=log2[i-1]+(i==(i&(-i)));
+	rep(i,len) rmq[0][i]=i;
+	ft(log,1,log2[len])
+	{
+		int exp=1<<log,exp_div_2=exp>>1;
+		rep(i,len-exp+1)
+		{
+			int a=rmq[log-1][i];
+			int b=rmq[log-1][i+exp_div_2];
+			rmq[log][i]=ht[a]<ht[b]?a:b;
+		}
+	}
+}
+int RMQ(int a,int b)
+{
+	int log=log2[b-a+1];
+	int exp=1<<log;
+	a=rmq[log][a],b=rmq[log][b-exp+1];
+	rtn ht[a]<ht[b]?a:b;
+}
+int LCP(int a,int b)
+{
+	if (a==b) rtn len-a;
+	a=rnk[a],b=rnk[b];
+	if (a>b) rtn ht[RMQ(b+1,a)];
+	else rtn ht[RMQ(a+1,b)];
+}
+
+}
+}
+}
+
+using namespace StandardCodeLibrary::StringAlgorithms::SuffixArray;
+
 
 int main()
 {
-	str s;
-	cin>>s;
-	srt(s);
-	vi lst={0,1,2,3,4,5};
-	ss ans;
-	ss fnd;
-	do
+	cin>>len;
+	rep(i,len) cin>>s[i];
+	s[len++]=-1;
+	mii f;
+	rep(i,len) f[s[i]];
+	vi g;
+	feach(it,f) it->y=sz(g),g.pb(it->x);
+	rep(i,len) s[i]=f[s[i]],prt(s[i]);
+	get_SA(),get_height(),get_RMQ();
+	vvi ps(sz(f));
+	rep(i,len) ps[s[i]].pb(i);
+	int begin=0;
+	rep(i,len)
 	{
-		str get=s;
-		rep(j,sz(lst)) get[j]=s[lst[j]];
-		if (fnd.count(get)) continue;
-		fnd.ins(get);
-		str max;
-		rep(i,4)
+		repf(j,ub(all(ps[s[i]]),i)-ps[s[i]].begin(),sz(ps[s[i]]))
 		{
-			swap(get[0],get[1]),swap(get[1],get[2]),swap(get[2],get[3]);
-			rep(i,4)
+			prt(i),prt(ps[s[i]][j]);
+			prt(LCP(i,ps[s[i]][j]));
+			if (LCP(i,ps[s[i]][j])>=ps[s[i]][j]-i)
 			{
-				swap(get[0],get[4]),swap(get[4],get[2]),swap(get[2],get[5]);
-				rep(i,4)
-				{
-					swap(get[1],get[4]),swap(get[4],get[3]),swap(get[3],get[5]);
-					cmax(max,get);
-				}
+				begin=ps[s[i]][j];
+				i=begin-1;
+				break;
 			}
 		}
-		ans.ins(max);
+		prt(i),prt(begin);
 	}
-	whl(next_permutation(all(lst),[](char a,char b){return a<b;}));
-	int cnt=0;
-	rep(i,sz(s)) if (s[i]==*min_element(all(s))) cnt++;
-	cout<<sz(ans)<<endl;
+	cout<<len-1-begin<<endl;
+	repf(i,begin,len-1) cout<<g[s[i]]<<char(i+1==len-1?'\n':' ');
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
