@@ -2,6 +2,57 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.InputMismatchException;
 
+public class Main {
+	public static void main(String[] arg)
+	{
+		new Main();
+	}
+	class node
+	{
+		node[] n=new node[2];
+	}
+	Main()
+	{
+		InputReader cin=new InputReader(System.in);
+		int n=cin.readInt();
+		long[] a=new long[n];
+		for (int i=0;i<n;i++) a[i]=cin.readLong();
+		long[] s=new long[n+1];
+		s[0]=0;
+		for (int i=0;i<n;i++) s[i+1]=s[i]^a[i];
+		node root=new node();
+		for (int i=0;i<=n;i++)
+		{
+			node u=root;
+			for (int j=39;j>=0;j--)
+			{
+				int c=(int)((s[i]>>j)&(long)(1));
+				if (u.n[c]==null) u.n[c]=new node();
+				u=u.n[c];
+			}
+		}
+		long ans=Long.MIN_VALUE;
+		for (int i=1;i<=n;i++)
+		{
+			long get=0;
+			node u=root;
+			for (int j=39;j>=0;j--)
+			{
+				get^=((long)(1))<<j;
+				int c=(int)(((get^s[n]^s[i])>>j)&(long)(1));
+				if (u.n[c]==null)
+				{
+					c^=1;
+					get^=((long)(1))<<j;
+				}
+				u=u.n[c];
+			}
+			ans=Math.max(get,ans);
+		}
+		System.out.println(ans);
+	}
+}
+
 class InputReader {
 
 	private InputStream stream;
@@ -82,56 +133,5 @@ class InputReader {
 
 	public interface SpaceCharFilter {
 		public boolean isSpaceChar(int ch);
-	}
-}
-
-public class Main {
-	public static void main(String[] arg)
-	{
-		new Main();
-	}
-	class node
-	{
-		node[] n=new node[2];
-	}
-	Main()
-	{
-		InputReader cin=new InputReader(System.in);
-		int n=cin.readInt();
-		long[] a=new long[n];
-		for (int i=0;i<n;i++) a[i]=cin.readLong();
-		long[] s=new long[n+1];
-		s[0]=0;
-		for (int i=0;i<n;i++) s[i+1]=s[i]^a[i];
-		node root=new node();
-		for (int i=0;i<=n;i++)
-		{
-			node u=root;
-			for (int j=39;j>=0;j--)
-			{
-				int c=(int)((s[i]>>j)&(long)(1));
-				if (u.n[c]==null) u.n[c]=new node();
-				u=u.n[c];
-			}
-		}
-		long ans=Long.MIN_VALUE;
-		for (int i=1;i<=n;i++)
-		{
-			long get=0;
-			node u=root;
-			for (int j=39;j>=0;j--)
-			{
-				get^=((long)(1))<<j;
-				int c=(int)(((get^s[n]^s[i])>>j)&(long)(1));
-				if (u.n[c]==null)
-				{
-					c^=1;
-					get^=((long)(1))<<j;
-				}
-				u=u.n[c];
-			}
-			ans=Math.max(get,ans);
-		}
-		System.out.println(ans);
 	}
 }
