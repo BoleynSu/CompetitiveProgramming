@@ -76,16 +76,15 @@ edge is[MAXV],cur[MAXV];
 #define pop() df=fs[st],st--,st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
 flow_type improved_augment(int u,flow_type e)
 {
-    f=0,st=-1,cpy(cur,adj);
-    push(u,e);
-    whl(st>=0)
-    {
-        if (us[st]==T) fs[st]=es[st],pop();
-        else if (!is[st]||!es[st]) pop();
-        else if (is[st]->c&&d[us[st]]==d[is[st]->v]+1) cur[us[st]]=is[st],push(is[st]->v,min(es[st],is[st]->c));
-        else is[st]=is[st]->n;
-    }
-    rtn f;
+	f=0,st=-1,cpy(cur,adj),push(u,e);
+	whl(st>=0)
+	{
+		if (us[st]==T) fs[st]=es[st],pop();
+		else if (!is[st]||!es[st]) pop();
+		else if (is[st]->c&&d[us[st]]==d[is[st]->v]+1) cur[us[st]]=is[st],push(is[st]->v,min(es[st],is[st]->c));
+		else is[st]=is[st]->n;
+	}
+	rtn f;
 }
 #undef pop
 #undef push
