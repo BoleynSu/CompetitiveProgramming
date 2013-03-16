@@ -129,7 +129,7 @@ int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
 db eps=1e-10;
-db gam=0.5772156649015328606;
+//db gamma=0.5772156649015328606;
 db pi=acos(-1.0);
 int dx[]={1,0,-1,0,1,-1,-1,1,0};
 int dy[]={0,1,0,-1,1,1,-1,-1,0};
@@ -165,3 +165,56 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+struct TeamContest
+{
+	static bool possible(int x,lli me,vec<lli> lst)
+	{
+		x--;
+		rep(i,x)
+		{
+			lli get=lst[i]+lst[3*x-1-i*2];
+			if (get<=me) return false;
+		}
+		return true;
+	}
+	static int worstRank(vector <int> strength)
+	{
+		lli me=max(max(strength[0],strength[1]),strength[2])+min(min(strength[0],strength[1]),strength[2]);
+		vec<lli> lst;
+		repf(i,3,sz(strength)) lst.pb(strength[i]);
+		srt(lst);
+		reverse(all(lst));
+		int l=1,r=sz(strength)/3+1;
+		whl(l+1!=r)
+		{
+			int mid=(l+r)>>1;
+			if (possible(mid,me,lst)) l=mid;
+			else r=mid;
+		}
+		return l;
+	}
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
