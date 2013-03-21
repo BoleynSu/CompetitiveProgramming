@@ -1,137 +1,178 @@
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.InputMismatchException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Scanner;
 
-class InputReader {
+class AccountException extends Exception
+{
+	private static final long serialVersionUID = -6650019591373965372L;
 
-	private InputStream stream;
-	private byte[] buf = new byte[1024];
-	private int curChar;
-	private int numChars;
-	private SpaceCharFilter filter;
-	
-	public InputReader(InputStream stream) {
-		this.stream = stream;
-	}
-
-	public int read() {
-		if (numChars == -1)
-			throw new InputMismatchException();
-		if (curChar >= numChars) {
-			curChar = 0;
-			try {
-				numChars = stream.read(buf);
-			} catch (IOException e) {
-				throw new InputMismatchException();
-			}
-			if (numChars <= 0)
-				return -1;
-		}
-		return buf[curChar++];
-	}
-
-	public int readInt() {
-		int c = read();
-		while (isSpaceChar(c))
-			c = read();
-		int sgn = 1;
-		if (c == '-') {
-			sgn = -1;
-			c = read();
-		}
-		int res = 0;
-		do {
-			if (c < '0' || c > '9')
-				throw new InputMismatchException();
-			res *= 10;
-			res += c - '0';
-			c = read();
-		} while (!isSpaceChar(c));
-		return res * sgn;
-	}
-
-	public long readLong() {
-		int c = read();
-		while (isSpaceChar(c))
-			c = read();
-		int sgn = 1;
-		if (c == '-') {
-			sgn = -1;
-			c = read();
-		}
-		long res = 0;
-		do {
-			if (c < '0' || c > '9')
-				throw new InputMismatchException();
-			res *= 10;
-			res += c - '0';
-			c = read();
-		} while (!isSpaceChar(c));
-		return res * sgn;
-	}
-
-	public boolean isSpaceChar(int c) {
-		if (filter != null)
-			return filter.isSpaceChar(c);
-		return isWhitespace(c);
-	}
-
-	public static boolean isWhitespace(int c) {
-		return c == ' ' || c == '\n' || c == '\r' || c == '\t' || c == -1;
-	}
-
-	public interface SpaceCharFilter {
-		public boolean isSpaceChar(int ch);
+	AccountException(String message)
+	{
+		super(message);
 	}
 }
 
-public class Main {
+class Account
+{
+	
+	private String name;
+	private int number;
+	private int balance;
+	private static int counter=0;
+	
+	public Account(String name,int number)
+	{
+		this.name=name;
+		this.number=number;
+		this.balance=0;
+		Account.counter++;
+	}
+	
+	public void deposit(int money)
+	{
+		this.balance+=money;
+	}
+	
+	public void withdraw(int money) throws AccountException
+	{
+		if (money>this.balance) throw new AccountException("You can't withdraw so much money.");
+		this.balance-=money;
+	}
+	
+	public String getInformation()
+	{
+		return "Name of account holder: "+this.name+" Account number: "+this.number+" Balance: "+this.balance;
+	}
+	
+	public static int getCounter()
+	{
+		return Account.counter;
+	}
+
+	public boolean isNumber(int number) {
+		return this.number==number;
+	}
+
+}
+
+class AccountManager
+{
+	private ArrayList<Account> accounts;
+	private Scanner in;
+	private PrintStream out;
+	
+	public AccountManager(InputStream in,PrintStream out)
+	{
+		accounts=new ArrayList<Account>();
+		this.in=new Scanner(in);
+		this.out=out;
+	}
+	
+	private int getIndex(int number)
+	{
+		int index=-1;
+		for (int i=0;i<accounts.size();i++)
+			if (accounts.get(i).isNumber(number))
+				index=i;
+		return index;
+	}
+	
+	private void createAccount(int number)
+	{
+		out.println("Oops! Your account number is wrong!");
+		out.println("Enter q to quit or c to create an account.");
+		String cmd=in.next();
+		if (cmd.equals("q")) return;
+		out.println("Please enter your name to create an account.");
+		String name=in.next();
+		accounts.add(new Account(name,number));
+	}
+	
+	public void serve()
+	{
+		out.println("============================================================");
+		out.println("Welcome!");
+		out.println("We have "+Account.getCounter()+" account(s).");
+		out.println("Please enter your account number to continue the service.");
+		int number=in.nextInt();
+		int index=getIndex(number);
+		if (index==-1)
+		{
+			createAccount(number);
+			index=getIndex(number);
+		}
+		if (index!=-1)
+		{
+			Account currentAccount=accounts.get(index);
+			out.println("Your account information:");
+			out.println(currentAccount.getInformation());
+			boolean quit=false;
+			while (!quit)
+			{
+				out.println("Please choose an operation you will perform:");
+				out.println("1. Query");
+				out.println("2. Deposit");
+				out.println("3. Withdraw");
+				out.println("4. Quit");
+				int operation=in.nextInt();
+				switch (operation)
+				{
+				case 1:
+					out.println("Your account information:");
+					out.println(currentAccount.getInformation());
+					break;
+				case 2:
+					out.println("How much will you deposit?");
+					int depositMoney=in.nextInt();
+					currentAccount.deposit(depositMoney);
+					out.println("Accepted.");
+					break;
+				case 3:
+					out.println("How much will you withdraw?");
+					int withdrawMoney=in.nextInt();
+					try
+					{
+						currentAccount.withdraw(withdrawMoney);
+						out.println("Accepted.");
+					}
+					catch (AccountException e)
+					{
+						out.println("Rejected.");
+						out.println(e.getMessage());
+					}
+					break;
+				case 4:
+					quit=true;
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		out.println("Bye!");
+		out.println("============================================================");
+	}
+
+	public void run()
+	{
+		while (true)
+		{
+			serve();
+		}
+	}
+}
+
+public class Main
+{
 	public static void main(String[] arg)
 	{
 		new Main();
 	}
-	class node
-	{
-		node[] n=new node[2];
-	}
 	Main()
 	{
-		InputReader cin=new InputReader(System.in);
-		int n=cin.readInt();
-		long[] a=new long[n];
-		for (int i=0;i<n;i++) a[i]=cin.readLong();
-		long[] s=new long[n+1];
-		s[0]=0;
-		for (int i=0;i<n;i++) s[i+1]=s[i]^a[i];
-		node root=new node();
-		for (int i=0;i<=n;i++)
-		{
-			node u=root;
-			for (int j=39;j>=0;j--)
-			{
-				int c=(int)((s[i]>>j)&(long)(1));
-				if (u.n[c]==null) u.n[c]=new node();
-				u=u.n[c];
-			}
-		}
-		long ans=Long.MIN_VALUE;
-		for (int i=1;i<=n;i++)
-		{
-			long get=0;
-			node u=root;
-			for (int j=39;j>=0;j--)
-			{
-				get^=((long)(1))<<j;
-				int c=(int)(((get^s[n]^s[i])>>j)&(long)(1));
-				if (u.n[c]==null)
-				{
-					c^=1;
-					get^=((long)(1))<<j;
-				}
-				u=u.n[c];
-			}
-			ans=Math.max(get,ans);
-		}
-		System.out.println(ans);
+		AccountManager accountManager=new AccountManager(System.in,System.out);
+		accountManager.run();
 	}
 }
