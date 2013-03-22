@@ -1,6 +1,5 @@
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -65,7 +64,7 @@ class AccountManager
 	
 	public AccountManager(InputStream in,PrintStream out)
 	{
-		accounts=new ArrayList<Account>();
+		this.accounts=new ArrayList<Account>();
 		this.in=new Scanner(in);
 		this.out=out;
 	}
@@ -157,10 +156,7 @@ class AccountManager
 
 	public void run()
 	{
-		while (true)
-		{
-			serve();
-		}
+		while (true) serve();
 	}
 }
 

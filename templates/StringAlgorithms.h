@@ -83,10 +83,10 @@ void longest_palindromic_substring(const vi& str,vi& ans_str,int split=0)
 	ans=(p[mid=0]=1)-1;
 	repf(i,1,sz(S))
 	{
-	    p[i]=p[mid]+mid>i?min(p[mid]+mid-i,p[mid*2-i]):1;
-	    whl(i>=p[i]&&i+p[i]<sz(S)&&S[i-p[i]]==S[i+p[i]]) p[i]++;
-	    if (cmax(ans,p[i]-1)) ansi=i;
-	    if (p[i]+i>p[mid]+mid) mid=i;
+		p[i]=p[mid]+mid>i?min(p[mid]+mid-i,p[mid*2-i]):1;
+		whl(i>=p[i]&&i+p[i]<sz(S)&&S[i-p[i]]==S[i+p[i]]) p[i]++;
+		if (cmax(ans,p[i]-1)) ansi=i;
+		if (p[i]+i>p[mid]+mid) mid=i;
 	}
 	ans_str.clear();
 	ft(i,ansi-ans,ansi+ans)
