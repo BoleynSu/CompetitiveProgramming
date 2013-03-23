@@ -166,68 +166,168 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-db x[50],y[50];
-float d[50][50];
-float f[50][50][50][50];
-int top;
-int ch[1000][50];
-bool ed[1000];
-
-float dp(int j,int k,int l,int g)
+#define nd(l,r) (st[(((l)+(r))|((l)!=(r)))])
+#define rt nd(l,r)
+#define lrt nd(l,m)
+#define rrt nd(m+1,r)
+const int MAXN=400000;
+struct node
 {
-	if (f[j][k][l][g]<inf) rtn f[j][k][l][g];
-    int u=0;
-    u=ch[u][g];
-    if (u==-1) goto gogogo;
-    if (ed[u]) rtn f[j][k][l][g]=inf/10;
-    u=ch[u][l];
-    if (u==-1) goto gogogo;
-    if (ed[u]) rtn f[j][k][l][g]=inf/10;
-    u=ch[u][k];
-    if (u==-1) goto gogogo;
-    if (ed[u]) rtn f[j][k][l][g]=inf/10;
-    u=ch[u][j];
-    if (u==-1) goto gogogo;
-    if (ed[u]) rtn f[j][k][l][g]=inf/10;
-    gogogo:
-	for (int i=0,end=max(0,j-1);i<=end;i++)
-	    if (u==-1||ch[u][i]==-1||!ed[ch[u][i]])
-	    	cmin(f[j][k][l][g],dp(i,j,k,l)+d[l][g]);
-	rtn f[j][k][l][g];
+	bool lz;
+	int min;
+};
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int L,int R,int v)
+{
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R)
+	{
+		rt.lz=true;
+		cmin(rt.min,v);
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.lz)
+		{
+			lrt.lz=true;
+			cmin(lrt.min,rt.min);
+			rrt.lz=true;
+			cmin(rrt.min,rt.min);
+			rt.lz=false;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+	}
+}
+int qry(int l,int r,int L,int R)
+{
+	if (R<l||r<L) rtn +oo;
+	else if (L<=l&&r<=R) rtn rt.min;
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.lz)
+		{
+			lrt.lz=true;
+			cmin(lrt.min,rt.min);
+			rrt.lz=true;
+			cmin(rrt.min,rt.min);
+			rt.lz=false;
+		}
+		rtn min(qry(l,m,L,R),qry(m+1,r,L,R));
+	}
+}
+#undef rc
+#undef lc
+#undef rt
+#undef nd
+
+namespace tree_with_vpii
+{
+#define nd(l,r) (st[(((l)+(r))|((l)!=(r)))])
+#define rt nd(l,r)
+#define lrt nd(l,m)
+#define rrt nd(m+1,r)
+const int MAXN=400000;
+typedef pr<vpii,vi> node;
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int p,pii v)
+{
+	if (p<l||r<p) ;
+	else if (p<=l&&r<=p)
+	{
+		rt.x.pb(v);
+		rt.y.pb(0);
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		upd(l,m,p,v),upd(m+1,r,p,v);
+		rt.x.pb(v);
+		rt.y.pb(0);
+	}
+}
+void build(int l,int r)
+{
+	if (l>r) ;
+	else
+	{
+		int m=(l+r)>>1;
+		build(l,m),build(m+1,r);
+		srt(rt.x);
+		rep(i,sz(rt)) rt.y[i]=(i?rt.y[i-1]:0)+rt.x[i].y;
+	}
+}
+pii qry(int l,int r,int L,int R,int max)
+{
+	if (R<l||r<L) rtn mp(0,0);
+	else if (L<=l&&r<=R)
+	{
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		rtn qry(l,m,L,R,max)+qry(m+1,r,L,R,max);
+	}
+}
+#undef rc
+#undef lc
+#undef rt
+#undef nd
 }
 
 int main()
 {
-	inf=1e30;
 	int n,m;
-	whl(cin>>n>>m,n||m)
+	cin>>n>>m;
+	vi l(m),r(m),t(m);
+	rep(i,m) cin>>l[i]>>r[i]>>t[i];
+	vi q(n);
+	cin>>q;
+	vi p;
+	p.ins(p.end(),all(l));
+	p.ins(p.end(),all(r));
+	p.ins(p.end(),all(q));
+	uniq(p);
+	map<pii,int> id;
+	vi len(sz(p)-1);
+	repf(i,1,sz(p)) len[id[mp(p[i-1],p[i])]=i-1]=p[i]-p[i-1];//,cerr<<p[i-1]<<","<<p[i]<<endl;
+	id[mp(p.back(),p.back())]=sz(len);
+	rep(i,sz(len)*2) st[i].min=+oo;
+	rep(i,m)
 	{
-		rep(i,n) cin>>x[i]>>y[i];
-		rep(i,n) rep(j,n) d[i][j]=sqrt(sqr(x[i]-x[j])+sqr(y[i]-y[j]));
-		fl(ch,-1),top=0;
-		rep(i,m)
-		{
-			int k;
-			cin>>k;
-			vi lst(k);
-			cin>>lst;
-			reverse(all(lst));
-			rep(i,sz(lst)) lst[i]--;
-			int u=0;
-			rep(i,sz(lst))
-			{
-				if (ch[u][lst[i]]==-1) ch[u][lst[i]]=top++;
-				u=ch[u][lst[i]];
-			}
-			ed[u]=true;
-		}
-		rep(i,n) rep(j,n) rep(k,n) rep(l,n) f[i][j][k][l]=inf;
-		f[0][0][0][0]=0;
-		float ans=inf;
-		rep(i,n-1) repf(j,(i?i+1:i),n-1) repf(k,(j?j+1:j),n-1) cmin(ans,dp(i,j,k,n-1));
-		if (ans>1e29) cout<<"Can not be reached!"<<endl;
-		else pdb(2,ans)<<endl;
+		int L=id.upper_bound(mp(l[i],-oo))->y,R=id.upper_bound(mp(r[i],-oo))->y-1;
+		//cerr<<L<<" "<<R<<" : "<<t[i]<<endl;
+		upd(0,sz(len)-1,L,R,t[i]);
 	}
+	vpii nc(sz(len));
+	rep(i,sz(len))
+	{
+		int t=qry(0,sz(len)-1,i,i);
+		nc[i]=mp(t-p[i],len[i]);
+		//cerr<<p[i]<<" "<<p[i+1]<<":"<<t<<endl;
+	}
+	srt(nc);
+	rep(i,sz(len)) cerr<<nc[i].x<<" "<<nc[i].y<<endl;
+
+	vpii lst(n);
+	rep(i,n) lst[i]=mp(q[i],i);
+	srt(lst);
+
+	vi ans(n);
+	rep(i,sz(nc)) nc[i].x-=nc[i].y;
+	rep(i,sz(nc)) tree_with_vpii::ins(0,sz(nc)-1,i,mp(nc[i].x+nc[i].y,nc[i].y));
+	tree_with_vpii::build(0,sz(nc)-1);
+	sort(all(nc),greater<pii>());
+	int hd=0;
+	rep(i,n)
+	{
+		whl(lst[i].x-nc[hd].x<0&&hd<sz(nc)) hd++;
+		//repf(j,hd,sz(nc)) ans[lst[i].y]+=min(nc[j].y,lst[i].x-nc[j].x);
+		pii get=tree_with_vpii::qry(0,sz(nc)-1,hd,sz(nc)-1,lst[i].x);
+
+	}
+	rep(i,n) cout<<ans[i]<<endl;
 }
 
 
