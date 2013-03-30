@@ -1,174 +1,72 @@
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.math.RoundingMode;
 
-class AccountException extends Exception
-{
-	private static final long serialVersionUID = -6650019591373965372L;
 
-	AccountException(String message)
-	{
-		super(message);
-	}
-}
-
-class Account
-{
-	
-	private String name;
-	private int number;
-	private int balance;
-	private static int counter=0;
-	
-	public Account(String name,int number)
-	{
-		this.name=name;
-		this.number=number;
-		this.balance=0;
-		Account.counter++;
-	}
-	
-	public void deposit(int money)
-	{
-		this.balance+=money;
-	}
-	
-	public void withdraw(int money) throws AccountException
-	{
-		if (money>this.balance) throw new AccountException("You can't withdraw so much money.");
-		this.balance-=money;
-	}
-	
-	public String getInformation()
-	{
-		return "Name of account holder: "+this.name+" Account number: "+this.number+" Balance: "+this.balance;
-	}
-	
-	public static int getCounter()
-	{
-		return Account.counter;
-	}
-
-	public boolean isNumber(int number) {
-		return this.number==number;
-	}
-
-}
-
-class AccountManager
-{
-	private ArrayList<Account> accounts;
-	private Scanner in;
-	private PrintStream out;
-	
-	public AccountManager(InputStream in,PrintStream out)
-	{
-		this.accounts=new ArrayList<Account>();
-		this.in=new Scanner(in);
-		this.out=out;
-	}
-	
-	private int getIndex(int number)
-	{
-		int index=-1;
-		for (int i=0;i<accounts.size();i++)
-			if (accounts.get(i).isNumber(number))
-				index=i;
-		return index;
-	}
-	
-	private void createAccount(int number)
-	{
-		out.println("Oops! Your account number is wrong!");
-		out.println("Enter q to quit or c to create an account.");
-		String cmd=in.next();
-		if (cmd.equals("q")) return;
-		out.println("Please enter your name to create an account.");
-		String name=in.next();
-		accounts.add(new Account(name,number));
-	}
-	
-	public void serve()
-	{
-		out.println("============================================================");
-		out.println("Welcome!");
-		out.println("We have "+Account.getCounter()+" account(s).");
-		out.println("Please enter your account number to continue the service.");
-		int number=in.nextInt();
-		int index=getIndex(number);
-		if (index==-1)
-		{
-			createAccount(number);
-			index=getIndex(number);
-		}
-		if (index!=-1)
-		{
-			Account currentAccount=accounts.get(index);
-			out.println("Your account information:");
-			out.println(currentAccount.getInformation());
-			boolean quit=false;
-			while (!quit)
-			{
-				out.println("Please choose an operation you will perform:");
-				out.println("1. Query");
-				out.println("2. Deposit");
-				out.println("3. Withdraw");
-				out.println("4. Quit");
-				int operation=in.nextInt();
-				switch (operation)
-				{
-				case 1:
-					out.println("Your account information:");
-					out.println(currentAccount.getInformation());
-					break;
-				case 2:
-					out.println("How much will you deposit?");
-					int depositMoney=in.nextInt();
-					currentAccount.deposit(depositMoney);
-					out.println("Accepted.");
-					break;
-				case 3:
-					out.println("How much will you withdraw?");
-					int withdrawMoney=in.nextInt();
-					try
-					{
-						currentAccount.withdraw(withdrawMoney);
-						out.println("Accepted.");
-					}
-					catch (AccountException e)
-					{
-						out.println("Rejected.");
-						out.println(e.getMessage());
-					}
-					break;
-				case 4:
-					quit=true;
-					break;
-				default:
-					break;
-				}
-			}
-		}
-		out.println("Bye!");
-		out.println("============================================================");
-	}
-
-	public void run()
-	{
-		while (true) serve();
-	}
-}
 
 public class Main
 {
+	String[] ans=new String[]
+	{
+	"1/1 0/1",
+	"1/2 1/2 0/1",
+	"1/3 1/2 1/6 0/1",
+	"1/4 1/2 1/4 0/1 0/1",
+	"1/5 1/2 1/3 0/1 -1/30 0/1",
+	"1/6 1/2 5/12 0/1 -1/12 0/1 0/1",
+	"1/7 1/2 1/2 0/1 -1/6 0/1 1/42 0/1",
+	"1/8 1/2 7/12 0/1 -7/24 0/1 1/12 0/1 0/1",
+	"1/9 1/2 2/3 0/1 -7/15 0/1 2/9 0/1 -1/30 0/1",
+	"1/10 1/2 3/4 0/1 -7/10 0/1 1/2 0/1 -3/20 0/1 0/1",
+	"1/11 1/2 5/6 0/1 -1/1 0/1 1/1 0/1 -1/2 0/1 5/66 0/1",
+	"1/12 1/2 11/12 0/1 -11/8 0/1 11/6 0/1 -11/8 0/1 5/12 0/1 0/1",
+	"1/13 1/2 1/1 0/1 -11/6 0/1 22/7 0/1 -33/10 0/1 5/3 0/1 -691/2730 0/1",
+	"1/14 1/2 13/12 0/1 -143/60 0/1 143/28 0/1 -143/20 0/1 65/12 0/1 -691/420 0/1 0/1",
+	"1/15 1/2 7/6 0/1 -91/30 0/1 143/18 0/1 -143/10 0/1 91/6 0/1 -691/90 0/1 7/6 0/1",
+	"1/16 1/2 5/4 0/1 -91/24 0/1 143/12 0/1 -429/16 0/1 455/12 0/1 -691/24 0/1 35/4 0/1 0/1",
+	"1/17 1/2 4/3 0/1 -14/3 0/1 52/3 0/1 -143/3 0/1 260/3 0/1 -1382/15 0/1 140/3 0/1 -3617/510 0/1",
+	"1/18 1/2 17/12 0/1 -17/3 0/1 221/9 0/1 -2431/30 0/1 1105/6 0/1 -11747/45 0/1 595/3 0/1 -3617/60 0/1 0/1",
+	"1/19 1/2 3/2 0/1 -34/5 0/1 34/1 0/1 -663/5 0/1 1105/3 0/1 -23494/35 0/1 714/1 0/1 -3617/10 0/1 43867/798 0/1",
+	"1/20 1/2 19/12 0/1 -323/40 0/1 323/7 0/1 -4199/20 0/1 4199/6 0/1 -223193/140 0/1 2261/1 0/1 -68723/40 0/1 43867/84 0/1 0/1",
+	"1/21 1/2 5/3 0/1 -19/2 0/1 1292/21 0/1 -323/1 0/1 41990/33 0/1 -223193/63 0/1 6460/1 0/1 -68723/10 0/1 219335/63 0/1 -174611/330 0/1",
+	"1/22 1/2 7/4 0/1 -133/12 0/1 323/4 0/1 -969/2 0/1 146965/66 0/1 -223193/30 0/1 33915/2 0/1 -481061/20 0/1 219335/12 0/1 -1222277/220 0/1 0/1",
+	"1/23 1/2 11/6 0/1 -77/6 0/1 209/2 0/1 -3553/5 0/1 11305/3 0/1 -223193/15 0/1 124355/3 0/1 -755953/10 0/1 482537/6 0/1 -1222277/30 0/1 854513/138 0/1",
+	"1/24 1/2 23/12 0/1 -1771/120 0/1 4807/36 0/1 -81719/80 0/1 37145/6 0/1 -5133439/180 0/1 572033/6 0/1 -17386919/80 0/1 11098351/36 0/1 -28112371/120 0/1 854513/12 0/1 0/1",
+	"1/25 1/2 2/1 0/1 -253/15 0/1 506/3 0/1 -14421/10 0/1 29716/3 0/1 -10266878/195 0/1 208012/1 0/1 -17386919/30 0/1 22196702/21 0/1 -28112371/25 0/1 1709026/3 0/1 -236364091/2730 0/1",
+	"1/26 1/2 25/12 0/1 -115/6 0/1 1265/6 0/1 -24035/12 0/1 185725/12 0/1 -25667195/273 0/1 1300075/3 0/1 -17386919/12 0/1 277458775/84 0/1 -28112371/6 0/1 21362825/6 0/1 -1181820455/1092 0/1 0/1",
+	"1/27 1/2 13/6 0/1 -65/3 0/1 16445/63 0/1 -16445/6 0/1 142025/6 0/1 -10266878/63 0/1 2600150/3 0/1 -20548177/6 0/1 3606964075/378 0/1 -52208689/3 0/1 55543345/3 0/1 -1181820455/126 0/1 8553103/6 0/1",
+	"1/28 1/2 9/4 0/1 -195/8 0/1 4485/14 0/1 -29601/8 0/1 142025/4 0/1 -15400317/56 0/1 1671525/1 0/1 -61644531/8 0/1 721392815/28 0/1 -469878201/8 0/1 166630035/2 0/1 -3545461365/56 0/1 76977927/4 0/1 0/1",
+	"1/29 1/2 7/3 0/1 -273/10 0/1 390/1 0/1 -9867/2 0/1 52325/1 0/1 -905901/2 0/1 3120180/1 0/1 -33193209/2 0/1 65581165/1 0/1 -365460823/2 0/1 333260070/1 0/1 -709092273/2 0/1 179615163/1 0/1 -23749461029/870 0/1",
+	"1/30 1/2 29/12 0/1 -609/20 0/1 1885/4 0/1 -26013/4 0/1 303485/4 0/1 -8757043/12 0/1 22621305/4 0/1 -137514723/4 0/1 1901853785/12 0/1 -10598363867/20 0/1 4832271015/4 0/1 -6854558639/4 0/1 5208839727/4 0/1 -23749461029/60 0/1 0/1",
+	"1/31 1/2 5/2 0/1 -203/6 0/1 1131/2 0/1 -16965/2 0/1 216775/2 0/1 -2304485/2 0/1 19959975/2 0/1 -137514723/2 0/1 731482225/2 0/1 -31795091601/22 0/1 8053785025/2 0/1 -102818379585/14 0/1 15626519181/2 0/1 -23749461029/6 0/1 8615841276005/14322 0/1"
+	};
 	public static void main(String[] arg)
 	{
 		new Main();
 	}
 	Main()
 	{
-		AccountManager accountManager=new AccountManager(System.in,System.out);
-		accountManager.run();
+		for (int k=0;k<=30;k++)
+		{
+			BigInteger best=BigInteger.ZERO;
+			for (int i=1;i<=100;i++)
+			{
+				best=best.add(BigInteger.valueOf(i).pow(k));
+			}
+			//System.out.println(best);
+			
+			BigDecimal get=BigDecimal.ZERO;
+			BigDecimal[] a=new BigDecimal[k+2],b=new BigDecimal[k+2];
+			String[] items=ans[k].split(" ");
+			for (int i=0;i<=k+1;i++)
+			{
+				a[i]=new BigDecimal(items[i].split("/")[0]);
+				b[i]=new BigDecimal(items[i].split("/")[1]);
+				//System.out.println(a[i]+" "+b[i]+" ");
+				get=get.add(BigDecimal.valueOf(100).pow(k+1-i).multiply(a[i]).divide(b[i],100,RoundingMode.HALF_UP));
+			}
+			//System.out.println(get);
+			System.out.println(best.subtract(get.toBigInteger()));
+		}
 	}
 }
