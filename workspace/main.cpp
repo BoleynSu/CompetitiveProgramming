@@ -18,75 +18,90 @@ str page_content;
 size_t page_count;
 str file_url;
 str file_content;
-void save_file()
+str contest_url;
+str contest_content;
+void save_file(str filename)
 {
 	cerr<<"save()"<<endl;
-	static const str getid("showproblem.php?pid=");
-	static const str begincode("<textarea id=usercode style=\"display:none;text-align:left;\">");
-	static const str endcode("</textarea>");
-	str id=file_content.substr(file_content.find(getid)+sz(getid),4);
-	str type;
-	if (file_content.find("Language : Java&nbsp;")!=str::npos) type=".java";
-	else if (file_content.find("Language : C&nbsp;")!=str::npos) type=".c";
-	else if (file_content.find("Language : Pascal&nbsp;")!=str::npos) type=".pas";
-	else type=".cpp";
+	str id=filename;
+	str type=file_url.substr(file_url.find_last_of('.'),sz(file_url)-(file_url.find_last_of('.')));
 	if (!boost::filesystem::exists(id+".java")
 		&&!boost::filesystem::exists(id+".c")
 		&&!boost::filesystem::exists(id+".pas")
 		&&!boost::filesystem::exists(id+".cpp"))
 	{
 		str output;
-		size_t p=file_content.find(begincode)+sz(begincode);
-		size_t q=file_content.find(endcode);
-		repf(i,p,q) if (file_content[i]!='\r') output.pb(file_content[i]);
-		output.pb('\n');
+		rep(i,sz(file_content)) if (file_content[i]!='\r') output.pb(file_content[i]);
 		ofstream file(id+type);
-		rep(i,sz(output))
-		{
-			if (output[i]!='&') file<<output[i];
-			else
-			{
-				int j=i;
-				whl(output[++j]!=';') ;
-				if (output[i+1]=='a') file<<'&';
-				else if (output[i+1]=='q') file<<'\"';
-				else if (output[i+1]=='l') file<<'<';
-				else if (output[i+1]=='g') file<<'>';
-				i=j;
-			}
-		}
+		file<<output;
 	}
 	cerr<<"/save()"<<endl;
 }
-void download_file()
+void download_file(str filename)
 {
 	cerr<<"download_file()"<<endl;
 	string buffer;
 	CURL *curl=curl_easy_init();
 	curl_easy_setopt(curl,CURLOPT_URL,file_url.c_str());
+	curl_easy_setopt(curl,CURLOPT_POST,1);
+	str post="Action=getsubmit&JudgeID="+USER+"&Password="+PASS;
+    curl_easy_setopt(curl,CURLOPT_POSTFIELDS,post.c_str());
 	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
 	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
 	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
 	curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 	buffer.swap(file_content);
-	save_file();
+	save_file(filename);
 	cerr<<"/download_file()"<<endl;
+}
+void get_contest_filename(str& filename)
+{
+	cerr<<"get_contest_filename()"<<endl;
+	string buffer;
+	CURL *curl=curl_easy_init();
+	curl_easy_setopt(curl,CURLOPT_URL,contest_url.c_str());
+	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
+	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
+	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
+	curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+	buffer.swap(contest_content);
+	size_t p=contest_content.find("To submit the solution for this problem go to the Problem set:");
+	p=contest_content.find("<nobr>",p)+sz(str("<nobr>"));
+	size_t q=contest_content.find(".",p);
+	filename=contest_content.substr(p,q-p);
+	cerr<<"/get_contest_filename()"<<endl;
 }
 void get_file_url()
 {
 	size_t p=0;
 	lp
 	{
-		p=page_content.find("\"/viewcode.php?rid=",p);
+		p=page_content.find("getsubmit.aspx/",p);
 		if (p==str::npos) break;
-		p++;
 		size_t q=page_content.find('"',p);
-		file_url="http://acm.hdu.edu.cn"+page_content.substr(p,q-p);
-		download_file();
+		file_url="http://acm.timus.ru/"+page_content.substr(p,q-p);
+		q=page_content.find("<SPAN CLASS=\"problemname\">",p);
+		p=q;
+		whl(page_content[p-1]!='>') p--;
+		str filename=page_content.substr(p,q-p);
+		bool isNumber=true;
+		rep(i,sz(filename)) if (filename[i]>'9'||filename[i]<'0') isNumber=false;
+		if (!isNumber)
+		{
+			q=p-2;
+			p=q;
+			whl(page_content[p-1]!='"') p--;
+			str suffix=page_content.substr(p,q-p);
+			whl(suffix.find("amp;")!=str::npos)
+				suffix.erase(suffix.find("amp;"),sz(str("amp;")));
+			contest_url="http://acm.timus.ru/"+suffix;
+			get_contest_filename(filename);
+		}
+		download_file(filename);
 	}
 }
-
 void download_page()
 {
 	cerr<<"Page "<<++page_count<<": "<<page_url<<endl;
@@ -99,27 +114,30 @@ void download_page()
 	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
 	curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
-	buffer.swap(page_content);prt(page_url);rtn;
+	buffer.swap(page_content);
 	get_file_url();
 	cerr<<"/download_page()"<<endl;
 }
 bool has_next_page()
-{prt(page_content);
+{
 	size_t p=page_content.find("Next 10");
 	if (p==str::npos) rtn false;
-	size_t q=page_content.find("\">Next 10</A>");prt(q);
+	size_t q=page_content.find("\">Next 10</A>");
 	p=q;
 	whl(page_content[p-1]!='"') p--;
-	page_url="http://acm.timus.ru/"+page_content.substr(p,q-p);
+	str suffix=page_content.substr(p,q-p);
+	whl(suffix.find("amp;")!=str::npos)
+		suffix.erase(suffix.find("amp;"),sz(str("amp;")));
+	page_url="http://acm.timus.ru/"+suffix;
 	rtn true;
 }
 
 int main()
 {
 	cout<<"Username:"<<flush;
-	USER="90127RH";//cin>>USER;
+	cin>>USER;
 	cout<<"PASSWORD:"<<flush;
-	PASS="iamsujiao";//cin>>PASS;
+	cin>>PASS;
 	curl_global_init(CURL_GLOBAL_ALL);
 	stringstream sin(USER);
 	int getuserid;
