@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -87,7 +88,7 @@ using namespace std;
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
-#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
+#define asrtOLE(s) do if(!(s))whl(1)puts("OLE"));whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
@@ -167,6 +168,56 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+vs heroes={"Anka","Chapay","Cleo","Troll","Dracul","Snowy","Hexadecimal"};
+int n;
+vvi like(7,vi(7));
+vi point(3);
+pii ans=mp(+oo,+oo);
+vvi cur(3);
+
+void dfs(int step)
+{
+	if (step==7)
+	{
+		rep(i,3) if (!sz(cur[i])) rtn;
+		int max=-oo,min=+oo;
+		rep(i,3)
+		{
+			cmax(max,point[i]/sz(cur[i]));
+			cmin(min,point[i]/sz(cur[i]));
+		}
+		int likecnt=0;
+		rep(i,3)
+			rep(j,sz(cur[i]))
+				rep(k,sz(cur[i]))
+					if (like[cur[i][j]][cur[i][k]])
+						likecnt++;
+		pii get=mp(max-min,-likecnt);
+		cmin(ans,get);
+	}
+	else
+	{
+		rep(i,3)
+		{
+			cur[i].pb(step);
+			dfs(step+1);
+			cur[i].pop_back();
+		}
+	}
+}
+
 int main()
 {
+	cin>>n;
+	rep(i,n)
+	{
+		str a,b;
+		cin>>a>>b>>b;
+		like[find(all(heroes),a)-heroes.begin()][find(all(heroes),b)-heroes.begin()]=true;
+	}
+	cin>>point;
+	dfs(0);
+	ans.y=-ans.y;
+	cout<<ans<<endl;
 }
+

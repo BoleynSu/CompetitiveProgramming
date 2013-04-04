@@ -143,7 +143,6 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -167,6 +166,79 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+lli n,q,t;
+lli a[200000+2];
+lli b[200000+2];
+lli c[200000+2];
+lli f[200000+2];
+int adj[200000+2];
+bool in[200000+2];
+bool out[200000+2];
+
 int main()
 {
+	cin>>n>>q>>t;
+	rep(i,n) cin>>a[i];
+	fl(adj,-1);
+	rep(i,q) cin>>b[i]>>c[i],adj[--b[i]]=--c[i],in[c[i]]=true;
+	rep(i,n) if (!in[i])
+	{
+		int u=i,v;
+		whl ((v=adj[u])!=-1)
+		{
+			adj[u]=-1;
+			a[v]+=a[u];
+			if (a[v]>t&&adj[v]!=1) rtn cout<<0<<endl,0;
+			u=v;
+		}
+		out[u]=true;
+	}
+	rep(i,n) if (adj[i]!=-1) rtn cout<<0<<endl,0;
+	f[0]=1;
+	rep(i,n)
+	{
+		prt(a[i]);
+		if (out[i]) ft(j,a[i],t) f[j]+=f[j-a[i]],f[j]%=MOD;
+		else
+		{
+			fdt(j,t,a[i]) f[j]=f[j-a[i]];
+			rep(j,a[i]) f[j]=0;
+			ft(j,a[i],t) f[j]+=f[j-a[i]],f[j]%=MOD;
+		}
+		//ft(i,0,t) prt(f[i]);
+	}
+	cout<<f[t]<<endl;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

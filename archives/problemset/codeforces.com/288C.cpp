@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -87,7 +88,7 @@ using namespace std;
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
-#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
+#define asrtOLE(s) do if(!(s))whl(1)puts("OLE"));whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
@@ -167,6 +168,34 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+const int BITS=24;
+int cnt[BITS][1000000+1];
+int p[1000000+1];
+
 int main()
 {
+	int n;
+	cin>>n,n++;
+	rep(i,n)
+	{
+		rep(j,BITS) cnt[j][i>>j]++;
+	}
+	lli sum=0;
+	fdt(i,n-1,0)
+	{
+		int ned=0;
+		fdt(j,BITS-1,0)
+		{
+			ned<<=1;
+			if (cnt[j][(((i>>j)^1)&1)|ned]) ned|=((i>>j)^1)&1;
+			else ned|=!(((i>>j)^1)&1);
+		}
+		sum+=i^ned;
+		rep(j,BITS) cnt[j][ned>>j]--;
+		p[i]=ned;
+	}
+	cout<<sum<<endl;
+	//prt(unique(p,p+n)-p);
+	rep(i,n) cout<<p[i]<<char(i+1==n?'\n':' ');
 }
+

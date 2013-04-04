@@ -143,7 +143,6 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -167,6 +166,126 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt idx(l,r)
+#define lrt idx(l,m)
+#define rrt idx(m+1,r)
+const int MAXN=200001;
+struct node
+{
+	lli sum;
+	lli cnt;
+};
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int L,int R,lli v)
+{
+	if (R<l||r<L) ;
+	else if (L<=l&&r<=R)
+	{
+		st[rt].sum+=v*(r-l+1);
+		st[rt].cnt+=v;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].cnt)
+		{
+			st[lrt].sum+=(m-l+1)*st[rt].cnt;
+			st[lrt].cnt+=st[rt].cnt;
+			st[rrt].sum+=(r-(m+1)+1)*st[rt].cnt;
+			st[rrt].cnt+=st[rt].cnt;
+			st[rt].cnt=0;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+		st[rt].sum=st[lrt].sum+st[rrt].sum;
+	}
+}
+lli qry(int l,int r,int L,int R)
+{
+	if (R<l||r<L) rtn 0;
+	else if (L<=l&&r<=R) rtn st[rt].sum;
+	else
+	{
+		int m=(l+r)>>1;
+		if (st[rt].cnt)
+		{
+			st[lrt].sum+=(m-l+1)*st[rt].cnt;
+			st[lrt].cnt+=st[rt].cnt;
+			st[rrt].sum+=(r-(m+1)+1)*st[rt].cnt;
+			st[rrt].cnt+=st[rt].cnt;
+			st[rt].cnt=0;
+		}
+		rtn qry(l,m,L,R)+qry(m+1,r,L,R);
+	}
+}
+#undef rc
+#undef lc
+#undef rt
+#undef idx
+
 int main()
 {
+	int n;
+	sf("%d",&n);
+	int sz=0;
+	upd(0,n,sz,sz,0);
+	sz++;
+	rep(i,n)
+	{
+		int t;
+		sf("%d",&t);
+		if (t==1)
+		{
+			int r,get;
+			sf("%d%d",&r,&get);
+			upd(0,n,0,min(r,sz)-1,get);
+		}
+		else if (t==2)
+		{
+			int get;
+			sf("%d",&get);
+			upd(0,n,sz,sz,get);
+			sz++;
+		}
+		else if (sz>=2)
+		{
+			sz--;
+			lli get=qry(0,n,sz,sz);
+			upd(0,n,sz,sz,-get);
+		}
+		pf("%.6f\n",db(qry(0,n,0,sz-1))/sz);
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

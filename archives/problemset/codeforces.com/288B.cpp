@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -87,7 +88,7 @@ using namespace std;
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
-#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
+#define asrtOLE(s) do if(!(s))whl(1)puts("OLE"));whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
@@ -167,6 +168,68 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+int maxdep;
+int p[8];
+lli ans[8+2];
+bool check()
+{
+	rep(i,maxdep)
+	{
+		bool can=false;
+		int cur=i;
+		rep(j,maxdep)
+		{
+			cur=p[cur];
+			if (!cur) can=true;
+		}
+		if (!can) rtn false;
+	}
+	rtn true;
+}
+void dfs(int dep)
+{
+	if (dep==maxdep)
+	{
+		if (check()) ans[maxdep]++;
+	}
+	else for (p[dep]=0;p[dep]<maxdep;p[dep]++)
+			dfs(dep+1);
+}
+
+typedef unsigned long long big;
+
+//带mod的加法 0<=a,b<mod
+#define add(a,b,mod) ((a)>=(mod)-(b)?(b)-((mod)-(a)):(a)+(b))
+//带mod的乘法 0<=a,b<mod
+big mul(big a,big b,big mod)
+{
+	big c=0;
+	while (b)
+	{
+		if (b&1) c=add(c,a,mod);
+		a=add(a,a,mod);
+		b>>=1;
+	}
+	return c;
+}
+//带mod的指数函数 0<=a,b<mod
+big pow(big a,big b,big mod)
+{
+	big c=1;
+	while (b)
+	{
+		if (b&1) c=mul(c,a,mod);
+		a=mul(a,a,mod);
+		b>>=1;
+	}
+	return c;
+}
 int main()
 {
+	for (maxdep=1;maxdep<=8;maxdep++)
+		dfs(0);
+	big n,k;
+	cin>>n>>k;
+	cout<<pow(n-k,n-k,MOD)*ans[k]%MOD<<endl;
 }
+

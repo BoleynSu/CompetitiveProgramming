@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -87,7 +88,7 @@ using namespace std;
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
-#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
+#define asrtOLE(s) do if(!(s))whl(1)puts("OLE"));whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
@@ -169,4 +170,25 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
+	int n,k;
+	cin>>n>>k;
+	if (k==1)
+	{
+		if (n==1) cout<<"a"<<endl;
+		else cout<<-1<<endl;
+	}
+	else
+	{
+		if (n>=k)
+		{
+			rep(i,n-k+2) cout<<char(i&1?'b':'a');
+			rep(i,k-2) cout<<char('a'+2+i);
+			cout<<endl;
+		}
+		else
+		{
+			cout<<-1<<endl;
+		}
+	}
 }
+

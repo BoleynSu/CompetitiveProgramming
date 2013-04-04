@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -87,7 +88,7 @@ using namespace std;
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
-#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
+#define asrtOLE(s) do if(!(s))whl(1)puts("OLE"));whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
@@ -167,6 +168,51 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+vec<lli> k;
+vvi adj;
+pll dfs(int u,int p=-1)
+{
+	vec<pll> lst;
+	rep(i,sz(adj[u]))
+	{
+		int v=adj[u][i];
+		if (v==p) continue;
+		k[v]--;
+		lst.pb(dfs(v,u));
+	}
+	srt(lst);
+	rev(lst);
+	pll get;
+	rep(i,sz(lst)) if (k[u])
+	{
+		k[u]--;
+		get.x+=lst[i].x+2;
+	}
+	rep(i,sz(lst)) if (k[u])
+	{
+		lli delta=min(k[u],lst[i].y);
+		k[u]-=delta;
+		get.x+=delta*2;
+	}
+	get.y=k[u];
+	rtn get;
+}
+
 int main()
 {
+	int n;
+	cin>>n;
+	k=vec<lli>(n);
+	cin>>k;
+	adj=vvi(n);
+	repf(i,1,n)
+	{
+		int a,b;
+		cin>>a>>b,--a,--b;
+		adj[a].pb(b),adj[b].pb(a);
+	}
+	int s;
+	cin>>s,--s;
+	cout<<dfs(s).x<<endl;
 }
+

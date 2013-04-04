@@ -143,7 +143,6 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -169,4 +168,61 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 
 int main()
 {
+	int n;
+	cin>>n;
+	//2 n xxx 1 n-1
+	//2 1 3
+	//1
+	vi a(n+2);
+	if (n%4==1)
+	{
+		ft(i,1,n/2)
+			if (i&1) a[i]=i+1;
+			else a[i]=n-i+2;
+		a[n/2+1]=n/2+1;
+		ft(i,n-n/2+1,n) a[i]=n+1-a[n+1-i];
+	}
+	else if (n%4==2) rtn cout<<-1<<endl,0;
+	else if (n%4==3) rtn cout<<-1<<endl,0;
+	else
+	{
+		ft(i,1,n/2)
+			if (i&1) a[i]=i+1;
+			else a[i]=n-i+2;
+		ft(i,n-n/2+1,n) a[i]=n+1-a[n+1-i];
+	}
+	ft(i,1,n) cout<<a[i]<<char(i==n?'\n':' ');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

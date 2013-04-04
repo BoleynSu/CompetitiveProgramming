@@ -143,7 +143,6 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -167,6 +166,106 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+lli n;
+lli a[200000+2];
+bool calced[200000+2];
+lli f[200000+2];
+bool g[200000+2];
+bool instk[200000+2];
+
+lli calc(lli x)
+{
+	lli _x=x;
+	if (!calced[x])
+	{
+		calced[_x]=true;
+		if (instk[_x]) f[_x]=-1,g[_x]=false;
+		else
+		{
+			instk[_x]=true;
+			lli y=0,get;
+			y+=a[x];
+			x+=a[x];
+			if (x<=0||x>n)
+			{
+				f[_x]=y,g[_x]=true;
+				goto end;
+			}
+			y+=a[x];
+			x-=a[x];
+			if (x<=0||x>n)
+			{
+				f[_x]=y,g[_x]=true;
+				goto end;
+			}
+			get=calc(x);
+			if (g[x]) f[_x]=get+y,g[_x]=true;
+			else g[_x]=false;
+			end:
+			instk[_x]=false;
+		}
+	}
+	rtn f[_x];
+}
+
 int main()
 {
+	sf("%I64d",&n);
+	ft(i,2,n) sf("%I64d",a+i);
+	instk[1]=true;
+	repf(i,1,n)
+	{
+		a[1]=i;
+		lli x=1,y=0,get;
+		y+=a[x];
+		x+=a[x];
+		if (x<=0||x>n)
+		{
+			cout<<y<<endl;
+			continue;
+		}
+		y+=a[x];
+		x-=a[x];
+		if (x<=0||x>n)
+		{
+			cout<<y<<endl;
+			continue;
+		}
+		get=calc(x);
+		if (g[x]) cout<<get+y<<endl;
+		else cout<<-1<<endl;
+	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -87,7 +88,7 @@ using namespace std;
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
 #define asrtMLE(s) do if(!(s))whl(new int);whl(0)
-#define asrtOLE(s) do if(!(s))whl(1)puts("OLE");whl(0)
+#define asrtOLE(s) do if(!(s))whl(1)puts("OLE"));whl(0)
 #define asrtRE(s) do if(!(s))*(int*)0=0;whl(0)
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
@@ -167,6 +168,111 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+bool check(vvi& rg,int idx)
+{
+	if (sz(rg)%2==1) rtn false;
+	else
+	{
+		for (int i=0;i<sz(rg);i+=2)
+			if (!(rg[i][idx]&1)||!(rg[i+1][idx]&1)) rtn false;
+		rtn true;
+	}
+}
+int calc(vvi& rg,int idx)
+{
+	map<int,lli> f;
+	f[-1]=1;
+	f[0]=lli((rg[0][idx-1]&2)&&(rg[0][idx]&2));
+	repf(i,1,sz(rg))
+	{
+		f[i]=(f[i-2]*lli((rg[i-1][idx-1]&1)&&(rg[i][idx-1]&1)&&(rg[i-1][idx]&1)&&(rg[i][idx]&1))+f[i-1]*lli((rg[i][idx-1]&2)&&(rg[i][idx]&2)))%MOD;
+	}
+	rtn f[sz(rg)-1]-lli(check(rg,idx)&&check(rg,idx-1));
+}
+
 int main()
 {
+	set<str> vs,hs;
+	vs.insert(
+			"..."
+			"..."
+			"...");
+	vs.insert(
+			"..."
+			".O."
+			"...");
+	vs.insert(
+			"..O"
+			"..."
+			"O..");
+	vs.insert(
+			"..O"
+			".O."
+			"O..");
+	vs.insert(
+			"O.O"
+			"..."
+			"O.O");
+	vs.insert(
+			"O.O"
+			".O."
+			"O.O");
+	vs.insert(
+			"O.O"
+			"O.O"
+			"O.O");
+	hs.insert(
+			"..."
+			"..."
+			"...");
+	hs.insert(
+			"..."
+			".O."
+			"...");
+	hs.insert(
+			"O.."
+			"..."
+			"..O");
+	hs.insert(
+			"O.."
+			".O."
+			"..O");
+	hs.insert(
+			"O.O"
+			"..."
+			"O.O");
+	hs.insert(
+			"O.O"
+			".O."
+			"O.O");
+	hs.insert(
+			"OOO"
+			"..."
+			"OOO");
+	int n,m;
+	cin>>n>>m;
+	vec<vec<char> > g(n*4+1,vec<char>(m*4+1));
+	cin>>g;
+	vvi rg(n,vi(m));
+	rep(i,n) rep(j,m)
+	{
+		str get;
+		ft(x,i*4+1,i*4+3)
+			ft(y,j*4+1,j*4+3)
+				get.pb(g[x][y]);
+		if (vs.count(get)) rg[i][j]|=1;
+		if (hs.count(get)) rg[i][j]|=2;
+	}
+	map<int,lli> f;
+	f[-1]=1;
+	f[0]=lli(check(rg,0));
+	repf(i,1,m)
+	{
+		f[i]=(f[i-1]*lli(check(rg,i))+f[i-2]*calc(rg,i))%MOD;
+		prt(f[i]);
+	}
+	lli ans=f[m-1];
+	if (ans<0) ans+=MOD;
+	cout<<ans<<endl;
 }
+
