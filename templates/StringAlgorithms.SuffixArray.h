@@ -50,7 +50,8 @@ int* ht;
 void get_height()
 {
 	ht=TSA;
-	for (int i=0,h=0;i<len;i++)
+	int h=0;
+	rep(i,len)
 	{
 		if (h) h--;
 		if (rnk[i])

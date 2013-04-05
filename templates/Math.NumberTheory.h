@@ -138,7 +138,7 @@ big factor(big n,int k=20)
 #undef add
 
 //计算phi
-lli phi(lli x,lli k=50)
+lli phi(lli x,int k=20)
 {
 	lli ret=x;
 	whl(x!=1)

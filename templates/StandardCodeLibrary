@@ -3,4 +3,7 @@
 #include <Core>
 #include <Math>
 #include <GraphTheory>
+#include <StringAlgorithms>
+#include <ComputationalGeometry>
+#include <BalancedBinarySearchTree>
 #endif
