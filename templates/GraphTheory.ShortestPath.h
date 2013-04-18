@@ -84,7 +84,7 @@ void dijkstra()
 	}
 }
 int V=MAXV;
-int h[MAXV];
+cost_type h[MAXV];
 void johnson_spfa()
 {
 	fl(h,0),fl(vis,false);

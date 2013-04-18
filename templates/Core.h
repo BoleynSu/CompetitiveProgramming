@@ -40,7 +40,7 @@ using namespace std;
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
 #define rep(i,n) repf(i,0,n)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
-#define fdt(i,a,b) for (int i=(a);i>=b;--i)
+#define fdt(i,a,b) for (int i=(a);i>=(b);--i)
 #define feach(e,s) for (typeof((s).begin()) e=(s).begin();e!=(s).end();++e)
 #define fsubset(subset,set) for (int subset=(set)&((set)-1);subset;subset=(subset-1)&(set))
 #define forin(i,charset) for (cstr i=(charset);*i;i++)
@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue

@@ -40,7 +40,7 @@ using namespace std;
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
 #define rep(i,n) repf(i,0,n)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
-#define fdt(i,a,b) for (int i=(a);i>=b;--i)
+#define fdt(i,a,b) for (int i=(a);i>=(b);--i)
 #define feach(e,s) for (typeof((s).begin()) e=(s).begin();e!=(s).end();++e)
 #define fsubset(subset,set) for (int subset=(set)&((set)-1);subset;subset=(subset-1)&(set))
 #define forin(i,charset) for (cstr i=(charset);*i;i++)
@@ -63,6 +63,7 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
+#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -167,6 +168,84 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+bool mst[10];
+char cur[12+2];
+int fnd[10];
+vs ans;
+void dfs(int l,int r)
+{
+	if (l>r)
+	{
+		bool checked=true;
+		rep(i,10) if (mst[i]^(fnd[i]!=0)) checked=false;
+		if (!checked) rtn;
+		int length=strlen(cur);
+		int i=0;
+		repf(j,i+1,length)
+		{
+			bool checked=true;
+			if (j!=i+1&&cur[i]=='0') checked=false;
+			int get=0;
+			repf(t,i,j) get=get*10+cur[t]-'0';
+			if (get>=256) checked=false;
+			if (!checked) continue;
+			repf(k,j+1,length)
+			{
+				bool checked=true;
+				if (k!=j+1&&cur[j]=='0') checked=false;
+				int get=0;
+				repf(t,j,k) get=get*10+cur[t]-'0';
+				if (get>=256) checked=false;
+				if (!checked) continue;
+				repf(l,k+1,length)
+				{
+					{
+						bool checked=true;
+						if (l!=k+1&&cur[k]=='0') checked=false;
+						int get=0;
+						repf(t,k,l) get=get*10+cur[t]-'0';
+						if (get>=256) checked=false;
+						if (!checked) continue;
+					}
+					{
+						bool checked=true;
+						if (length!=l+1&&cur[l]=='0') checked=false;
+						int get=0;
+						repf(t,l,length) get=get*10+cur[t]-'0';
+						if (get>=256) checked=false;
+						if (!checked) continue;
+					}
+					str ansi;
+					rep(t,length)
+					{
+						if (t==j||t==k||t==l) ansi.pb('.');
+						ansi.pb(cur[t]);
+					}
+					ans.pb(ansi);
+				}
+			}
+		}
+	}
+	else
+	{
+		rep(i,10)
+		{
+			cur[l]=cur[r]='0'+i;
+			fnd[i]++;
+			dfs(l+1,r-1);
+			fnd[i]--;
+		}
+	}
+}
+
 int main()
 {
+	int n;
+	cin>>n;
+	vi a(n);
+	cin>>a;
+	rep(i,n) mst[a[i]]=true;
+	ft(length,4,12) dfs(0,length-1);
+	cout<<sz(ans)<<endl;
+	rep(i,sz(ans)) cout<<ans[i]<<endl;
 }
