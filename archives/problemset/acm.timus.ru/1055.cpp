@@ -1,7 +1,7 @@
 /*
 PROGRAM: $PROGRAM
 AUTHOR: Su Jiao
-DATE: 2010-3-27
+DATE: $DATE
 DESCRIPTION:
 $DESCRIPTION
 */
@@ -55,18 +55,20 @@ class Application
                if (can) prime.push_back(i);
            }
       }
+      void calc(int n,int delta)
+      {
+          for (int i=0;i<prime.size();i++)
+          {
+              int x=n;
+              while (x) counter[i]+=delta*(x/=prime[i]);
+          }
+      }
       void get_counter(int n,int m)
       {
            counter.resize(prime.size(),0);
-           for (int i=n;i>=1;i--)
-               for (int j=0,k=i;j<prime.size();j++)
-                   while (k%prime[j]==0) k/=prime[j],counter[j]++;
-           for (int i=m;i>=1;i--)
-               for (int j=0,k=i;j<prime.size();j++)
-                   while (k%prime[j]==0) k/=prime[j],counter[j]--;
-           for (int i=n-m;i>=1;i--)
-               for (int j=0,k=i;j<prime.size();j++)
-                   while (k%prime[j]==0) k/=prime[j],counter[j]--;
+           calc(n,1);
+           calc(m,-1);
+           calc(n-m,-1);
       }
       public:
       Application()
