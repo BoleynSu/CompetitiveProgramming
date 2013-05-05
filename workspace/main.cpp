@@ -168,22 +168,81 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+map<int,map<pii,db> > f;
+
+void dfs(int n,const set<pii>& lst,db p);
+void dfs_d(int n,const set<pii>& lst,db p,pii d);
+
+void dfs(int n,const set<pii>& lst,db p)
+{
+	if (sz(lst)==n) feach(it,lst) f[n][*it]+=p;
+	else dfs_d(n,lst,p,pii(0,2*n));
+}
+void dfs_d(int n,const set<pii>& lst,db p,pii d)
+{
+	whl(d.y-2>=0&&!lst.count(pii(d.x,d.y-2))) d.y-=2;
+	bool left=d.y>0&&!lst.count(pii(d.x-1,d.y-1)),right=d.y>0&&!lst.count(pii(d.x+1,d.y-1));
+	if (left&&right) dfs_d(n,lst,p/2,pii(d.x-1,d.y-1)),dfs_d(n,lst,p/2,pii(d.x+1,d.y-1));
+	else if (left) dfs_d(n,lst,p,pii(d.x-1,d.y-1));
+	else if (right) dfs_d(n,lst,p,pii(d.x+1,d.y-1));
+	else
+	{
+		set<pii> nlst=lst;
+		nlst.ins(d);
+		dfs(n,nlst,p);
+	}
+}
+
 int main()
 {
-	int n,g;
-	cin>>n>>g;
-	vi a(n);
-	cin>>a;
-	mii idx;
-	rep(i,n) idx[a[i]]=i;
-	vi ans(n);
-	feach(it,idx)
+	for (int n=1;n<=20;n++)
+		dfs(n,set<pii>(),1);
+	ft(n,1,20)
 	{
-		int& ret=ans[it->y];
-		si s;
-		ft(i,1,g) ft(j,1,g) if (it->x%i==0&&idx.count(it->x/i*j)) s.ins(ans[idx[it->x/i*j]]);
-		ft(i,1,g) if (!s.count(i)) ret=i;
+		//vec<pr<pii,db> > lst;
+		//feach(it,f[n]) lst.pb(mp(mp(it->x.y,it->x.x),it->y));
+		//srt(lst);
+		feach(it,f[n]) cout<<n<<":"<<*it<<endl;
 	}
-	cout<<"Yes"<<endl;
-	rep(i,n) cout<<ans[i]<<endl;
+	cerr<<"calculate finished"<<endl;
+	int T;
+	cin>>T;
+	ft(t,1,T)
+	{
+		cout<<"Case #"<<t<<": ";
+		int n;
+		pii p;
+		cin>>n>>p;
+
+		int l=0,r=n;
+		whl(l+1!=r)
+		{
+			int mid=(l+r)>>1;
+			if ((mid*2+1)*((mid*2+1)+1)/2>n) r=mid;
+			else l=mid;
+		}
+		int t=2*l;
+		if (abs(p.x)+abs(p.y)<=t) cout<<1<<endl;
+		else if (abs(p.x)+abs(p.y)<=t+2)
+		{
+			int rest=n-(l*2+1)*((l*2+1)+1)/2;
+			int level=p.y+1;
+			db ans=pow(0.5,rest);
+			db sum=0;
+			db Cri=1.0;
+			rep(i,level)
+			{
+				sum+=Cri;
+				Cri*=db(rest-i)/db(i+1);
+			}
+			ans*=sum;
+			ans=1-ans;
+			pdb(10,ans)<<endl;
+		}
+		else cout<<0<<endl;
+		pdb(10,f[n][p])<<endl;
+	}
+	int n;
+	pii p;
+	whl(cin>>n>>p) prt(f[n][p]);
 }

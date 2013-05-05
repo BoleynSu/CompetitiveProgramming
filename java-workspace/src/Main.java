@@ -1,49 +1,69 @@
-import java.util.Arrays;
+import java.io.BufferedInputStream;
+import java.math.BigInteger;
 import java.util.Scanner;
 
 
 public class Main {
 
-	static Scanner sc=new Scanner(System.in);
-	static void doit()
+	public Main()
 	{
-		int n;
-		double[] x,y,lst;
-		n=sc.nextInt();
-		x=new double[n];
-		y=new double[n];
-		lst=new double[n];
-		for (int i=0;i<n;i++)
+		BigInteger fx[][]=new BigInteger[400+2][400+2];
+		BigInteger fy[][]=new BigInteger[400+2][400+2];
+		int MAX=400;
+		fx[0][1]=BigInteger.ONE;
+		fy[0][1]=BigInteger.ONE;
+		for (int i=1;i<=MAX;i++)
 		{
-			double xi,yi;
-			xi=Math.random();yi=Math.random();
-			xi=sc.nextDouble();
-			yi=sc.nextDouble();
-			y[i]=yi/xi;
-			x[i]=xi;
-		}
-		double pi=Math.acos(-1);
-		double dd=pi/180/40;
-		double eps=1e-2;
-		int ans=0;
-		for (double d=pi/2+dd;d<pi;d+=dd)
-		{
-			double k=Math.tan(d);
-			for (int i=0;i<n;i++)
-				lst[i]=y[i]-k*x[i];
-			Arrays.sort(lst);
-			for (int i=0;i<n;i++)
+			for (int j=i+1;j>=2;j--)
 			{
-				int j=i;
-				while (j+1<n&&lst[j+1]-lst[i]<eps) j++;
-				if (j-i+1>ans) ans=j-i+1;
+				fx[i][j]=fx[i-1][j-1].multiply(BigInteger.valueOf(i));
+				fy[i][j]=fy[i-1][j-1].multiply(BigInteger.valueOf(j));
+				BigInteger gcd=fx[i][j].gcd(fy[i][j]);
+				fx[i][j]=fx[i][j].divide(gcd);
+				fy[i][j]=fy[i][j].divide(gcd);
+				if (fy[i][j].signum()<0)
+				{
+					fx[i][j]=fx[i][j].negate();
+					fy[i][j]=fy[i][j].negate();
+				}
+				//System.out.println(fx[i][j]+"/"+fy[i][j]+" ");
 			}
+			BigInteger x=BigInteger.ONE,y=BigInteger.ONE;
+			for (int j=i+1;j>=2;j--)
+			{
+				BigInteger ny=y.multiply(fy[i][j]),nx=x.multiply(fy[i][j]).subtract(y.multiply(fx[i][j]));
+				x=nx;
+				y=ny;
+				BigInteger gcd=x.gcd(y);
+				x=x.divide(gcd);
+				y=y.divide(gcd);
+			}
+			if (y.signum()<0)
+			{
+				x=x.negate();
+				y=y.negate();
+			}
+			fx[i][1]=x;
+			fy[i][1]=y;
+			//System.out.println();
 		}
-		System.out.printf("%d\n",ans);
+		Scanner cin=new Scanner(new BufferedInputStream(System.in));
+		int p=cin.nextInt();
+		for (int i=1;i<=p;i++)
+		{
+			cin.nextInt();
+			int n=cin.nextInt(),m=cin.nextInt();
+			System.out.print(i+" ");
+			if (fy[n][m].equals(BigInteger.ONE)) System.out.println(fx[n][m]);
+			else System.out.println(fx[n][m]+"/"+fy[n][m]); 
+		}
 	}
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args) {
-		int t=sc.nextInt();
-		while ((t--)!=0) doit();
+		new Main();
+
 	}
 
 }
