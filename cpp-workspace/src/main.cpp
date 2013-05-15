@@ -168,7 +168,70 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
+int n,m,k;
+vvi adj;
+vvi cost;
+vvi value;
+int ans;
+
+void merge(mii& a,mii& b,int c,int v)
+{
+	if (sz(a)<sz(b)) swap(a,b);
+	feach(it,b)
+	{
+		int r=k+c*2-it->x;
+		mii::itr jt=a.ub(r);
+		if (jt!=a.begin())
+		{
+			--jt;
+			cmax(ans,it->y+jt->y-v*2);
+		}
+	}
+	feach(it,b)
+	{
+		mii::itr jt=a.find(it->x);
+		if (jt==a.end()) jt=a.ins(*it).x;
+		else if (!cmax(jt->y,it->y)) continue;
+		mii::itr kt=jt;
+		whl(++kt!=a.end())
+			if (kt->y<jt->y) a.ers(kt);
+			else break;
+		kt=jt;
+		kt--;
+		if (kt!=a.end()&&kt->y>jt->y) a.ers(it->x);
+	}
+}
+
+void dfs(mii& s,int u,int p,int c,int v)
+{
+	s[c]=v;
+	rep(i,sz(adj[u]))
+		if (adj[u][i]!=p)
+		{
+			mii ns;
+			dfs(ns,adj[u][i],u,c+cost[u][i],v+value[u][i]);
+			merge(s,ns,c,v);
+		}
+}
+
 int main()
 {
-	prt([](int x){rtn x*x;}(2));
+	cin>>n>>m>>k;
+	adj.resize(n);
+	cost.resize(n);
+	value.resize(n);
+	rep(i,m)
+	{
+		int a,b,c,v;
+		cin>>a>>b>>c>>v,--a,--b;
+		adj[a].pb(b);
+		adj[b].pb(a);
+		cost[a].pb(c);
+		cost[b].pb(c);
+		value[a].pb(v);
+		value[b].pb(v);
+	}
+	mii s;
+	dfs(s,0,-1,0,0);
+	cout<<ans<<endl;
 }
