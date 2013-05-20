@@ -168,70 +168,167 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int n,m,k;
-vvi adj;
-vvi cost;
-vvi value;
-int ans;
+/*
+ * Package: StandardCodeLibrary.GraphTheory.MinCostMaxFlow
+ * Usage:
+ * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
+ * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
+ * build_graph:构图,详细见函数内的注释
+ * add_edge:
+ * 输入int u,v;flow_type c;cost_type d;
+ * add_edge(u,v,c,d) 加一条u到v的容量为c代价为d的有向边,加一条v到u的容量为0代价为-d的有向边
+ * min_cost_max_flow:
+ * min_cost_max_flow(最大流,最小费用)
+ * min_cost_max_flow_faster：
+ * 输入bool has_negative_edges 初始图是否含有负权边
+ * min_cost_max_flow_faster(最大流,最小费用,has_negative_edges)
+ * */
 
-void merge(mii& a,mii& b,int c,int v)
+namespace StandardCodeLibrary
 {
-	if (sz(a)<sz(b)) swap(a,b);
-	feach(it,b)
+namespace GraphTheory
+{
+namespace MinCostMaxFlow
+{
+
+const lli oo=0x7f7f7f7f7f7f7f7fll;
+const int MAXE=1000000;
+const int MAXV=10000;
+typedef lli flow_type;
+typedef lli cost_type;
+typedef struct struct_edge* edge;
+struct struct_edge{int v;flow_type c;cost_type d;edge n,b;}pool[MAXE];
+edge top;
+int S,T;
+edge adj[MAXV];
+void build_graph(int s,int t)
+{
+	top=pool,clr(adj);
+	S=s,T=t;//源,汇
+	//add_edge(u,v,c,d);
+}
+void add_edge(int u,int v,flow_type c,cost_type d)
+{
+	top->v=v,top->c=c,top->d=d,top->n=adj[u],adj[u]=top++;
+	top->v=u,top->c=0,top->d=-d,top->n=adj[v],adj[v]=top++;
+	adj[u]->b=adj[v],adj[v]->b=adj[u];
+	if (u==v) adj[u]->n->b=adj[u],adj[v]->b=adj[v]->n;//防止add_edge(u,u,c,d)时出现RE
+}
+cost_type d[MAXV];
+int q[MAXV];
+bool inq[MAXV];
+int qh,qt;
+edge p[MAXV];
+void min_cost_max_flow(flow_type& flow,cost_type& cost)
+{
+	flow=0,cost=0;
+	lp
 	{
-		int r=k+c*2-it->x;
-		mii::itr jt=a.ub(r);
-		if (jt!=a.begin())
+		fl(d,oo),inq[q[qh=qt=0]=S]=true,d[S]=0,p[S]=0;
+		whl(qh<=qt)
 		{
-			--jt;
-			cmax(ans,it->y+jt->y-v*2);
+			int u=q[(qh++)%MAXV];
+			inq[u]=false;
+			for (edge i=adj[u];i;i=i->n)
+				if (i->c&&cmin(d[i->v],d[u]+i->d))
+				{
+					p[i->v]=i;
+					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
+				}
+		}
+		if (d[T]==oo) break;
+		else
+		{
+			flow_type delta=oo;
+			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
+			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
+			flow+=delta;
 		}
 	}
-	feach(it,b)
+}
+int V=MAXV;
+cost_type h[MAXV];
+void min_cost_max_flow_faster(flow_type& flow,cost_type& cost,bool has_negative_edges=true)
+{
+	flow=0,cost=0;
+	if (has_negative_edges)
 	{
-		mii::itr jt=a.find(it->x);
-		if (jt==a.end()) jt=a.ins(*it).x;
-		else if (!cmax(jt->y,it->y)) continue;
-		mii::itr kt=jt;
-		whl(++kt!=a.end())
-			if (kt->y<jt->y) a.ers(kt);
-			else break;
-		kt=jt;
-		kt--;
-		if (kt!=a.end()&&kt->y>jt->y) a.ers(it->x);
+		fl(h,oo),fl(inq,false),qh=0,qt=-1;
+		rep(i,V) h[i]=0,q[++qt]=i,inq[i]=true;
+		whl(qh<=qt)
+		{
+			int u=q[(qh++)%MAXV];
+			inq[u]=false;
+			for (edge i=adj[u];i;i=i->n)
+				if (i->c&&cmin(h[i->v],h[u]+i->d))
+				{
+					p[i->v]=i;
+					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
+				}
+		}
+	}
+	else clr(h);
+	lp
+	{
+		fl(d,oo),fl(inq,false);
+		prq<pr<cost_type,int> > Q;
+		d[S]=0,p[S]=0,Q.push(mp(-d[S],S));
+		whl(sz(Q))
+		{
+			int u=Q.top().y;
+			Q.pop();
+			if (!inq[u])
+			{
+				inq[u]=true;
+				for (edge i=adj[u];i;i=i->n)
+				{
+					if (i->c&&!inq[i->v]&&cmin(d[i->v],d[u]+i->d+h[u]-h[i->v]))
+						p[i->v]=i,Q.push(mp(-d[i->v],i->v));
+				}
+			}
+		}
+		if (d[T]==oo) break;
+		else
+		{
+			flow_type delta=oo;
+			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
+			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
+			flow+=delta;
+			rep(i,V) h[i]+=d[i];
+		}
 	}
 }
 
-void dfs(mii& s,int u,int p,int c,int v)
-{
-	s[c]=v;
-	rep(i,sz(adj[u]))
-		if (adj[u][i]!=p)
-		{
-			mii ns;
-			dfs(ns,adj[u][i],u,c+cost[u][i],v+value[u][i]);
-			merge(s,ns,c,v);
-		}
 }
+}
+}
+using namespace StandardCodeLibrary::GraphTheory::MinCostMaxFlow;
 
 int main()
 {
-	cin>>n>>m>>k;
-	adj.resize(n);
-	cost.resize(n);
-	value.resize(n);
-	rep(i,m)
+	inf=1e8;
+	int n;
+	cin>>n;
+	vpii p(n);
+	rep(i,n) cin>>p[i];
+	int maxy=-::oo,cnt=0;
+	rep(i,n) cmax(maxy,p[i].y);
+	rep(i,n) if (p[i].y==maxy) cnt++;
+	if (cnt!=1) cout<<-1<<endl;
+	else
 	{
-		int a,b,c,v;
-		cin>>a>>b>>c>>v,--a,--b;
-		adj[a].pb(b);
-		adj[b].pb(a);
-		cost[a].pb(c);
-		cost[b].pb(c);
-		value[a].pb(v);
-		value[b].pb(v);
+		build_graph(n+n,n+n+1);
+		rep(i,n)
+		{
+			add_edge(S,i,2,0);
+			rep(j,n) if (p[j].y<p[i].y) add_edge(i,n+j,1,sqrt(sqr(p[i].x-p[j].x)+sqr(p[j].y-p[i].y))*inf);
+			add_edge(n+i,T,1,0);
+		}
+		lli flow,cost;
+		//min_cost_max_flow(flow,cost);
+		min_cost_max_flow_faster(flow,cost,false);
+		prt(flow);
+		if (flow!=n-1) cout<<-1<<endl;
+		else pdb(100,db(cost)/inf)<<endl;
 	}
-	mii s;
-	dfs(s,0,-1,0,0);
-	cout<<ans<<endl;
 }

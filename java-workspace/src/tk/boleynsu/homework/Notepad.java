@@ -1,3 +1,4 @@
+package tk.boleynsu.homework;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
@@ -86,13 +87,13 @@ public class Notepad extends JFrame {
 
 		JToolBar toolBar = new JToolBar();
 		toolBar.setBorder(BorderFactory.createLineBorder(new Color(204,204,204)));
-		JButton openButton = new JButton(new ImageIcon("icons/openFile.png"));
+		JButton openButton = new JButton(new ImageIcon("src/tk/boleynsu/homework/icons/openFile.png"));
 		openButton.addActionListener(new openActionListener());
 		toolBar.add(openButton);
-		JButton saveButton = new JButton(new ImageIcon("icons/saveFile.png"));
+		JButton saveButton = new JButton(new ImageIcon("src/tk/boleynsu/homework/icons/saveFile.png"));
 		saveButton.addActionListener(new saveActionListener());
 		toolBar.add(saveButton);
-		JButton quitButton = new JButton(new ImageIcon("icons/closeFile.png"));
+		JButton quitButton = new JButton(new ImageIcon("src/tk/boleynsu/homework/icons/closeFile.png"));
 		quitButton.addActionListener(new quitActionListener());
 		toolBar.add(quitButton);
 		getContentPane().add(toolBar,BorderLayout.NORTH);
