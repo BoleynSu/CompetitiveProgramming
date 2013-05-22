@@ -34,7 +34,7 @@ pii decode(const char* s)
  * x=4 three of a kind - three cards of one rank and two other cards
  * x=3 two pairs - two cards of one rank, two cards of another rank, and one more card
  * x=2 pair - two cards of the same rank
- * x=1 high card - none of the above"
+ * x=1 high card - none of the above
  *
  */
 pii get(vpii cards)
