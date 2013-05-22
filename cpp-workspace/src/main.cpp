@@ -168,167 +168,138 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-/*
- * Package: StandardCodeLibrary.GraphTheory.MinCostMaxFlow
- * Usage:
- * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
- * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
- * build_graph:构图,详细见函数内的注释
- * add_edge:
- * 输入int u,v;flow_type c;cost_type d;
- * add_edge(u,v,c,d) 加一条u到v的容量为c代价为d的有向边,加一条v到u的容量为0代价为-d的有向边
- * min_cost_max_flow:
- * min_cost_max_flow(最大流,最小费用)
- * min_cost_max_flow_faster：
- * 输入bool has_negative_edges 初始图是否含有负权边
- * min_cost_max_flow_faster(最大流,最小费用,has_negative_edges)
- * */
-
-namespace StandardCodeLibrary
+//pii 用x表示编号2,3,4,5,6,7,8,9,10,J,Q,K,A依次为0,1,2,3,4,5,6,7,8,9,10,11,12 花色用y表示
+pii decode(const char* s)
 {
-namespace GraphTheory
-{
-namespace MinCostMaxFlow
-{
-
-const lli oo=0x7f7f7f7f7f7f7f7fll;
-const int MAXE=1000000;
-const int MAXV=10000;
-typedef lli flow_type;
-typedef lli cost_type;
-typedef struct struct_edge* edge;
-struct struct_edge{int v;flow_type c;cost_type d;edge n,b;}pool[MAXE];
-edge top;
-int S,T;
-edge adj[MAXV];
-void build_graph(int s,int t)
-{
-	top=pool,clr(adj);
-	S=s,T=t;//源,汇
-	//add_edge(u,v,c,d);
+	pii x;
+	if ('2'<=s[1]&&s[1]<='9') x.x=s[1]-'2';
+	else if (s[1]=='1') x.x=8;
+	else if (s[1]=='J'||s[1]=='j') x.x=9;
+	else if (s[1]=='Q'||s[1]=='q') x.x=10;
+	else if (s[1]=='K'||s[1]=='k') x.x=11;
+	else if (s[1]=='A'||s[1]=='a') x.x=12;
+	x.y=('A'<=s[0]&&s[0]<='Z'?s[0]:s[0]-'a'+'A');
+	return x;
 }
-void add_edge(int u,int v,flow_type c,cost_type d)
+//pii 用x表示牌的种类 用y来判断同种牌的大小 (x,y)越大牌越好
+pii get(vpii cards)
 {
-	top->v=v,top->c=c,top->d=d,top->n=adj[u],adj[u]=top++;
-	top->v=u,top->c=0,top->d=-d,top->n=adj[v],adj[v]=top++;
-	adj[u]->b=adj[v],adj[v]->b=adj[u];
-	if (u==v) adj[u]->n->b=adj[u],adj[v]->b=adj[v]->n;//防止add_edge(u,u,c,d)时出现RE
-}
-cost_type d[MAXV];
-int q[MAXV];
-bool inq[MAXV];
-int qh,qt;
-edge p[MAXV];
-void min_cost_max_flow(flow_type& flow,cost_type& cost)
-{
-	flow=0,cost=0;
-	lp
+	srt(cards);
+	int pairCnt=0;
+	int tripleCnt=0;
+	int quadCnt=0;
+	int pairEncode=0,singleEncode=0;
+	bool isFlush=sz(cards)==5;
+	bool isStraight=sz(cards)==5;
+	rep(i,sz(cards)-1) if (cards[i].x==cards[i+1].x) pairCnt++;
+	rep(i,sz(cards)-2) if (cards[i].x==cards[i+2].x) tripleCnt++;
+	rep(i,sz(cards)-3) if (cards[i].x==cards[i+3].x) quadCnt++;
+	if (tripleCnt) pairCnt-=tripleCnt+1;
+	if (quadCnt) tripleCnt-=quadCnt+1;
+	fdt(i,sz(cards)-1,0)
+		if (i&&cards[i-1].x==cards[i].x) pairEncode=pairEncode*13+cards[i].x,i--;
+		else singleEncode=singleEncode*13+cards[i].x;
+	rep(i,sz(cards)-1) if (cards[i].y!=cards[i+1].y) isFlush=false;
+	rep(i,sz(cards)-1) if (cards[i].x+1!=cards[i+1].x) isStraight=false;
+	if (!isStraight)
 	{
-		fl(d,oo),inq[q[qh=qt=0]=S]=true,d[S]=0,p[S]=0;
-		whl(qh<=qt)
+		isStraight=true;
+		rep(i,sz(cards)-1) if (cards[i].x!=i) isStraight=false;
+		if (cards.back().x!=12) isStraight=false;
+	}
+	if (isFlush&&isStraight) return pii(9,cards[4].x*13+cards[3].x);
+	else if (quadCnt) return pii(8,cards[2].x);
+	else if (tripleCnt&&pairCnt) return pii(7,cards[2].x);
+	else if (isFlush) return pii(6,singleEncode);
+	else if (isStraight) return pii(5,cards[4].x*13+cards[3].x);
+	else if (tripleCnt) return pii(4,cards[2].x);
+	else if (pairCnt==2) return pii(3,pairEncode*13+singleEncode);
+	else if (pairCnt)
+	{
+		if (sz(cards)==5) return pii(2,pairEncode*13*13*13+singleEncode);
+		else return pii(2,pairEncode*13*13*13+singleEncode*13*13-1);
+	}
+	else
+	{
+		if (sz(cards)==5) return pii(1,singleEncode);
+		else return pii(1,singleEncode*13*13-1);
+	}
+}
+
+char s[4][13][5];
+pii c[4][13];
+pii p[4][3];
+int ans;
+pii lst[3][5];
+bool used[13];
+void dfs(int step,int count,int cur,int score)
+{
+	if (step==0)
+	{
+		if (count==3)
 		{
-			int u=q[(qh++)%MAXV];
-			inq[u]=false;
-			for (edge i=adj[u];i;i=i->n)
-				if (i->c&&cmin(d[i->v],d[u]+i->d))
-				{
-					p[i->v]=i;
-					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
-				}
+			p[0][step]=get(vpii(lst[step],lst[step]+count));
+			repf(i,1,4) score+=p[0][step]>p[i][step],score-=p[0][step]<p[i][step];
+			dfs(step+1,0,0,score);
 		}
-		if (d[T]==oo) break;
 		else
 		{
-			flow_type delta=oo;
-			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
-			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
-			flow+=delta;
-		}
-	}
-}
-int V=MAXV;
-cost_type h[MAXV];
-void min_cost_max_flow_faster(flow_type& flow,cost_type& cost,bool has_negative_edges=true)
-{
-	flow=0,cost=0;
-	if (has_negative_edges)
-	{
-		fl(h,oo),fl(inq,false),qh=0,qt=-1;
-		rep(i,V) h[i]=0,q[++qt]=i,inq[i]=true;
-		whl(qh<=qt)
-		{
-			int u=q[(qh++)%MAXV];
-			inq[u]=false;
-			for (edge i=adj[u];i;i=i->n)
-				if (i->c&&cmin(h[i->v],h[u]+i->d))
+			repf(i,cur,13)
+				if (!used[i])
 				{
-					p[i->v]=i;
-					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
+					lst[step][count]=c[0][i];
+					used[i]=true;
+					dfs(step,count+1,i+1,score);
+					used[i]=false;
 				}
 		}
 	}
-	else clr(h);
-	lp
+	else if (step==1)
 	{
-		fl(d,oo),fl(inq,false);
-		prq<pr<cost_type,int> > Q;
-		d[S]=0,p[S]=0,Q.push(mp(-d[S],S));
-		whl(sz(Q))
+		if (count==5)
 		{
-			int u=Q.top().y;
-			Q.pop();
-			if (!inq[u])
-			{
-				inq[u]=true;
-				for (edge i=adj[u];i;i=i->n)
-				{
-					if (i->c&&!inq[i->v]&&cmin(d[i->v],d[u]+i->d+h[u]-h[i->v]))
-						p[i->v]=i,Q.push(mp(-d[i->v],i->v));
-				}
-			}
+			p[0][step]=get(vpii(lst[step],lst[step]+count));
+			if (p[0][step]<=p[0][step-1]) rtn;
+			repf(i,1,4) score+=p[0][step]>p[i][step],score-=p[0][step]<p[i][step];
+			dfs(step+1,0,0,score);
 		}
-		if (d[T]==oo) break;
 		else
 		{
-			flow_type delta=oo;
-			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
-			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
-			flow+=delta;
-			rep(i,V) h[i]+=d[i];
+			repf(i,cur,13)
+				if (!used[i])
+				{
+					lst[step][count]=c[0][i];
+					used[i]=true;
+					dfs(step,count+1,i+1,score);
+					used[i]=false;
+				}
 		}
 	}
+	else if (step==2)
+	{
+		rep(i,13) if (!used[i]) lst[step][count++]=c[0][i];
+		p[0][step]=get(vector<pii>(lst[step],lst[step]+count));
+		if (p[0][step]<=p[0][step-1]) rtn;
+		repf(i,1,4) score+=p[0][step]>p[i][step],score-=p[0][step]<p[i][step];
+		cmax(ans,score);
+	}
 }
-
-}
-}
-}
-using namespace StandardCodeLibrary::GraphTheory::MinCostMaxFlow;
 
 int main()
 {
-	inf=1e8;
-	int n;
-	cin>>n;
-	vpii p(n);
-	rep(i,n) cin>>p[i];
-	int maxy=-::oo,cnt=0;
-	rep(i,n) cmax(maxy,p[i].y);
-	rep(i,n) if (p[i].y==maxy) cnt++;
-	if (cnt!=1) cout<<-1<<endl;
-	else
+	int T;
+	sf("%d",&T);
+	rep(tc,T)
 	{
-		build_graph(n+n,n+n+1);
-		rep(i,n)
+		rep(i,4) rep(j,13) scanf("%s",s[i][j]),c[i][j]=decode(s[i][j]);
+		repf(i,1,4)
 		{
-			add_edge(S,i,2,0);
-			rep(j,n) if (p[j].y<p[i].y) add_edge(i,n+j,1,sqrt(sqr(p[i].x-p[j].x)+sqr(p[j].y-p[i].y))*inf);
-			add_edge(n+i,T,1,0);
+			p[i][0]=get(vpii(c[i],c[i]+3));
+			p[i][1]=get(vpii(c[i]+3,c[i]+8));
+			p[i][2]=get(vpii(c[i]+8,c[i]+13));
 		}
-		lli flow,cost;
-		//min_cost_max_flow(flow,cost);
-		min_cost_max_flow_faster(flow,cost,false);
-		prt(flow);
-		if (flow!=n-1) cout<<-1<<endl;
-		else pdb(100,db(cost)/inf)<<endl;
+		ans=-oo;
+		dfs(0,0,0,0);
+		pf("%d\n",ans);
 	}
 }
