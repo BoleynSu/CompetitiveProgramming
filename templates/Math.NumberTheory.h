@@ -52,25 +52,25 @@ void make_prime_table()
 big mul(big a,big b,big mod)
 {
 	big c=0;
-	while (b)
+	whl(b)
 	{
 		if (b&1) c=add(c,a,mod);
 		a=add(a,a,mod);
 		b>>=1;
 	}
-	return c;
+	rtn c;
 }
 //带mod的指数函数 0<=a,b<mod
 big pow(big a,big b,big mod)
 {
 	big c=1;
-	while (b)
+	whl(b)
 	{
 		if (b&1) c=mul(c,a,mod);
 		a=mul(a,a,mod);
 		b>>=1;
 	}
-	return c;
+	rtn c;
 }
 //Rabin-Miller素数测试 n>1且n为奇数
 bool witness(big n)
@@ -78,33 +78,31 @@ bool witness(big n)
 	big nm1=n-1;
 	big a=rand()%nm1+1;
 	big d=nm1;
-	while ((d&1)==0) d>>=1;
+	whl((d&1)==0) d>>=1;
 	big x=pow(a,d,n);
-	if (x==1) return true;
-	for (;;)
+	if (x==1) rtn true;
+	lp
 	{
-		if (x==nm1) return true;
+		if (x==nm1) rtn true;
 		d<<=1;
-		if (d==nm1) return false;
+		if (d==nm1) rtn false;
 		x=mul(x,x,n);
 	}
 }
 //Rabin-Miller素数测试 n>=2
 bool isprime(big n,int k=20)
 {
-	if (n%2==0) return n==2;
+	if (n%2==0) rtn n==2;
 	else
 	{
-		for (int i=0;i<k;i++)
-			if (!witness(n))
-				return false;
-		return true;
+		rep(i,k) if (!witness(n)) rtn false;
+		rtn true;
 	}
 }
 //Pollard's rho大数分解 n>1且n为合数
 big rho(big n)
 {
-	if (n%2==0) return big(2);
+	if (n%2==0) rtn big(2);
 	else
 	{
 		big d;
@@ -119,20 +117,20 @@ big rho(big n)
 			if (x>y) d=gcd(x-y,n);
 			else d=gcd(y-x,n);
 		}
-		while(d==1);
-		return d;
+		whl(d==1);
+		rtn d;
 	}
 }
 //Pollard's rho大数分解 n>1
 big factor(big n,int k=20)
 {
-	if (isprime(n,k)) return n;
+	if (isprime(n,k)) rtn n;
 	else
 	{
 		big d;
 		do d=rho(n);
-		while (d==1||d==n);
-		return factor(d);
+		whl(d==1||d==n);
+		rtn factor(d);
 	}
 }
 #undef add

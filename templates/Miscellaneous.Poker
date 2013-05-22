@@ -1,0 +1,4 @@
+#ifndef SCL_MISCELLANEOUS_POKER
+#define SCL_MISCELLANEOUS_POKER
+#include <Miscellaneous.Poker.h>
+#endif
