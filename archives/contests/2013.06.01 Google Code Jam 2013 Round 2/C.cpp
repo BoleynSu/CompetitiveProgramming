@@ -168,61 +168,64 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int nxti[32][100][100];
-int nxtj[32][100][100];
-lli len[32][100][100];
+void mainf()
+{
+	int n;
+	cin>>n;
+	vi a(n),b(n);
+	cin>>a>>b;
+	vi ind(n);
+	vvi adj(n);
+	rep(j,n)
+	{
+		int pre;
+		rep(i,j)
+			if (a[i]>=a[j]) adj[j].pb(i),ind[i]++;//x[i]>x[j]
+			else if (a[i]+1==a[j]) pre=i;
+		if (a[j]!=1) adj[pre].pb(j),ind[j]++;//x[j]>x[pre]
+	}
+	fdt(j,n-1,0)
+	{
+		int pre;
+		fdt(i,n-1,j+1)
+			if (b[i]>=b[j]) adj[j].pb(i),ind[i]++;
+			else if (b[i]+1==b[j]) pre=i;
+		if (b[j]!=1) adj[pre].pb(j),ind[j]++;
+	}
+	vi lst;
+	prq<int,vi,greater<int> > q;
+	rep(i,n) if (!ind[i]) q.push(i);
+	whl(sz(q))
+	{
+		int u=q.top();
+		q.pop();
+		lst.pb(u);
+		rep(i,sz(adj[u]))
+		{
+			int v=adj[u][i];
+			if (!--ind[v])
+				q.push(v);
+		}
+	}
+	vi x(n);
+	rep(i,n) x[lst[i]]=i+1;
+	cout<<" "<<x<<" "<<endl;
+	vi ba=a,bb=b;
+	a=vi(n,1),b=vi(n,1);
+	rep(i,n) rep(j,i) if (x[j]<x[i]) cmax(a[i],a[j]+1);
+	fdt(i,n-1,0) fdt(j,n-1,i+1) if (x[j]<x[i]) cmax(b[i],b[j]+1);
+	asrtTLE((a==ba)&&(b==bb));
+}
 
 int main()
 {
-	//(ax,ay,bx,by)->(cx,cy,dx,dy)
-	int b,d;
-	str a,c;
-	cin>>b>>d;
-	cin>>a>>c;
-	map<pii,pr<pii,int> > adj;
-	rep(i,sz(a))
-		rep(j,sz(c))
-		{
-			ft(x,1,sz(a))
-				if (a[(i+x)%sz(a)]==c[j])
-				{
-					adj[mp(i,j)]=mp(mp((i+x)%sz(a),(j+1)%sz(c)),x);
-					break;
-				}
-			if (!adj.count(mp(i,j))) rtn cout<<0<<endl,0;
-			//cout<<mp(i,j)<<"->"<<adj[mp(i,j)]<<endl;
-			nxti[0][i][j]=adj[mp(i,j)].x.x;
-			nxtj[0][i][j]=adj[mp(i,j)].x.y;
-			len[0][i][j]=adj[mp(i,j)].y;
-		}
-	repf(k,1,32)
+	freopen("in.txt","r",stdin);
+	freopen("out.txt","w",stdout);
+	int T;
+	cin>>T;
+	ft(t,1,T)
 	{
-		rep(i,sz(a))
-			rep(j,sz(c))
-			{
-				nxti[k][i][j]=nxti[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]];
-				nxtj[k][i][j]=nxtj[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]];
-				len[k][i][j]=len[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]]+len[k-1][i][j];
-			}
+		cout<<"Case #"<<t<<":";
+		mainf();
 	}
-
-	int l=0,r=sz(a)*b/(sz(c)*d)+1;
-	whl(l+1!=r)
-	{
-		int mid=(l+r)>>1;
-		int x=mid*sz(c)*d;
-		int i=sz(a)-1,j=0;
-		lli le=0;
-		rep(k,32)
-			if ((x>>k)&1)
-			{
-				le+=len[k][i][j];
-				int ni=nxti[k][i][j];
-				int nj=nxtj[k][i][j];
-				i=ni,j=nj;
-			}
-		if (le>sz(a)*b) r=mid;
-		else l=mid;
-	}
-	cout<<l<<endl;
 }

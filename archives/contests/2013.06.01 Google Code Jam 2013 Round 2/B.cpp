@@ -167,62 +167,106 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//
+//lli getAlways(lli n,vb lst)
+//{
+//}
+//lli getPossible(lli n,vb lst)
+//{
+//}
+//
+//void mainf()
+//{
+//	lli n,p;
+//	cin>>n>>p,--p;
+//	vb lst(n);
+//	rep(i,n) lst[n-1-i]=p&1,p>>=1;
+//	cout<<" "<<getAlways(n,lst)<<" "<<getPossible(n,lst)<<endl;
+//}
 
-int nxti[32][100][100];
-int nxtj[32][100][100];
-lli len[32][100][100];
+lli getWorst(lli n,lli x)
+{
+	lli wrost=0;
+	lli betterCnt=x;
+	lli worseCnt=0;
+	rep(i,n)
+	{
+		wrost=wrost<<1;
+		if (betterCnt>=worseCnt+1)
+		{
+			wrost^=1;
+			betterCnt-=worseCnt+1;
+			worseCnt=worseCnt*2+1;
+		}
+	}
+	rtn wrost;
+}
+
+lli getBest(lli n,lli x)
+{
+	lli best=0;
+	lli worseCnt=(1ll<<n)-x-1;
+	lli betterCnt=0;
+	rep(i,n)
+	{
+		best=(best<<1)|1;
+		if (worseCnt>=betterCnt+1)
+		{
+			best^=1;
+			worseCnt-=betterCnt+1;
+			betterCnt=betterCnt*2+1;
+		}
+	}
+	rtn best;
+}
+
+void mainf()
+{
+	lli n,p;
+	cin>>n>>p;
+	lli a,b;
+//	fdt(i,(1ll<<n)-1,0)
+//		if (getWorst(n,i)>=p-1)
+//		{
+//			a=i;
+//			break;
+//		}
+//	fdt(i,(1ll<<n)-1,0)
+//		if (getBest(n,i)>=p-1)
+//		{
+//			b=i;
+//			break;
+//		}
+	lli l,r;
+	l=0,r=1ll<<n;
+	whl(l+1!=r)
+	{
+		lli mid=(l+r)>>1;
+		if (getWorst(n,mid)<p) l=mid;
+		else r=mid;
+	}
+	a=l;
+	l=0,r=1ll<<n;
+	whl(l+1!=r)
+	{
+		lli mid=(l+r)>>1;
+		if (getBest(n,mid)<p) l=mid;
+		else r=mid;
+	}
+	b=l;
+	cout<<" "<<a<<" "<<b<<endl;
+}
 
 int main()
 {
-	//(ax,ay,bx,by)->(cx,cy,dx,dy)
-	int b,d;
-	str a,c;
-	cin>>b>>d;
-	cin>>a>>c;
-	map<pii,pr<pii,int> > adj;
-	rep(i,sz(a))
-		rep(j,sz(c))
-		{
-			ft(x,1,sz(a))
-				if (a[(i+x)%sz(a)]==c[j])
-				{
-					adj[mp(i,j)]=mp(mp((i+x)%sz(a),(j+1)%sz(c)),x);
-					break;
-				}
-			if (!adj.count(mp(i,j))) rtn cout<<0<<endl,0;
-			//cout<<mp(i,j)<<"->"<<adj[mp(i,j)]<<endl;
-			nxti[0][i][j]=adj[mp(i,j)].x.x;
-			nxtj[0][i][j]=adj[mp(i,j)].x.y;
-			len[0][i][j]=adj[mp(i,j)].y;
-		}
-	repf(k,1,32)
+	freopen("in.txt","r",stdin);
+	freopen("out.txt","w",stdout);
+	MOD=1000002013;
+	int T;
+	cin>>T;
+	ft(t,1,T)
 	{
-		rep(i,sz(a))
-			rep(j,sz(c))
-			{
-				nxti[k][i][j]=nxti[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]];
-				nxtj[k][i][j]=nxtj[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]];
-				len[k][i][j]=len[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]]+len[k-1][i][j];
-			}
+		cout<<"Case #"<<t<<":";
+		mainf();
 	}
-
-	int l=0,r=sz(a)*b/(sz(c)*d)+1;
-	whl(l+1!=r)
-	{
-		int mid=(l+r)>>1;
-		int x=mid*sz(c)*d;
-		int i=sz(a)-1,j=0;
-		lli le=0;
-		rep(k,32)
-			if ((x>>k)&1)
-			{
-				le+=len[k][i][j];
-				int ni=nxti[k][i][j];
-				int nj=nxtj[k][i][j];
-				i=ni,j=nj;
-			}
-		if (le>sz(a)*b) r=mid;
-		else l=mid;
-	}
-	cout<<l<<endl;
 }
