@@ -10,6 +10,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
@@ -28,10 +30,9 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 
 class BackgroundPanel extends JPanel {
 	private Image bg;
@@ -76,7 +77,8 @@ public class LoginDialog extends JFrame {
 	private JPasswordField password;
 	private JButton close,minimize,login;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -104,7 +106,7 @@ public class LoginDialog extends JFrame {
 			}
 		});
 		setUndecorated(true);
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds((int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth()-340)/2, ((int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()-220)/3, 340, 220);
 		setResizable(false);
 		contentPane = new BackgroundPanel("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\login.png");

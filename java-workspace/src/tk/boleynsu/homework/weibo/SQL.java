@@ -33,9 +33,12 @@ public class SQL
 		Statement statement=connection.createStatement();
 		statement.execute("create database "+Config.getSqlDatabase()+";");
 		statement.execute("use "+Config.getSqlDatabase()+";");
-		statement.execute("create table microblog(id bigint auto_increment primary key,text text);");
-		statement.execute("create table user(id bigint auto_increment primary key,username text,password text);");
+		statement.execute("create table microblog(id bigint auto_increment primary key,parentId bigint,text varchar(140),time timestamp,foreign key(parentId) references microblog(id));");
+		statement.execute("create table user(id bigint auto_increment primary key,username varchar(255) unique,password char(128));");
 		statement.execute("create table isOwnerOf(uid bigint,mid bigint,foreign key(uid) references user(id),foreign key(mid) references microblog(id));");
 		statement.execute("create table isFollowerOf(follower bigint,followee bigint,foreign key(follower) references user(id),foreign key(followee) references user(id));");
+		statement.execute("create table hashTag(id bigint auto_increment primary key,text varchar(140) unique);");
+		statement.execute("create table hasHashTag(mid bigint,hid bigint,foreign key(mid) references microblog(id),foreign key(hid) references hashTag(id));");
+		statement.execute("create table hasAtTag(mid bigint,uid bigint,foreign key(mid) references microblog(id),foreign key(uid) references user(id));");
 	}
 }

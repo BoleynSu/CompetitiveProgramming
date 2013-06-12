@@ -1,18 +1,17 @@
 package tk.boleynsu.homework.weibo;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintWriter;
-import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
+
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class Client
 {
-	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException
+	public static void main(String[] args) throws UnknownHostException, IOException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException
 	{
-		LoginDialogBackup loginDialog=new LoginDialogBackup();
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		LoginDialog loginDialog=new LoginDialog();
 		/*
 		Socket socket=new Socket(Config.getServerHost(),Config.getServerPort());
 		InputStream in=socket.getInputStream();
