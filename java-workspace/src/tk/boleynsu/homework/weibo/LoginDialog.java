@@ -139,32 +139,34 @@ public class LoginDialog extends JFrame {
 		avatar = new JLabel(new ImageIcon(new URL("https://secure.gravatar.com/avatar/?s=80")));
 		avatar.setBounds(20, 90, 80, 80);
 		loginPane.add(avatar);
-		
-		username = new JTextField();
-		username.addKeyListener(new KeyAdapter() {
-			@Override
+
+		KeyAdapter loginKeyAdapter=new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.getKeyCode()==KeyEvent.VK_ENTER)
 				{
-					Connection connection=new Connection();
-					if (!connection.login(username.getText(),password.getPassword()))
-					{
-						username.setText("用户名或者密码错误！");
-					}
-					else
-					{
-						LoginDialog.this.dispose();
-						try {
-							new MainWindow(connection);
-						} catch (NoSuchAlgorithmException ex) {
-							ex.printStackTrace();
-						} catch (MalformedURLException ex) {
-							ex.printStackTrace();
+					try {
+						Connection connection=new Connection();
+						String pwd=new String(password.getPassword()).toLowerCase();
+						MessageDigest messageDigest = MessageDigest.getInstance("md5");
+						String md5=new BigInteger(1,messageDigest.digest(pwd.getBytes())).toString(16);
+						if (!connection.login(username.getText(),md5))
+						{
+							username.setText("用户名或者密码错误！");
 						}
+						else
+						{
+							LoginDialog.this.dispose();
+							new MainWindow(connection);
+						}
+					} catch (NoSuchAlgorithmException ex) {
+						ex.printStackTrace();
 					}
-				}	
+				}
 			}
-		});
+		};
+		
+		username = new JTextField();
+		username.addKeyListener(loginKeyAdapter);
 		username.setFont(new Font("宋体", Font.PLAIN, 15));
 		username.setBounds(120, 100, 200, 24);
 		loginPane.add(username);
@@ -207,56 +209,35 @@ public class LoginDialog extends JFrame {
 		});
 
 		password = new JPasswordField();
-		password.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode()==KeyEvent.VK_ENTER)
-				{
+		password.addKeyListener(loginKeyAdapter);
+		password.setFont(new Font("宋体", Font.PLAIN, 15));
+		password.setBounds(120, 140, 200, 24);
+		loginPane.add(password);
+		password.setColumns(10);
+
+		ActionListener loginActionListener=new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				try {
 					Connection connection=new Connection();
-					if (!connection.login(username.getText(),password.getPassword()))
+					String pwd=new String(password.getPassword()).toLowerCase();
+					MessageDigest messageDigest = MessageDigest.getInstance("md5");
+					String md5=new BigInteger(1,messageDigest.digest(pwd.getBytes())).toString(16);
+					if (!connection.login(username.getText(),md5))
 					{
 						username.setText("用户名或者密码错误！");
 					}
 					else
 					{
 						LoginDialog.this.dispose();
-						try {
-							new MainWindow(connection);
-						} catch (NoSuchAlgorithmException ex) {
-							ex.printStackTrace();
-						} catch (MalformedURLException ex) {
-							ex.printStackTrace();
-						}
-					}
-				}	
-			}
-		});
-		password.setFont(new Font("宋体", Font.PLAIN, 15));
-		password.setBounds(120, 140, 200, 24);
-		loginPane.add(password);
-		password.setColumns(10);
-		
-		login = new BackgroundButton("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\button~normal.png","E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\button~press.png");
-		login.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				Connection connection=new Connection();
-				if (!connection.login(username.getText(),password.getPassword()))
-				{
-					username.setText("用户名或者密码错误！");
-				}
-				else
-				{
-					LoginDialog.this.dispose();
-					try {
 						new MainWindow(connection);
-					} catch (NoSuchAlgorithmException ex) {
-						ex.printStackTrace();
-					} catch (MalformedURLException ex) {
-						ex.printStackTrace();
 					}
+				} catch (NoSuchAlgorithmException ex) {
+					ex.printStackTrace();
 				}
 			}
-		});
+		};
+		login = new BackgroundButton("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\button~normal.png","E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\button~press.png");
+		login.addActionListener(loginActionListener);
 		login.setBounds(150, 175, 148, 36);
 		login.setLayout(null);
 		JLabel loginLabel = new JLabel("登陆 ");

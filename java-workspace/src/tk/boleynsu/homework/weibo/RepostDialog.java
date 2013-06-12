@@ -21,9 +21,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
 
-public class WriteDialog extends JFrame {
+public class RepostDialog extends JFrame {
 
 	private Connection connection;
+	private long parent;
+	String premb,curmb;
 	private JPanel contentPane;
 	private JTextArea textField;
 	private JLabel counter;
@@ -36,7 +38,7 @@ public class WriteDialog extends JFrame {
 				try {
 					Connection connection=new Connection();
 					connection.login("boleyn.su@gmail.com","b42e548db05db1db1ee796dd85c017f1");
-					WriteDialog frame = new WriteDialog(connection);
+					RepostDialog frame = new RepostDialog(connection,1,"","");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -44,8 +46,11 @@ public class WriteDialog extends JFrame {
 		});
 	}
 
-	public WriteDialog(Connection connection) {
+	public RepostDialog(Connection connection,long parent,String premb,String curmb) {
 		this.connection=connection;
+		this.parent=parent;
+		this.premb=premb;
+		this.curmb=curmb;
 		setTitle("写微博");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 330, 200);
@@ -96,8 +101,8 @@ public class WriteDialog extends JFrame {
 		button = new JButton("发布");
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				WriteDialog.this.connection.post(textField.getText());
-				WriteDialog.this.dispose();
+				RepostDialog.this.connection.repost(textField.getText(),RepostDialog.this.parent);
+				RepostDialog.this.dispose();
 			}
 		});
 		button.setBounds(220, 5, 57, 23);
@@ -116,6 +121,8 @@ public class WriteDialog extends JFrame {
 		label = new JLabel("个字。");
 		label.setBounds(110, 9, 54, 15);
 		panel.add(label);
+		
+		textField.setText(curmb);
 		
 		setContentPane(contentPane);
 
