@@ -20,12 +20,12 @@ import javax.swing.ScrollPaneConstants;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.sql.SQLException;
+import javax.swing.SwingConstants;
 
 public class RepostDialog extends JFrame {
 
 	private Connection connection;
 	private long parent;
-	String premb,curmb;
 	private JPanel contentPane;
 	private JTextArea textField;
 	private JLabel counter;
@@ -49,9 +49,7 @@ public class RepostDialog extends JFrame {
 	public RepostDialog(Connection connection,long parent,String premb,String curmb) {
 		this.connection=connection;
 		this.parent=parent;
-		this.premb=premb;
-		this.curmb=curmb;
-		setTitle("写微博");
+		setTitle("转发微博");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 330, 200);
 		setResizable(false);
@@ -61,7 +59,7 @@ public class RepostDialog extends JFrame {
 		
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane.setBounds(2, 0, 320, 130);
+		scrollPane.setBounds(2, 0, 320, 65);
 		contentPane.add(scrollPane);
 		
 		textField = new JTextArea();
@@ -125,8 +123,13 @@ public class RepostDialog extends JFrame {
 		textField.setText(curmb);
 		
 		setContentPane(contentPane);
+		
+		JLabel prembLabel = new JLabel(premb);
+		prembLabel.setHorizontalAlignment(SwingConstants.LEFT);
+		prembLabel.setVerticalAlignment(SwingConstants.TOP);
+		prembLabel.setBounds(2, 66, 320, 65);
+		contentPane.add(prembLabel);
 
 		setVisible(true);
 	}
-
 }

@@ -6,16 +6,12 @@ public class Config
 	private static String sqlUsername;
 	private static String sqlPassword;
 	private static String sqlDatabase;
-	private static String serverHost;
-	private static int serverPort;
 	static
 	{
 		Config.setSqlHost("localhost");
 		Config.setSqlUsername("root");
 		Config.setSqlPassword("iamroot");
 		Config.setSqlDatabase("weibo");
-		Config.setServerHost("localhost");
-		Config.setServerPort(1993);
 	}
 	public static String getSqlHost() {
 		return sqlHost;
@@ -40,17 +36,5 @@ public class Config
 	}
 	public static void setSqlDatabase(String sqlDatabase) {
 		Config.sqlDatabase = sqlDatabase;
-	}
-	public static String getServerHost() {
-		return serverHost;
-	}
-	public static void setServerHost(String serverHost) {
-		Config.serverHost = serverHost;
-	}
-	public static int getServerPort() {
-		return serverPort;
-	}
-	public static void setServerPort(int serverPort) {
-		Config.serverPort = serverPort;
 	}
 }

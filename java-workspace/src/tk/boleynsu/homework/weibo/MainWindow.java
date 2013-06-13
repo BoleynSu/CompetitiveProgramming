@@ -2,6 +2,7 @@ package tk.boleynsu.homework.weibo;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -18,8 +19,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -53,6 +52,16 @@ class Microblog {
 		this.repostNumber=repostNumber;
 	}
 }
+class User {
+	public long id;
+	public String username,nickname;
+	User(long id,String username,String nickname)
+	{
+		this.id=id;
+		this.username=username;
+		this.nickname=nickname;
+	}
+}
 
 public class MainWindow extends JFrame {
 
@@ -61,10 +70,10 @@ public class MainWindow extends JFrame {
 	private JLabel followee,follower,microblog;
 	private WriteDialog writeDialog;
 	private RepostDialog repostDialog;
+	private SearchDialog searchDialog;
 	private Thread updateThread;
-	private Deque<Microblog> homepageMicroblogList;
-	private Deque<JPanel> homepagePanelList;
-	JScrollPane homepage;
+	private JScrollPane homepage,at,followeePane,followerPane;
+	
 
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -89,7 +98,8 @@ public class MainWindow extends JFrame {
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 		
 		JPanel authorPanel=new JPanel();
-		authorPanel.setPreferredSize(new Dimension(305,20));
+		authorPanel.setPreferredSize(new Dimension(305,25));
+		authorPanel.setMinimumSize(new Dimension(305,20));
 		authorPanel.setMaximumSize(new Dimension(305,20));
 		authorPanel.setLayout(null);
 		JLabel avatar=new JLabel();
@@ -115,10 +125,9 @@ public class MainWindow extends JFrame {
 		panel.add(authorPanel);
 
 		JPanel textPanel=new JPanel();
-		textPanel.setPreferredSize(new Dimension(305,20));
-		textPanel.setMaximumSize(new Dimension(305,20));
 		textPanel.setLayout(new BorderLayout());
 		JTextArea textArea=new JTextArea(mb.text);
+		textArea.setLineWrap(true);
 		textArea.setBackground(new Color(0,102,255));
 		textArea.setEditable(false);
 		textPanel.add(textArea);
@@ -127,10 +136,10 @@ public class MainWindow extends JFrame {
 		if (mb.parent!=null)
 		{
 			JPanel parentPanel=new JPanel();
-			parentPanel.setPreferredSize(new Dimension(305,20));
-			parentPanel.setMaximumSize(new Dimension(305,20));
 			parentPanel.setLayout(new BorderLayout());
-			JTextArea parentArea=new JTextArea(mb.parent);
+			String parentNickname=connection.getNicknameByMicroblogId(mb.parentId);
+			JTextArea parentArea=new JTextArea("//@"+parentNickname+":"+mb.parent);
+			parentArea.setLineWrap(true);
 			parentArea.setBackground(new Color(51,204,204));
 			parentArea.setEditable(false);
 			parentPanel.add(parentArea);
@@ -139,6 +148,7 @@ public class MainWindow extends JFrame {
 		
 		JPanel misPanel=new JPanel();
 		misPanel.setPreferredSize(new Dimension(305,25));
+		misPanel.setMinimumSize(new Dimension(305,20));
 		misPanel.setMaximumSize(new Dimension(305,25));
 		misPanel.setLayout(null);
 		JLabel timeLabel=new JLabel("发布于:"+mb.time);
@@ -160,7 +170,7 @@ public class MainWindow extends JFrame {
 				this.curmb=cmb;
 				return this;
 			}
-		}.set(mb.parentId==0?mb.id:mb.parentId,mb.parentId==0?mb.text:mb.parent,mb.parentId==0?"":"//@"+mb.author+":"+mb.text));
+		}.set(mb.parentId==0?mb.id:mb.parentId,mb.parentId==0?"//@"+mb.author+":"+mb.text:"//@"+connection.getNicknameByMicroblogId(mb.parentId)+":"+mb.parent,mb.parentId==0?"":"//@"+mb.author+":"+mb.text));
 		repostButton.setBounds(175, 0, 70, 25);
 		repostButton.setOpaque(false);
 		repostButton.setContentAreaFilled(false);
@@ -177,9 +187,44 @@ public class MainWindow extends JFrame {
 		return panel;
 	}
 	
+	private Component getPanelByUser(User user) {
+		JPanel panel=new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		
+		JPanel authorPanel=new JPanel();
+		authorPanel.setPreferredSize(new Dimension(305,25));
+		authorPanel.setMinimumSize(new Dimension(305,20));
+		authorPanel.setMaximumSize(new Dimension(305,20));
+		authorPanel.setLayout(null);
+		JLabel avatar=new JLabel();
+		avatar.setBounds(0, 0, 20, 20);
+		authorPanel.add(avatar);
+		MessageDigest messageDigest;
+		try {
+			messageDigest = MessageDigest.getInstance("md5");
+			String md5=new BigInteger(1,messageDigest.digest(user.username.toLowerCase().getBytes())).toString(16);
+			avatar.setIcon(new ImageIcon(new URL("https://secure.gravatar.com/avatar/"+md5+"?s=20")));
+		} catch (NoSuchAlgorithmException e) {
+			e.printStackTrace();
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+		JButton authorButton=new JButton(user.nickname);
+		authorButton.setHorizontalAlignment(JButton.LEFT);
+		authorButton.setBounds(20, 0, 285, 20);
+		authorButton.setOpaque(false);
+		authorButton.setContentAreaFilled(false);
+		authorButton.setBorderPainted(false);
+		authorPanel.add(authorButton);
+		authorPanel.setBackground(Color.red);
+		panel.add(authorPanel);
+
+		return panel;
+	}
+	
 	private void update() throws NoSuchAlgorithmException, MalformedURLException
 	{
-		setTitle("金融微博 - "+connection.getNickname());
+		setTitle(connection.getNickname());
 		
 		String email=connection.getUsername().toLowerCase();
 		MessageDigest messageDigest=MessageDigest.getInstance("md5");
@@ -189,30 +234,52 @@ public class MainWindow extends JFrame {
 		followee.setText(connection.getFolloweeNumber().toString());
 		follower.setText(connection.getFollowerNumber().toString());
 		microblog.setText(connection.getMicroblogNumber().toString());
-
-		List<Microblog> fetch=connection.getNewerMicroblog(homepageMicroblogList.isEmpty()?null:homepageMicroblogList.getFirst());
-		
-		if (fetch!=null)
 		{
+			List<Microblog> fetch=connection.getNewerMicroblog();
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			
+			int value=homepage.getVerticalScrollBar().getValue();
 			for (int i=0;i<fetch.size();i++)
-			{
-				homepageMicroblogList.addFirst(fetch.get(i));
-				homepagePanelList.addFirst(getPanelByMicroblog(fetch.get(i)));
-			}
+				panel.add(getPanelByMicroblog(fetch.get(i)));
+			homepage.setViewportView(panel);
+			homepage.getVerticalScrollBar().setValue(value);
 		}
-
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		homepage.setViewportView(panel);
-
-		JPanel[] panels=new JPanel[homepagePanelList.size()];
-		panels=homepagePanelList.toArray(panels);
-		for (int i=0;i<panels.length;i++)
 		{
-			panel.add(panels[i]);
+			List<Microblog> fetch=connection.getNewerAt();
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			
+			int value=at.getVerticalScrollBar().getValue();
+			for (int i=0;i<fetch.size();i++)
+				panel.add(getPanelByMicroblog(fetch.get(i)));
+			at.setViewportView(panel);
+			at.getVerticalScrollBar().setValue(value);
+		}
+		{
+			List<User> fetch=connection.getFolloweeList();
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			
+			int value=followeePane.getVerticalScrollBar().getValue();
+			for (int i=0;i<fetch.size();i++)
+				panel.add(getPanelByUser(fetch.get(i)));
+			followeePane.setViewportView(panel);
+			followeePane.getVerticalScrollBar().setValue(value);
+		}
+		{
+			List<User> fetch=connection.getFollowerList();
+			JPanel panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+			
+			int value=followerPane.getVerticalScrollBar().getValue();
+			for (int i=0;i<fetch.size();i++)
+				panel.add(getPanelByUser(fetch.get(i)));
+			followerPane.setViewportView(panel);
+			followerPane.getVerticalScrollBar().setValue(value);
 		}
 	}
-	
+
 	public MainWindow(Connection connection) {
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -221,6 +288,8 @@ public class MainWindow extends JFrame {
 					writeDialog.dispose();
 				if (repostDialog!=null&&repostDialog.isDisplayable())
 					repostDialog.dispose();
+				if (searchDialog!=null&&searchDialog.isDisplayable())
+					searchDialog.dispose();
 				if (updateThread.isAlive()) updateThread.stop();
 			}
 		});
@@ -257,10 +326,8 @@ public class MainWindow extends JFrame {
 		homepage = new JScrollPane();
 		tabbedPane.addTab("我的首页", null, homepage, null);
 		repostDialog=null;
-		homepageMicroblogList=new ArrayDeque<Microblog>();
-		homepagePanelList=new ArrayDeque<JPanel>();
-
-		JScrollPane at = new JScrollPane();
+		
+		at = new JScrollPane();
 		tabbedPane.addTab("@提到我的", null, at, null);
 		
 		/*
@@ -272,10 +339,10 @@ public class MainWindow extends JFrame {
 		JTabbedPane friends = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.addTab("我的好友", null, friends, null);
 		
-		JScrollPane followeePane = new JScrollPane();
+		followeePane = new JScrollPane();
 		friends.addTab("我的关注", null, followeePane, null);
 		
-		JScrollPane followerPane = new JScrollPane();
+		followerPane = new JScrollPane();
 		friends.addTab("我的好友", null, followerPane, null);
 
 		JPanel followeePanel = new JPanel();
@@ -354,6 +421,12 @@ public class MainWindow extends JFrame {
 		getContentPane().add(button);
 		
 		JButton btnNewButton = new JButton("搜索");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (searchDialog==null||!searchDialog.isDisplayable()) searchDialog=new SearchDialog(MainWindow.this.connection);
+				else searchDialog.requestFocus();
+			}
+		});
 		btnNewButton.setBounds(220, 630, 93, 30);
 		getContentPane().add(btnNewButton);
 
@@ -367,7 +440,7 @@ public class MainWindow extends JFrame {
 					try {
 						update();
 						//TODO Thread.sleep(1000*60*5);//五分钟更新一次
-						Thread.sleep(1000*5);//五分钟更新一次
+						Thread.sleep(1000*5);//五秒更新一次
 					} catch (NoSuchAlgorithmException e) {
 						e.printStackTrace();
 					} catch (MalformedURLException e) {
