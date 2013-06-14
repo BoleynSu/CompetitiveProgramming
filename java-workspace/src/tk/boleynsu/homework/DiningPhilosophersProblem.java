@@ -17,9 +17,8 @@ public class DiningPhilosophersProblem
 			for (;;)
 			{
 				try {
-					Thread.sleep(1000);
+					Thread.sleep((long) (Math.random()*5000));
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				if (forks[id].tryAcquire())
@@ -39,9 +38,8 @@ public class DiningPhilosophersProblem
 				}
 				System.out.println("philosopher "+id+" eating...");
 				try {
-					Thread.sleep(1000);
+					Thread.sleep((long) (Math.random()*5000));
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				forks[id].release();
