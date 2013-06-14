@@ -40,7 +40,7 @@ using namespace std;
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
 #define rep(i,n) repf(i,0,n)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
-#define fdt(i,a,b) for (int i=(a);i>=(b);--i)
+#define fdt(i,a,b) for (int i=(a);i>=b;--i)
 #define feach(e,s) for (typeof((s).begin()) e=(s).begin();e!=(s).end();++e)
 #define fsubset(subset,set) for (int subset=(set)&((set)-1);subset;subset=(subset-1)&(set))
 #define forin(i,charset) for (cstr i=(charset);*i;i++)
@@ -63,7 +63,6 @@ using namespace std;
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
-#define rev(x) reverse(all(x))
 #define vec vector
 #define pr pair
 #define que queue
@@ -117,11 +116,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -143,7 +143,6 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,const vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -163,6 +162,182 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
-template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
+template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.erase(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+const int MAXN=200000+20;
+//struct ST
+//{
+//#define idx(l,r) (((l)+(r))|((l)!=(r)))
+//#define rt idx(l,r)
+//#define lrt idx(l,m)
+//#define rrt idx(m+1,r)
+//struct node
+//{
+//    lli sum;
+//    lli cnt;
+//};
+//node st[(MAXN<<1)-1];
+//void upd(int l,int r,int L,int R,lli v)
+//{
+//    if (R<l||r<L) ;
+//    else if (L<=l&&r<=R)
+//    {
+//        st[rt].sum+=v*(r-l+1);
+//        st[rt].cnt+=v;
+//    }
+//    else
+//    {
+//        int m=(l+r)>>1;
+//        if (st[rt].cnt)
+//        {
+//            st[lrt].sum+=(m-l+1)*st[rt].cnt;
+//            st[lrt].cnt+=st[rt].cnt;
+//            st[rrt].sum+=(r-(m+1)+1)*st[rt].cnt;
+//            st[rrt].cnt+=st[rt].cnt;
+//            st[rt].cnt=0;
+//        }
+//        upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+//        st[rt].sum=st[lrt].sum+st[rrt].sum;
+//    }
+//}
+//lli qry(int l,int r,int L,int R)
+//{
+//    if (R<l||r<L) rtn 0;
+//    else if (L<=l&&r<=R) rtn st[rt].sum;
+//    else
+//    {
+//        int m=(l+r)>>1;
+//        if (st[rt].cnt)
+//        {
+//            st[lrt].sum+=(m-l+1)*st[rt].cnt;
+//            st[lrt].cnt+=st[rt].cnt;
+//            st[rrt].sum+=(r-(m+1)+1)*st[rt].cnt;
+//            st[rrt].cnt+=st[rt].cnt;
+//            st[rt].cnt=0;
+//        }
+//        rtn qry(l,m,L,R)+qry(m+1,r,L,R);
+//    }
+//}
+//void upd(int L,int R,lli v)
+//{
+//    upd(0,MAXN-1,L,R,v);
+//}
+//lli qry(int L,int R)
+//{
+//    rtn qry(0,MAXN-1,L,R);
+//}
+//#undef rc
+//#undef lc
+//#undef rt
+//#undef idx
+//};
+
+struct ST
+{
+typedef long long LL;
+lli bit0[MAXN];
+lli bit1[MAXN];
+void update(int p, LL v)
+{//prt(p);
+p++;
+for (int i=p; i<MAXN; i+=i&-i)
+{
+bit0[i] += v*(i-p+1);
+bit1[i] += v;
+}
+}
+LL query(int p)
+{//prt(p);
+p++;
+LL ret = 0;
+for (int i=p; i; i-=i&-i)
+{
+ret += bit0[i];
+ret += bit1[i]*(p-i);
+}
+return ret;
+}
+void clear()
+{
+    clr(bit0),clr(bit1);
+}
+void upd(int L,int R,lli v)
+{
+    update(R+1,-v);
+    update(L,v);
+}
+lli qry(int L,int R)
+{
+    rtn query(R)-query(L-1);
+}
+};
+
+ST cnt,sum,ttl;
+
+bool cmp(const pr<pii,pii>& a,const pr<pii,pii>& b)
+{
+    rtn a.x.y<b.x.y;
+}
+
+pr<pii,pii> rec[MAXN];
+int t[MAXN];
+lli ans[MAXN];
+
+int nextInt()
+{
+    char get=getchar();
+    whl(get>'9'||get<'0') get=getchar();
+    int x=0;
+    whl(get<='9'&&get>='0')
+    {
+        x=x*10+get-'0';
+        get=getchar();
+    }
+    rtn x;
+}
+
+int main()
+{
+    int T=nextInt();
+    whl(T--)
+    {
+        int n=nextInt();
+        rep(i,n) rec[i].x.x=nextInt(),rec[i].x.y=nextInt(),rec[i].y.x=nextInt()-1,rec[i].y.y=nextInt()-1;
+        int x=nextInt();
+        rep(i,x) t[i]=nextInt()-1;
+
+        sort(rec,rec+n,cmp);
+
+        sum.clear();
+        cnt.clear();
+        ttl.clear();
+        prq<pii,vpii,greater<pii> > st;
+
+        int h=0;
+        rep(i,x)
+        {
+            whl(h<n&&rec[h].x.y<=t[i])
+            {
+                cnt.upd(rec[h].x.x,rec[h].y.x,1);
+                sum.upd(rec[h].x.x,rec[h].y.x,rec[h].x.y-1);
+                st.push(mp(rec[h].y.y,h));
+                h++;
+            }
+            whl(sz(st)&&st.top().x<=t[i])
+            {
+                int h=st.top().y;
+                st.pop();
+                cnt.upd(rec[h].x.x,rec[h].y.x,-1);
+                sum.upd(rec[h].x.x,rec[h].y.x,-rec[h].x.y+1);
+                ttl.upd(rec[h].x.x,rec[h].y.x,rec[h].y.y-rec[h].x.y+1);
+                prt(ttl.qry(0,100));
+            }
+            ans[i]=ttl.qry(0,t[i])+cnt.qry(0,t[i])*t[i]-sum.qry(0,t[i]);
+        }
+        rep(i,x) pf("%I64d\n",ans[i]);
+    }
+}
+
+

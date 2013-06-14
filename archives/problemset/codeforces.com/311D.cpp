@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -166,3 +167,95 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt st[idx(l,r)]
+#define lc st[idx(l,m)]
+#define rc st[idx(m+1,r)]
+const int LOOP=48;
+const int MAXN=100000;
+struct node{lli sum[LOOP];int delta;};
+node st[(MAXN<<1)-1];
+void bld(int l,int r,int a[])
+{
+	if (l==r)
+	{
+		rt.sum[0]=a[l];
+		repf(i,1,LOOP) rt.sum[i]=rt.sum[i-1]*rt.sum[i-1]%MOD*rt.sum[i-1]%MOD;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		bld(l,m,a),bld(m+1,r,a);
+		rep(i,LOOP) rt.sum[i]=(lc.sum[i]+rc.sum[i])%MOD;
+	}
+}
+void upd(int l,int r,int L,int R)
+{
+	if (r<L||R<l) ;
+	else if (L<=l&&r<=R)
+	{
+		node get;
+		rep(i,LOOP) get.sum[i]=rt.sum[(i+1)%LOOP];
+		get.delta=rt.delta+1;
+		rt=get;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.delta)
+		{
+			node get;
+			rep(i,LOOP) get.sum[i]=lc.sum[(i+rt.delta)%LOOP];
+			get.delta=lc.delta+rt.delta;
+			lc=get;
+			rep(i,LOOP) get.sum[i]=rc.sum[(i+rt.delta)%LOOP];
+			get.delta=rc.delta+rt.delta;
+			rc=get;
+			rt.delta=0;
+		}
+		upd(l,m,L,R),upd(m+1,r,L,R);
+		rep(i,LOOP) rt.sum[i]=(lc.sum[i]+rc.sum[i])%MOD;
+	}
+}
+int qry(int l,int r,int L,int R)
+{
+	if (r<L||R<l) rtn 0;
+	else if (L<=l&&r<=R) rtn rt.sum[0];
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.delta)
+		{
+			node get;
+			rep(i,LOOP) get.sum[i]=lc.sum[(i+rt.delta)%LOOP];
+			get.delta=lc.delta+rt.delta;
+			lc=get;
+			rep(i,LOOP) get.sum[i]=rc.sum[(i+rt.delta)%LOOP];
+			get.delta=rc.delta+rt.delta;
+			rc=get;
+			rt.delta=0;
+		}
+		rtn (qry(l,m,L,R)+qry(m+1,r,L,R))%MOD;
+	}
+}
+
+int main()
+{
+	MOD=95542721;
+	int n;
+	cin>>n;
+	vi a(n);
+	cin>>a;
+	bld(0,n-1,a.data());
+	int q;
+	cin>>q;
+	rep(i,q)
+	{
+		int op,l,r;
+		cin>>op>>l>>r,--l,--r;
+		if (op==1) cout<<qry(0,n-1,l,r)<<endl;
+		else upd(0,n-1,l,r);
+	}
+}
+

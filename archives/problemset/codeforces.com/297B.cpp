@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -143,7 +144,7 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,const vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
+template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -166,3 +167,38 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+int cnt(str s)
+{
+	int ans=0;
+	rep(i,sz(s)) if (s[i]=='1') ans++;
+	rtn ans;
+}
+
+bool calc(str a,str b)
+{
+	rtn cnt(a)>=cnt(b);
+}
+
+int main()
+{
+//	str a,b;
+//	cin>>a>>b;
+//	cout<<(calc(a,b)?"YES":"NO")<<endl;
+	int n,m,k;
+	cin>>n>>m>>k;
+	vi a(n),b(m);
+	cin>>a>>b;
+	mii cnt;
+	rep(i,sz(a)) cnt[a[i]]++;
+	rep(i,sz(b)) cnt[b[i]]--;
+	bool ans=false;
+	int sum=0;
+	for (mii::reverse_iterator i=cnt.rbegin();i!=cnt.rend();i++)
+	{
+		sum+=i->y;
+		if (sum>0) ans=true;
+	}
+	cout<<(ans?"YES":"NO")<<endl;
+}
+

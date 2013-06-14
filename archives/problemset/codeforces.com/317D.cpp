@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -166,3 +167,92 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+int sg[32]=
+{0,
+		1,
+		2,
+		1,
+		4,
+		3,
+		2,
+		1,
+		5,
+		6,
+		2,
+		1,
+		8,
+		7,
+		5,
+		9,
+		8,
+		7,
+		3,
+		4,
+		7,
+		4,
+		2,
+		1,
+		10,
+		9,
+		3,
+		6,
+		11,
+		12,
+		14,
+};
+
+
+//const int N=30;
+//mii sg;
+//short calc(int ii)
+//{
+//	if (sg.count(ii)) rtn sg[ii];
+//	else
+//	{
+//		si mex;
+//		int i=ii<<1;
+//		ft(j,1,N)
+//			if (i&(1<<j))
+//			{
+//				int k=i;
+//				for (int l=1;l*j<=N;l++)
+//					k&=~(1<<(j*l));
+//				k>>=1;
+//				k&=(1<<N)-1;
+//				mex.ins(calc(k));
+//			}
+//		whl(mex.count(sg[ii])) sg[ii]++;
+//		rtn sg[ii];
+//	}
+//}
+
+int main()
+{
+	//ft(i,1,N) cerr<<calc((1<<i)-1)<<","<<endl;
+	//rtn 0;
+	int n;
+	cin>>n;
+	int sqrt=1;
+	whl(sqrt*sqrt<=n) sqrt++;
+	si s;
+	int SG=sg[1];//for i=1
+	repf(i,2,sqrt) if (!s.count(i))
+	{
+		lli j=i;
+		int cnt=0;
+		whl(j<=n)
+		{
+			cnt++;
+			s.ins(j);
+			j*=i;
+		}
+		SG^=sg[cnt];
+	}
+	int total=n-sqrt+1;
+	feach(i,s) if (sqrt<=*i) total--;
+	SG^=sg[total&1];
+	prt(SG);
+	cout<<(SG?"Vasya":"Petya")<<endl;
+}
+

@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -166,3 +167,65 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+int n,r,c;
+vs words;
+vi best;
+vvi adj;
+vb marked;
+vi stk;
+int ans,ansu;
+void dfs(int u,int dep=0)
+{
+	marked[u]=true;
+	stk[dep]=u;
+	rep(i,sz(adj[u]))
+	{
+		int v=adj[u][i];
+		dfs(v,dep+1);
+	}
+	int get=stk[dep]-stk[max(dep-r,0)];
+	if (cmax(ans,get)) ansu=u;
+}
+void dfs_ans(int u,int l)
+{
+	prt(u);
+	if (l)
+	{
+		dfs_ans(best[u]-1,l-1);
+		ft(i,best[u],u)
+		{
+			cout<<words[i];
+			if (i!=u) cout<<" ";
+		}
+		cout<<endl;
+	}
+}
+
+int main()
+{
+	cin>>n>>r>>c;
+	words=vs(++n);
+	repf(i,1,n) cin>>words[i];
+	int j=1,length=-1;
+	best=vi(n);
+	best[0]=1;
+	repf(i,1,n)
+	{
+		length+=sz(words[i])+1;
+		whl(length>c)
+		{
+			length-=sz(words[j])+1;
+			j++;
+		}
+		best[i]=j;
+	}
+	adj=vvi(n);
+	marked=vb(n);
+	stk=vi(n);
+	repf(i,1,n) if (best[i]<=i) adj[best[i]-1].pb(i);
+	rep(i,n) if (!marked[i]) dfs(i);
+	prt(ansu);
+	dfs_ans(ansu,r);
+}
+

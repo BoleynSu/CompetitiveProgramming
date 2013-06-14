@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -166,3 +167,98 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+
+int main()
+{
+	ooll/=2;
+	lli h,n,m,k;
+	cin>>h>>n>>m>>k;
+	vec<lli> a(n+1),c(n+1);
+	rep(i,n) cin>>a[i]>>c[i],--a[i];
+	n++;
+	vb is(n);
+	vb tkd(n);
+	prq<pll> q;
+	vec<lli> st;
+	vec<lli> d(k,ooll);
+	{
+		prq<pll> q;
+		d[0]=0;
+		q.push(mp(-d[0],0));
+		whl(sz(q))
+		{
+			if (-d[q.top().y]==q.top().x)
+			{
+				int u=q.top().y;
+				rep(i,sz(st))
+				{
+					int v=(u+st[i])%k;
+					if (cmin(d[v],d[u]+st[i]))
+						q.push(mp(-d[v],v));
+				}
+			}
+			q.pop();
+		}
+	}
+	rep(i,n)
+		if (d[a[i]%k]<=a[i])
+		{
+			is[i]=true;
+			q.push(mp(c[i],-i));
+		}
+	rep(i,m)
+	{
+		int op;
+		cin>>op;
+		if (op==1)
+		{
+			lli x;
+			cin>>x;
+			st.pb(x);
+			vec<lli> d(k,ooll);
+			{
+				prq<pll> q;
+				d[0]=0;
+				q.push(mp(-d[0],0));
+				whl(sz(q))
+				{
+					if (-d[q.top().y]==q.top().x)
+					{
+						int u=q.top().y;
+						rep(i,sz(st))
+						{
+							int v=(u+st[i])%k;
+							if (cmin(d[v],d[u]+st[i]))
+								q.push(mp(-d[v],v));
+						}
+					}
+					q.pop();
+				}
+			}
+			rep(i,n)
+			{
+				if (d[a[i]%k]<=a[i])
+				{
+					is[i]=true;
+					q.push(mp(c[i],-i));
+				}
+			}
+		}
+		else if (op==2)
+		{
+			lli x,y;
+			cin>>x>>y,--x;
+			c[x]-=y;
+			if (is[x]) q.push(mp(c[x],-x));
+		}
+		else
+		{
+			int u;
+			whl(u=-q.top().y,tkd[u]||!is[u]||c[u]!=q.top().x) q.pop();
+			cout<<c[u]<<endl;
+			if (c[u]) tkd[u]=true;
+		}
+	}
+}
+

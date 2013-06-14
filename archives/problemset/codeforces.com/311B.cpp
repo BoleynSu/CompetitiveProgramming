@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -166,3 +167,56 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+lli a[100003];
+lli t[100003];
+lli ts[100003];
+lli f[2][100003];
+int q[100003];
+int qh,qt;
+
+int main()
+{
+	lli n,m,p;
+	sf("%I64d%I64d%I64d",&n,&p,&m);
+	repf(i,1,n)
+	{
+		sf("%I64d",&a[i]);
+		a[i]+=a[i-1];
+		//prt(a[i]);
+	}
+	rep(i,p)
+	{
+		lli s;
+		sf("%I64d%I64d",&s,&t[i]),--s;
+		t[i]-=a[s];
+		//prt(t[i]);
+	}
+	sort(t,t+p);
+	rep(i,p) ts[i]=t[i],ts[i]+=i?ts[i-1]:0;
+	//rep(i,p) prt(t[i]),prt(ts[i]);
+	rep(j,p) f[1&1][j]=t[j]*(j+1)-ts[j];//,prt(f[1][j]);
+	for (int i=2;i<=m;i++)
+	{
+		qh=0,qt=-1;
+#define X(a,b) ((b)-(a))
+#define Y(a,b) (f[(i-1)&1][b]-f[(i-1)&1][a]+ts[b]-ts[a])
+		rep(j,p)
+		{
+			//f[i][j]=min{t[j]*j-ts[j]+f[i-1][k]-t[j]*k+ts[k]}
+			//k<k'
+			//  f[i-1][k]-t[j]*k+ts[k]>=f[i-1][k']-t[j]*k'+ts[k']
+			//=> t[j]>=(f[i-1][k']-f[i-1][k]+ts[k']-ts[k])/(k'-k)
+			whl(qh<qt&&Y(q[qt-1],q[qt])*X(q[qt],j)>=Y(q[qt],j)*X(q[qt-1],q[qt])) qt--;
+			q[++qt]=j;
+			whl(qh<qt&&t[j]*X(q[qh],q[qh+1])>=Y(q[qh],q[qh+1])) qh++;
+			int k=q[qh];
+			f[i&1][j]=f[(i-1)&1][k]+t[j]*(j-k)-(ts[j]-ts[k]);
+			//prt(k);
+		}
+		//prt("===");
+	}
+	pf("%I64d\n",f[m&1][p-1]);
+	//mainf();
+}
+

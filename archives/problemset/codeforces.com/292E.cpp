@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -143,7 +144,7 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,const vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
+template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -166,3 +167,77 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt st[idx(l,r)]
+#define lc st[idx(l,m)]
+#define rc st[idx(m+1,r)]
+const int MAXN=200000;
+struct node{bool lz;int idx;};
+node st[(MAXN<<1)-1];
+void upd(int l,int r,int L,int R,int v)
+{
+	if (r<L||R<l) rtn;
+	else if (L<=l&&r<=R)
+	{
+		rt.lz=true;
+		rt.idx=l-L+v;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.lz)
+		{
+			lc.lz=true;
+			lc.idx=rt.idx;
+			rc.lz=true;
+			rc.idx=rt.idx+m+1-l;
+			rt.lz=false;
+		}
+		upd(l,m,L,R,v),upd(m+1,r,L,R,v);
+	}
+}
+int qry(int l,int r,int p)
+{
+	if (p<=l&&r<=p) rtn rt.idx;
+	else
+	{
+		int m=(l+r)>>1;
+		if (rt.lz)
+		{
+			lc.lz=true;
+			lc.idx=rt.idx;
+			rc.lz=true;
+			rc.idx=rt.idx+m+1-l;
+			rt.lz=false;
+		}
+		if (p<=m) rtn qry(l,m,p);
+		else rtn qry(m+1,r,p);
+	}
+}
+
+int main()
+{
+	int n,m;
+	cin>>n>>m;
+	vi a(n*2);
+	cin>>a;
+	upd(0,n*2-1,n,n*2-1,n);
+	repf(i,n,n*2) prt(qry(0,n*2-1,i));
+	rep(i,m)
+	{
+		int t,x,y,k;
+		cin>>t;
+		if (t==1)
+		{
+			cin>>x>>y>>k,x--,y--,k--;
+			upd(0,n*2-1,n+y,n+y+k,x);
+		}
+		else
+		{
+			cin>>x,x--;
+			cout<<a[qry(0,n*2-1,n+x)]<<endl;
+		}
+	}
+}
+

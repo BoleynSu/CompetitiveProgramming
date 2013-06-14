@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -143,7 +144,7 @@ inline int dbcmp(const db& a,const db& b){rtn sgn(a-b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,const vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
+template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& x){rtn mp(-x.x,-x.y);}
 template<typename type>inline pr<type,type> operator+(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x+b.x,a.y+b.y);}
 template<typename type>inline pr<type,type> operator-(const pr<type,type>& a,const pr<type,type>& b){rtn mp(a.x-b.x,a.y-b.y);}
@@ -166,3 +167,74 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+int f[2][53][53][53];
+lli g[2][53][53][53];
+int qh,qt;
+int qs[53*53*53],qx[53*53*53],qy[53*53*53],qz[53*53*53];
+lli c[53][53];
+
+int main()
+{
+	ft(i,0,50) c[i][0]=1;
+	ft(i,1,50) ft(j,1,i) c[i][j]=(c[i-1][j-1]+c[i-1][j])%MOD;
+	oo=0x3f3f3f3f;
+	int n,k;
+	cin>>n>>k;
+	vi a(n);
+	cin>>a;
+	k/=50;
+	rep(i,n) a[i]/=50;
+	fl(f,oo);
+	int cnt=0;
+	rep(i,n) if (a[i]==1) cnt++;
+	f[qs[qh]=0][qx[qh]=cnt][qy[qh]=n-cnt][qz[qh]=0]=0;
+	g[qs[qh]][qx[qh]][qy[qh]][qz[qh]]=1;
+	whl(qh<=qt)
+	{
+		int s=qs[qh],x=qx[qh],y=qy[qh],z=qz[qh],r=n-x-y-z;
+		qh++;
+		//cerr<<s<<":"<<x<<" "<<y<<" "<<z<<" "<<r<<":"<<f[s][x][y][z]<<endl;
+		int ns,nx,ny,nz,nr;
+		if (s==1)
+		{
+			ns=0;
+			ft(dx,0,min(k,z)) ft(dy,0,min((k-dx)/2,r)) if (dx||dy)
+			{
+				nx=x+dx,ny=y+dy,nz=z-dx,nr=r-dy;
+				if (f[ns][nx][ny][nz]==oo)
+				{
+					f[ns][nx][ny][nz]=f[s][x][y][z]+1;
+					qt++;
+					qs[qt]=ns,qx[qt]=nx,qy[qt]=ny,qz[qt]=nz;
+				}
+				if (f[ns][nx][ny][nz]==f[s][x][y][z]+1)
+				{
+					g[ns][nx][ny][nz]+=g[s][x][y][z]*(c[z][dx]*c[r][dy]%MOD);
+					g[ns][nx][ny][nz]%=MOD;
+				}
+			}
+		}
+		else
+		{
+			ns=1;
+			ft(dx,0,min(k,x)) ft(dy,0,min((k-dx)/2,y)) if (dx||dy)
+			{
+				nx=x-dx,ny=y-dy,nz=z+dx,nr=r+dy;
+				if (f[ns][nx][ny][nz]==oo)
+				{
+					f[ns][nx][ny][nz]=f[s][x][y][z]+1;
+					qt++;
+					qs[qt]=ns,qx[qt]=nx,qy[qt]=ny,qz[qt]=nz;
+				}
+				if (f[ns][nx][ny][nz]==f[s][x][y][z]+1)
+				{
+					g[ns][nx][ny][nz]+=g[s][x][y][z]*(c[x][dx]*c[y][dy]%MOD);
+					g[ns][nx][ny][nz]%=MOD;
+				}
+			}
+		}
+	}
+	if (f[1][0][0][cnt]==oo) cout<<-1<<endl<<0<<endl;
+	else cout<<f[1][0][0][cnt]<<endl<<g[1][0][0][cnt]<<endl;
+}

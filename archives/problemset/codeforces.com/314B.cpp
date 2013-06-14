@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -166,3 +167,63 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+int nxti[32][100][100];
+int nxtj[32][100][100];
+lli len[32][100][100];
+
+int main()
+{
+	//(ax,ay,bx,by)->(cx,cy,dx,dy)
+	int b,d;
+	str a,c;
+	cin>>b>>d;
+	cin>>a>>c;
+	map<pii,pr<pii,int> > adj;
+	rep(i,sz(a))
+		rep(j,sz(c))
+		{
+			ft(x,1,sz(a))
+				if (a[(i+x)%sz(a)]==c[j])
+				{
+					adj[mp(i,j)]=mp(mp((i+x)%sz(a),(j+1)%sz(c)),x);
+					break;
+				}
+			if (!adj.count(mp(i,j))) rtn cout<<0<<endl,0;
+			//cout<<mp(i,j)<<"->"<<adj[mp(i,j)]<<endl;
+			nxti[0][i][j]=adj[mp(i,j)].x.x;
+			nxtj[0][i][j]=adj[mp(i,j)].x.y;
+			len[0][i][j]=adj[mp(i,j)].y;
+		}
+	repf(k,1,32)
+	{
+		rep(i,sz(a))
+			rep(j,sz(c))
+			{
+				nxti[k][i][j]=nxti[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]];
+				nxtj[k][i][j]=nxtj[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]];
+				len[k][i][j]=len[k-1][nxti[k-1][i][j]][nxtj[k-1][i][j]]+len[k-1][i][j];
+			}
+	}
+
+	int l=0,r=sz(a)*b/(sz(c)*d)+1;
+	whl(l+1!=r)
+	{
+		int mid=(l+r)>>1;
+		int x=mid*sz(c)*d;
+		int i=sz(a)-1,j=0;
+		lli le=0;
+		rep(k,32)
+			if ((x>>k)&1)
+			{
+				le+=len[k][i][j];
+				int ni=nxti[k][i][j];
+				int nj=nxtj[k][i][j];
+				i=ni,j=nj;
+			}
+		if (le>sz(a)*b) r=mid;
+		else l=mid;
+	}
+	cout<<l<<endl;
+}
+

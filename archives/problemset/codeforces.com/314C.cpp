@@ -117,11 +117,12 @@ typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 #if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 #if __GNUC__>=4 and __GNUC_MINOR__>=7
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #elif __GNUC__>=4 and __GNUC_MINOR__>=6
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #endif
 
@@ -166,3 +167,60 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+#define idx(l,r) (((l)+(r))|((l)!=(r)))
+#define rt st[idx(l,r)]
+#define lc st[idx(l,m)]
+#define rc st[idx(m+1,r)]
+const int MAXN=1000000;
+vpii st[((MAXN+2)<<1)-1];
+void upd(int l,int r,int p,int v,int ts)
+{
+	if (p<l||r<p) ;
+	else if (p<=l&&r<=p) rt.pb(mp(ts,(rt.back().y+v)%MOD));
+	else
+	{
+		int m=(l+r)>>1;
+		upd(l,m,p,v,ts),upd(m+1,r,p,v,ts);
+		rt.pb(mp(ts,(lc.back().y+rc.back().y)%MOD));
+	}
+}
+int qry(int l,int r,int L,int R,int ts)
+{
+	if (R<l||r<L) rtn 0;
+	else if (L<=l&&r<=R)
+	{
+		auto i=lb(all(rt),mp(ts,0),[](pii a,pii b){rtn a.x<b.x;})-1;
+		rtn i->y;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		return (qry(l,m,L,R,ts)+qry(m+1,r,L,R,ts))%MOD;
+	}
+}
+
+int pre[MAXN+2];
+int f[MAXN];
+
+int main()
+{
+	int n;
+	cin>>n;
+	vi a(n);
+	cin>>a;
+	int ans=0;
+	fl(pre,-1);
+	rep(i,((MAXN+2)<<1)-1) st[i].pb(mp(-oo,0));
+	rep(i,n)
+	{
+		f[i]=lli((pre[a[i]]==-1)+qry(1,MAXN,1,a[i],i)-qry(1,MAXN,1,a[i],pre[a[i]]))*lli(a[i])%lli(MOD);
+		prt(f[i]);
+		upd(1,MAXN,a[i],f[i],i);prt(i);
+		ans=(ans+f[i])%MOD;
+		pre[a[i]]=i;
+	}
+	if (ans<0) ans+=MOD;
+	cout<<ans<<endl;
+}
+
