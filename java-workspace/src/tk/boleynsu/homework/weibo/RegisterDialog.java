@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -97,6 +99,15 @@ public class RegisterDialog extends JFrame {
 					message.setText("两次输入的密码不一样！");
 					return ;
 				}
+
+				String EMAIL_PATTERN="^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+				Pattern pattern=Pattern.compile(EMAIL_PATTERN);
+				Matcher matcher=pattern.matcher(username.getText());
+				if (!matcher.matches())
+				{
+					message.setText("用户名必须为合法的邮箱地址！");
+					return ;
+				}
 				String password=new String(pwd.getPassword());
 				String pwd=new String(password.toLowerCase());
 				MessageDigest messageDigest;
@@ -108,9 +119,8 @@ public class RegisterDialog extends JFrame {
 						message.setText("注册成功！");
 						return ;
 					}
-				} catch (NoSuchAlgorithmException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (NoSuchAlgorithmException ex) {
+					ex.printStackTrace();
 				}
 				message.setText("注册失败！");
 			}
@@ -119,7 +129,7 @@ public class RegisterDialog extends JFrame {
 		contentPane.add(button);
 		
 		message = new JLabel("");
-		message.setBounds(22, 172, 160, 19);
+		message.setBounds(2, 172, 180, 19);
 		contentPane.add(message);
 		
 		setVisible(true);

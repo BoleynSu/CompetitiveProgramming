@@ -343,7 +343,7 @@ public class MainWindow extends JFrame {
 		friends.addTab("我的关注", null, followeePane, null);
 		
 		followerPane = new JScrollPane();
-		friends.addTab("我的好友", null, followerPane, null);
+		friends.addTab("我的粉丝", null, followerPane, null);
 
 		JPanel followeePanel = new JPanel();
 		followeePanel.setBounds(10, 10, 65, 45);
@@ -440,7 +440,7 @@ public class MainWindow extends JFrame {
 					try {
 						update();
 						//TODO Thread.sleep(1000*60*5);//五分钟更新一次
-						Thread.sleep(1000*5);//五秒更新一次
+						Thread.sleep(1000*10);//五秒更新一次
 					} catch (NoSuchAlgorithmException e) {
 						e.printStackTrace();
 					} catch (MalformedURLException e) {

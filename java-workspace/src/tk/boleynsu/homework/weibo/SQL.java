@@ -33,11 +33,11 @@ public class SQL
 		Statement statement=connection.createStatement();
 		statement.execute("create database "+Config.getSqlDatabase()+";");
 		statement.execute("use "+Config.getSqlDatabase()+";");
-		statement.execute("create table user(id bigint auto_increment primary key,username varchar(255) unique,nickname varchar(255) unique,password char(128));");
-		statement.execute("create table microblog(id bigint auto_increment primary key,parentId bigint,ownerId bigint,text varchar(140),time timestamp,foreign key(parentId) references microblog(id),foreign key(ownerId) references user(id));");
+		statement.execute("create table user(id bigint auto_increment primary key,username varchar(255) unique not null,nickname varchar(255) unique not null,password char(128) not null);");
+		statement.execute("create table microblog(id bigint auto_increment primary key,parentId bigint,ownerId bigint not null,text varchar(140) not null,time timestamp,foreign key(parentId) references microblog(id),foreign key(ownerId) references user(id));");
 		statement.execute("create table isFollowerOf(follower bigint,followee bigint,primary key(follower,followee),foreign key(follower) references user(id),foreign key(followee) references user(id));");
-		statement.execute("create table hashTag(id bigint auto_increment primary key,text varchar(140) unique);");
-		statement.execute("create table hasHashTag(mid bigint,hid bigint,foreign key(mid) references microblog(id),foreign key(hid) references hashTag(id));");
-		statement.execute("create table hasAtTag(mid bigint,uid bigint,foreign key(mid) references microblog(id),foreign key(uid) references user(id));");
+		statement.execute("create table hashTag(id bigint auto_increment primary key,text varchar(140) unique not null);");
+		statement.execute("create table hasHashTag(mid bigint,hid bigint,primary key(mid,hid),foreign key(mid) references microblog(id),foreign key(hid) references hashTag(id));");
+		statement.execute("create table hasAtTag(mid bigint,uid bigint,primary key(mid,uid),foreign key(mid) references microblog(id),foreign key(uid) references user(id));");
 	}
 }

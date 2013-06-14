@@ -109,7 +109,7 @@ public class LoginDialog extends JFrame {
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds((int)(Toolkit.getDefaultToolkit().getScreenSize().getWidth()-340)/2, ((int)Toolkit.getDefaultToolkit().getScreenSize().getHeight()-220)/3, 340, 220);
 		setResizable(false);
-		contentPane = new BackgroundPanel("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\login.png");
+		contentPane = new BackgroundPanel("images/login.png");
 		contentPane.setLayout(new BorderLayout());
 		loginPane=new JPanel();
 		loginPane.setOpaque(false);
@@ -118,7 +118,7 @@ public class LoginDialog extends JFrame {
 		
 		loginPane.setLayout(null);
 		
-		close = new BackgroundButton("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\close~normal.png","E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\close~press.png");
+		close = new BackgroundButton("images/close~normal.png","images/close~press.png");
 		close.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LoginDialog.this.dispose();
@@ -127,7 +127,7 @@ public class LoginDialog extends JFrame {
 		close.setBounds(316, 0, 24, 24);
 		loginPane.add(close);
 		
-		minimize = new BackgroundButton("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\minimize~normal.png","E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\minimize~press.png");
+		minimize = new BackgroundButton("images/minimize~normal.png","images/minimize~press.png");
 		minimize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				LoginDialog.this.setState(ICONIFIED);
@@ -236,7 +236,7 @@ public class LoginDialog extends JFrame {
 				}
 			}
 		};
-		login = new BackgroundButton("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\button~normal.png","E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\button~press.png");
+		login = new BackgroundButton("images/button~normal.png","images/button~press.png");
 		login.addActionListener(loginActionListener);
 		login.setBounds(150, 175, 148, 36);
 		login.setLayout(null);
@@ -248,9 +248,9 @@ public class LoginDialog extends JFrame {
 		loginPane.add(login);
 		
 		JLabel title = new JLabel();
-		title.setIcon(new ImageIcon("E:\\Documents\\ACM\\workspace\\acmicpc-codes\\java-workspace\\src\\tk\\boleynsu\\homework\\weibo\\images\\title.png"));
+		title.setIcon(new ImageIcon("images/title.png"));
 		title.setBounds(0, 0, 292, 24);
-		JLabel titleLabel = new JLabel("金融微博",JLabel.CENTER);
+		JLabel titleLabel = new JLabel("微博",JLabel.CENTER);
 		titleLabel.setForeground(Color.WHITE);
 		titleLabel.setFont(new Font("微软雅黑", Font.PLAIN, 18));
 		titleLabel.setBounds(0, 0, 292, 24);
