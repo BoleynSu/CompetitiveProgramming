@@ -167,38 +167,29 @@ template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,
 
 struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
-int md[201][201];
-#define m(x,y) md[x+100][y+100]
+int mainf()
+{
+	int n,m,p;
+	cin>>n>>m>>p;
+	vec<pr<pii,pii> > e(m);
+	cin>>e;
+	rep(i,m) e[i].x-=mp(1,1);
+	vi s(p);
+	cin>>s;
+	rep(i,p) s[i]--;
+	int ans;
+	cout<<" "<<ans<<endl;
+	rtn 0;
+}
 
 int main()
 {
-	int n;
-	cin>>n;
-	m(0,0)=n;
-	bool still=false;
-	whl(!still)
+	freopen("src/out.txt","w",stdout);
+	int T;
+	cin>>T;
+	ft(t,1,T)
 	{
-		still=true;
-		ft(x,-100,100)
-		ft(y,-100,100)
-		{
-			int get=m(x,y)/4;
-			if (get)
-			{
-				rep(d,4)
-					m(x+dx[d],y+dy[d])+=get;
-				m(x,y)-=get*4;
-				still=false;
-			}
-		}
-	}
-	int t;
-	cin>>t;
-	rep(i,t)
-	{
-		int x,y;
-		cin>>x>>y;
-		if (max(abs(x),abs(y))<=100) cout<<m(x,y)<<endl;
-		else cout<<0<<endl;
+		cout<<"Case #"<<t<<":";
+		mainf();
 	}
 }
