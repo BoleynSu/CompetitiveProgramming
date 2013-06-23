@@ -2,8 +2,6 @@ package tk.boleynsu.homework;
 
 import java.util.concurrent.Semaphore;
 
-import com.mysql.jdbc.Buffer;
-
 public class ProducerConsumerProblem
 {
 	int head,tail;
