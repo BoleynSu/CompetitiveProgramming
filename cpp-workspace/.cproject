@@ -26,6 +26,7 @@
 								<option id="gnu.cpp.compiler.mingw.exe.debug.option.debugging.level.1634748732" name="Debug Level" superClass="gnu.cpp.compiler.mingw.exe.debug.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.preprocessor.def.1667879320" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="DEBUG"/>
+									<listOptionValue builtIn="false" value="__GXX_EXPERIMENTAL_CXX0X__"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.other.other.1466181664" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" value="-c -fmessage-length=0 -std=c++0x -Wl,--stack=268435456" valueType="string"/>
 								<option id="gnu.cpp.compiler.option.include.paths.1790417591" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
