@@ -1,7 +1,6 @@
 /*
  * Package: StandardCodeLibrary.Core
  * */
-
 //引进常用的头文件并使用std名字空间
 #include <iostream>
 #include <fstream>
@@ -155,23 +154,14 @@ inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
-//非标准库
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
+//初始化
+struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+
+//非标准
+#define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
 #include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
-#endif
-
-#if __GNUC__>=4 and __GNUC_MINOR__>=6
 using __gnu_cxx::rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#endif
-#if __GNUC__>=4 and __GNUC_MINOR__>=7
-template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#elif __GNUC__>=4 and __GNUC_MINOR__>=6
-template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_mapped_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#endif
-
-//初始化
-struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
