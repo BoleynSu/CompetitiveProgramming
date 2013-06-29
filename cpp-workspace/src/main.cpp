@@ -163,7 +163,7 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
 using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+//template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 
 const db TIME_LIMIT=0.1;
 const int MAX_ROUND=300;
@@ -178,7 +178,7 @@ class Json
 	};
 	TYPE type;
 	string value;
-	map<string, Json> *d;
+	map<string, Json> d;
 
 	string intToString(int x)
 	{
@@ -197,40 +197,31 @@ class Json
 	{
 		type = VAL;
 		value = _value;
-		d = NULL;
 	}
 	Json(const int &_intValue)
 	{
 		type = VAL;
 		value = intToString(_intValue);
-		d = NULL;
 	}
 	Json()
 	{
 		type = MAP;
-		d = NULL;
-	}
-	~Json()
-	{
-		if (d) delete d;
 	}
 
 	Json &operator[](const string &_key)
 	{
 		type = MAP;
-		if (!d) d = new map<string, Json>;
-		if (!d->count(_key)) d->insert(pair<string, Json>(_key, Json()));
-		return (*d)[_key];
+		if (!d.count(_key)) d.insert(pair<string, Json>(_key, Json()));
+		return d[_key];
 	}
 
 	Json &operator[](const int &_keyInt)
 	{
 		type = LIST;
-		if (!d) d = new map<string, Json>;
 		string _key = intToString(_keyInt);
 
-		if (!d->count(_key)) d->insert(pair<string, Json>(_key, Json()));
-		return (*d)[_key];
+		if (d.count(_key)) d.insert(pair<string, Json>(_key, Json()));
+		return d[_key];
 	}
 
 	Json &operator=(Json json)
@@ -243,11 +234,10 @@ class Json
 
 	int size()
 	{
-		if (!d) return 0;
-		return d->size();
+		rtn sz(d);
 	}
 
-	string toString()
+	string toString(bool flag = false)
 	{
 		string res = "";
 		if (type == VAL)
@@ -258,34 +248,29 @@ class Json
 		}
 		else if (type == LIST)
 		{
-			if (!d) return "";
 			res.append("[");
-			int l = d->size();
+			int l = sz(d);
 			rep(i, l)
 			{
 				if (i>0) res.append(",");
-				int len = (*d)[intToString(i)].size();
-				if (len == 1) res.append("{");
-				res.append((*d)[intToString(i)].toString());
-				if (len == 1) res.append("}");
+				res.append(d[intToString(i)].toString(true));
 			}
 			res.append("]");
 		}
 		else if (type == MAP)
 		{
-			if (!d) return "";
-			int l = d->size();
-			if (l>1) res.append("{");
-			map<string, Json>::iterator it = d->begin();
-			for (;it!=d->end();it++)
+			int l = sz(d);
+			if (flag || l>1) res.append("{");
+			map<string, Json>::iterator it = d.begin();
+			for (;it!=d.end();it++)
 			{
-				if (it != d->begin()) res.append(",");
+				if (it != d.begin()) res.append(",");
 				res.append("\"");
 				res.append(it->first);
 				res.append("\":");
-				res.append(it->second.toString());
+				res.append(it->second.toString(true));
 			}
-			if (l>1) res.append("}");
+			if (flag || l>1) res.append("}");
 		}
 		return res;
 	}
@@ -306,8 +291,7 @@ class PlayerTimer
 	}
 	void finish()
 	{
-		//cerr<<clock()-startTime<<"!!!"<<endl;
-		counter-=max<int>(clock()-startTime,1);
+		counter-=clock()-startTime;
 	}
 	bool tle()
 	{
@@ -349,8 +333,7 @@ class PlayerIO
 			timer.start();
 			whl((c=fgetc(in))==-1)
 			{
-				if (cmd=="2") cerr<<("here")<<endl;
-				//fseek(in, ftell(in), SEEK_SET);
+				fseek(in, ftell(in), SEEK_SET);
 				timer.finish();
 				if (timer.tle()) break;
 				timer.start();
@@ -415,14 +398,12 @@ class PlayerIO
 	}
 	int nextInt()
 	{
-		if (cmd=="1") cerr<<":::"<<getNextInt<<endl;
 		rtn getNextInt;
 	}
 	void putInt(int x)
 	{
 		if (!isClosed())
 		{
-			if (cmd=="1") cerr<<"!!!"<<x<<endl;
 			if (out) fprintf(out,"%d",x);
 			if (outBackup) fprintf(outBackup,"%d",x);
 		}
@@ -457,10 +438,9 @@ class PlayerIO
 		}
 		if (out)
 		{
-			cerr<<"terminate"<<cmd<<endl;
+			cerr<<"terminate"<<this<<endl;
 			system(("killall "+getName()).c_str());
 			pclose(out);
-			cerr<<"here!!"<<endl;
 			out=0;
 		}
 	}
@@ -807,33 +787,32 @@ class GameState
 	//放置士兵
 	str distribute(int playerId,int x,int y,int number)
 	{
+		if (!isAvailable(x,y)) rtn "Not a free area.";
+		if (area[x][y].owner!=playerId) rtn "Belong of area not right.";
+		if (soldierNumber<number) rtn "Do not have enough soldier.";
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["operator"] = (Json)"add";
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["to"]["x"] = (Json)x;
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["to"]["y"] = (Json)y;
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["num"] = (Json)number;
 		operatorLen++;
-		if (!isAvailable(x,y)) rtn "Not a free area.";
-		if (area[x][y].owner!=playerId) rtn "Belong of area not right.";
 		soldierNumber-=number;
-		if (soldierNumber<0) rtn "Do not have enough soldier.";
 		area[x][y].soldierNumber+=number;
 		rtn "OK";
 	}
 	//进行攻击
 	str attack(int playerId,int x1,int y1,int x2,int y2,int number)
 	{
+		if (!isAvailable(x1,y1)||!isAvailable(x2,y2)) rtn "Not a free area.";
+		if (area[x1][y1].owner!=playerId||area[x2][y2].owner==playerId) rtn "Belong of area not right.";
+		if (!isAdjacentTo(x1,y1,x2,y2)) rtn "Info not near.";
+		if (area[x1][y1].soldierNumber<number) rtn "Do not have enough soldier.";
+
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["operator"] = (Json)"attack";
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["to"]["x"] = (Json)x2;
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["to"]["y"] = (Json)y2;
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["from"]["x"] = (Json)x1;
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["from"]["y"] = (Json)y1;
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["num"] = (Json)number;
-		operatorLen++;
-		if (!isAvailable(x1,y1)||!isAvailable(x2,y2)) rtn "Not a free area.";
-		if (area[x1][y1].owner!=playerId||area[x2][y2].owner==playerId) rtn "Belong of area not right.";
-		if (!isAdjacentTo(x1,y1,x2,y2)) rtn "Info not near.";
-		if (area[x1][y1].soldierNumber<number) rtn "Do not have enough soldier.";
-		operatorLen--;
 
 		int A=number;
 		int B=area[x2][y2].soldierNumber;
@@ -905,25 +884,41 @@ public:
 	}
 	bool putAction(const PlayerAction& action)
 	{
+		operatorLen = 0;
 		soldierNumber=getBonus(currentPlayerId);
 		rep(i,sz(action.distribute))
-			prt(distribute(currentPlayerId,
+		{
+			str msg=distribute(currentPlayerId,
 					action.distribute[i].x.x,
 					action.distribute[i].x.y,
-					action.distribute[i].y));
+					action.distribute[i].y);
+			if (msg!="OK")
+			{
+				gameLog["rounds"][currentRound-1]["operators"][operatorLen]["operator"] = (Json)"end";
+				rtn false;
+			}
+			cerr<<currentPlayerId<<"distribute("<<action.distribute[i].x.x<<","<<action.distribute[i].x.y<<","<<action.distribute[i].y<<")"<<endl;
+		}
 		rep(i,sz(action.attack))
-			prt(attack(currentPlayerId,
+		{
+			str msg=attack(currentPlayerId,
 					action.attack[i].x.x.x,
 					action.attack[i].x.x.y,
 					action.attack[i].x.y.x,
 					action.attack[i].x.y.y,
-					action.attack[i].y));
+					action.attack[i].y);
+			if (msg!="OK")
+			{
+				gameLog["rounds"][currentRound-1]["operators"][operatorLen]["operator"] = (Json)"end";
+				rtn false;
+			}
+			cerr<<currentPlayerId<<"attack("<<action.attack[i].x.x.x<<","<<action.attack[i].x.x.y<<","<<action.attack[i].x.y.x<<","<<action.attack[i].x.y.y<<","<<action.attack[i].y<<")"<<endl;
+		}
 		gameLog["rounds"][currentRound-1]["operators"][operatorLen]["operator"] = (Json)"end";
 
 		cerr<<currentPlayerId<<"'s round is ended"<<endl;
 		currentPlayerId=3-currentPlayerId;
 		currentRound++;
-		operatorLen = 0;
 		return true;
 	}
 
