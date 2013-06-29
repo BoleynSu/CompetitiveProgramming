@@ -76,7 +76,6 @@ using namespace std;
 #define input(in) do{}whl(0)
 #define output(out) do{}whl(0)
 #else
-#define endl (char('\n'))
 #define prt(x) (cerr)
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
