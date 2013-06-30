@@ -164,226 +164,30 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 #include <ext/pb_ds/tag_and_trait.hpp>
 using __gnu_cxx::rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#include <stdio.h>
-#include <stdlib.h>
 
-struct Area {
-    int terrain; //0为土地，1为山地
-    int bonus; //土地bonus值
-    int belong; //0为无归属，1为玩家一，2为玩家2
-    int soldier_num; //该土地上目前的士兵数目
-};
-
-int height, width; //地图高和宽
-int my_player_id; //我的玩家编号
-int attack_factor; //攻击损失系数
-int __round; //当前回合数
-Area area[6][8]; //地图
-
-int soldier_num; //每回合新出现的士兵
-
-//初始化地图信息和局面信息
-void init() {
-
-    //读取地形数据,坐标从(0,0)开始
-    scanf("%d%d", &height, &width);
-    for (int i=0; i<height; i++) {
-        for (int j=0; j<width; j++) {
-            scanf("%d", &area[i][j].terrain);
-        }
-    }
-    for (int i=0; i<height; i++) {
-        for (int j=0; j<width; j++) {
-            scanf("%d", &area[i][j].bonus);
-        }
-    }
-    for (int i=0; i<height; i++) {
-        for (int j=0; j<width; j++) {
-            scanf("%d", &area[i][j].belong);
-        }
-    }
-
-    //初始化复制
-    for (int i=0; i<height; i++) {
-        for (int j=0; j<width; j++) {
-            area[i][j].soldier_num = 0;
-        }
-    }
-    __round = 0;
-
-    scanf("%d%d", &my_player_id, &attack_factor);
+int dfs(int n,int x,int a,int b,int c,int k)
+{
+	if (x==n) rtn k==0;
+	else
+	{
+		int am=1,bm=1<<(x),cm=1<<(x+n);
+		int ans=0;
+		rep(y,n)
+		{
+			if (!((a&am)||(b&bm)||(c&cm)))
+				ans+=dfs(n,x+1,a|am,b|bm,c|cm,k-1);
+			am<<=1;
+			bm<<=1;
+			cm>>=1;
+		}
+		rtn ans+dfs(n,x+1,a,b,c,k);
+	}
 }
 
-//计算bonus总和
-int get_bonus(int player_id) {
-    int bonus = 0;
-    for (int i=0; i<height; i++) {
-        for (int j=0; j<width; j++) {
-            if (area[i][j].belong == player_id) {
-                bonus += area[i][j].bonus;
-            }
-        }
-    }
-    return bonus;
-}
-
-//检查一区域是否可用
-bool check_area(int x, int y) {
-    return (x<height && y<width && x>=0 && y>=0 && area[x][y].terrain==0);
-}
-
-//检查两区域是否相邻（参数为两区域坐标）
-bool check_near(int x1, int y1, int x2, int y2) {
-    int dx[]={0, 1, 0, -1};
-    int dy[]={1, 0, -1, 0};
-    for (int d=0; d<4; d++) {
-        if (x1 + dx[d] == x2 && y1 + dy[d] == y2) return true;
-    }
-    return false;
-}
-
-//检查游戏是否结束
-bool check_end() {
-    if (__round > 300) return true;
-
-    //检查是否所有可用土地属于同一个玩家
-    int player_id = -1;
-    for (int i=0; i<height; i++) {
-        for (int j=0; j<width; j++) {
-            if (area[i][j].terrain == 0) {
-                if (player_id == -1) player_id = area[i][j].belong;
-                else if (area[i][j].belong != player_id) return false;
-            }
-        }
-    }
-
-    return true;
-}
-
-//放置士兵
-void set_soldier(int player_id, int x, int y, int number) {
-    if (!check_area(x, y)) return ; //检查坐标是否合法
-    if (area[x][y].belong != player_id) return ; //检查区域是否属于自己
-    if (soldier_num < number) return ; //检查士兵数量是否足够
-    area[x][y].soldier_num += number;
-
-    //自己的决策需要打印出来
-    if (player_id == my_player_id) {
-        soldier_num -= number;
-        printf("1 %d %d %d\n", x, y, number);
-    }
-}
-
-//进行攻击
-void attack(int player_id, int x1, int y1, int x2, int y2, int number) {
-    if (!check_area(x1, y1) || !check_area(x2, y2)) return ; //检查坐标是否合法
-    if (area[x1][y1].belong != player_id || area[x2][y2].belong == player_id) return ; //检查区域的归属是否正确
-    if (!check_near(x1, y1, x2, y2)) return ;
-    if (area[x1][y1].soldier_num < number) return ; //检查士兵数量是否足够
-
-    int A = number;
-    int B = area[x2][y2].soldier_num;
-    int K = attack_factor;
-    int C = (int)(K*B/10+1);
-    if (A > C) { //攻击成功
-        area[x2][y2].belong = player_id;
-        area[x2][y2].soldier_num = A - C;
-        area[x1][y1].soldier_num -= A;
-    } else { //攻击失败
-        int D = (int)((A-1)*10/K);
-        area[x2][y2].soldier_num -= D;
-        area[x1][y1].soldier_num -= A;
-    }
-
-    //自己的决策需要打印出来
-    if (player_id == my_player_id) {
-        printf("2 %d %d %d %d %d\n", x1, y1, x2, y2, number);
-    }
-}
-
-//决策如何放置士兵
-//请修改此函数以进行放置士兵的决策
-void set_all_soldier() {
-    soldier_num = get_bonus(my_player_id);
-    while (soldier_num > 0) {
-        int dx[]={0, 1, 0, -1};
-        int dy[]={1, 0, -1, 0};
-        for (int i1=0; i1<height; i1++) {
-            for (int j1=0; j1<width; j1++) {
-                if (area[i1][j1].belong==my_player_id) { //找到一个属于自己的区域
-                    for (int d=0; d<4; d++) {
-                        int i2=i1+dx[d], j2=j1+dy[d];
-                        if (check_area(i2, j2) && area[i2][j2].belong != my_player_id) { //如果它相邻有不属于自己的区域
-                            if (soldier_num > 0) { //且当前士兵数量大于0
-                                set_soldier(my_player_id, i1, j1, (rand() % soldier_num) + 1); //放置士兵
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-//决策如何进攻
-//请修改此函数以进行进攻的决策
-void do_all_attack() {
-    bool is_attack;
-    do {
-        is_attack = false;
-        int dx[]={0, 1, 0, -1};
-        int dy[]={1, 0, -1, 0};
-        for (int i1=0; i1<height; i1++) {
-            for (int j1=0; j1<width; j1++) {
-                if (area[i1][j1].belong==my_player_id && area[i1][j1].soldier_num > 0) { //找到一个属于自己且有士兵的区域
-                    for (int d=0; d<4; d++) {
-                        int i2=i1+dx[d], j2=j1+dy[d];
-                        if (check_area(i2, j2) && area[i2][j2].belong != my_player_id) { //如果旁边有不属于自己的区域
-                            attack(my_player_id, i1, j1, i2, j2, area[i1][j1].soldier_num); //打过去
-                            is_attack = true;
-                            break;
-                        }
-                    }
-                }
-            }
-            if (is_attack) break;
-        }
-    } while(is_attack); //直到不能进行任何攻击为止
-}
-
-//读取对手的操作，维护地图状态
-void read_operator(int player_id) {
-    while(true) {
-        int type,x,y,x1,y1,x2,y2,number;
-        scanf("%d", &type); //读类型
-        if (type == -1) break;
-        if (type == 1) {
-            scanf("%d%d%d", &x, &y, &number);
-            set_soldier(player_id, x, y, number); //放置士兵操作
-        } else if (type == 2) {
-            scanf("%d%d%d%d%d", &x1, &y1, &x2, &y2, &number);
-            attack(player_id, x1, y1, x2, y2, number); //攻击操作
-        }
-    }
-}
-
-int main() {
-    init(); //初始化
-    int cur_player_id = 1;
-    while (!check_end()) { //如果游戏没有结束
-        __round++;
-        if (cur_player_id == my_player_id) {
-            //自己行动
-            set_all_soldier(); //进行放置士兵决策
-            do_all_attack(); //进行攻击决策
-            printf("-1\n");
-            fflush(stdout); //注意！此句在每回合输出后必须加，以刷新缓冲区。
-        } else {
-            //读取对手行动
-            read_operator(cur_player_id);
-        }
-        if (cur_player_id == 1) cur_player_id = 2;
-        else cur_player_id = 1; //交换行动者
-    }
-	return 0;
+int main()
+{
+	int n,k;
+	cin>>n>>k;
+	if (k>n) cout<<0<<endl;
+	else cout<<dfs(n,0,0,0,0,k)<<endl;
 }
