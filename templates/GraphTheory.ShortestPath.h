@@ -1,5 +1,7 @@
 /*
  * Package: StandardCodeLibrary.GraphTheory.ShortestPath
+ * Description:
+ * 最短路:队列优化版的Bellman-ford(SPFA),Dijkstra,Johnson‘s Algorithm;
  * Usage:
  * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
  * MAXE:需要为边分配多少空间

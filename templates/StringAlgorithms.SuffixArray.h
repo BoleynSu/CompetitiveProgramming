@@ -1,5 +1,7 @@
 /*
  * Package: StandardCodeLibrary.StringAlgorithms.SuffixArray
+ * Description:
+ * 后缀数组倍增法;
  * */
 #include <Core>
 

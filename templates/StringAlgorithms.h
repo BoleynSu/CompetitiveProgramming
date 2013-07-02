@@ -4,9 +4,6 @@
  * KMP算法 Knuth-Morris-Pratt Algorithm;
  * Z Algorithm;
  * 最长回文子串 Manacher's Algorithm;
- * AC自动机 Aho-Corasick Algorithm;
- * 后缀数组倍增法;
- * 后缀自动机;
  * */
 #include <Core>
 #include <StringAlgorithms.AhoCorasickAlgorithm>

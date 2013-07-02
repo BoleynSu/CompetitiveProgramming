@@ -1,5 +1,4 @@
 #ifndef SCL_MATH
 #define SCL_MATH
-#include <Math.BigInteger>
-#include <Math.NumberTheory>
+#include <Math_.h>
 #endif

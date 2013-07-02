@@ -1,4 +1,7 @@
 #ifndef SCL_GRAPH_THEORY
 #define SCL_GRAPH_THEORY
-#include <GraphTheory.h>
+#include <GraphTheory.Edmonds'sMatchingAlgorithm>
+#include <GraphTheory.Dinic'sAlgorithm>
+#include <GraphTheory.MinCostMaxFlow>
+#include <GraphTheory.ShortestPath>
 #endif

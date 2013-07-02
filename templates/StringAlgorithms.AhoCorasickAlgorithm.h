@@ -1,5 +1,7 @@
 /*
  * Package: StandardCodeLibrary.StringAlgorithms.AhoCorasickAlgorithm
+ * Description:
+ * AC自动机 Aho-Corasick Algorithm;
  * Usage:
  * MAXNODE:AC自动机最多有多少个节点
  * MAXALPHABET:字母表大小

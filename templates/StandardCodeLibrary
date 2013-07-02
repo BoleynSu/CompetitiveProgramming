@@ -6,4 +6,5 @@
 #include <StringAlgorithms>
 #include <ComputationalGeometry>
 #include <BalancedBinarySearchTree>
+#include <Miscellaneous>
 #endif

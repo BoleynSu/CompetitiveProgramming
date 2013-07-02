@@ -23,7 +23,7 @@ namespace Math
 namespace BigInteger
 {
 
-typedef complex<double> cpx;
+typedef complex<db> cpx;
 typedef vec<cpx> vc;
 typedef vec<db> vdb;
 void FFT(vc& p,int flag=+1,bool aFFT=false)

@@ -1,5 +1,7 @@
 /*
  * Package: StandardCodeLibrary.GraphTheory.Edmonds'sMatchingAlgorithm
+ * Description:
+ * 带花树实现的一般图最大匹配;
  * Usage:
  * MAXV:需要为点分配多少空间,点一定要从0到V-1，即MAXV应该等于最大点数
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2

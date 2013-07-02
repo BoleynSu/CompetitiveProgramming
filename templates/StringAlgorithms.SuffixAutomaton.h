@@ -1,5 +1,7 @@
 /*
  * Package: StandardCodeLibrary.StringAlgorithms.SuffixAutomaton
+ * Description:
+ * 后缀自动机;
  * Usage:
  * MAXNODE:后缀自动机最多有多少个节点
  * MAXALPHABET:字母表大小

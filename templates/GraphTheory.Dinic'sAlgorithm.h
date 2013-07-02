@@ -1,5 +1,7 @@
 /*
  * Package: StandardCodeLibrary.GraphTheory.Dinic'sAlgorithm
+ * Description:
+ * Dinic实现的最大流算法;
  * Usage:
  * MAXV:需要为点分配多少空间,点只要在0到MAXV-1就可以了，即MAXV应该大于最大编号
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
