@@ -376,10 +376,10 @@ db my_factor(int d)
 {
 	static bool calced;
 	//        0   1   2   3    4     5 ...
-	db f[20]={1,0.5,0.4,0.3,0.15,0.075};
+	db f[20]={1,0.8,0.7,0.6,0.5,0.25};
 	if (!calced)
 	{
-		repf(i,4,20) f[i]=f[i-1]/2;
+		repf(i,5,20) f[i]=f[i-1]/2;
 		calced=true;
 	}
 	rtn f[d];
@@ -403,11 +403,11 @@ void calc_value_and_need()
 			}
 			else if (area[i][j].belong==3-my_player_id)
 			{
-				area[i][j].value=1.3*area[i][j].bonus+area[i][j].soldier_num;
 			    int B = area[i][j].soldier_num;
 			    int S = area[i][j].bonus;
 			    int K = attack_factor;
 			    int C = (int)(K*B/10+S);
+				area[i][j].value=db(2*area[i][j].bonus+area[i][j].soldier_num)/C;
 				area[i][j].need=C;
 			}
 			else
@@ -417,6 +417,7 @@ void calc_value_and_need()
 			    int S = area[i][j].bonus;
 			    int K = attack_factor;
 			    int C = (int)(K*B/10+S);
+				area[i][j].value=db(area[i][j].bonus)/C;
 				area[i][j].need=C;
 			}
 		}
@@ -426,7 +427,7 @@ void calc_value_and_need()
 	rep(i,height) rep(j,width)
 	{
 		db& nval=nva[i][j];
-		nval=area[i][j].value-area[i][j].need;
+		nval=area[i][j].value;
 //		prt(nval);
 		int d[height][width];
 		db value[height][width];
@@ -453,7 +454,7 @@ void calc_value_and_need()
 				}
 			}
 		}
-//		cerr<<db(nva[i][j]+100<0?0:nva[i][j])<<char(j==width-1?'\n':' ');
+		cerr<<int(nva[i][j]*100)<<(j==width-1?"e\n":"e\t");
 		area[i][j].value=nva[i][j];
 	}
 }
@@ -481,7 +482,7 @@ void go()
 				int nj=j+dy[di];
 				if (check_area(ni,nj)&&area[ni][nj].belong!=my_player_id&&!attacked[ni][nj])
 				{
-					if (cmax(max,area[ni][nj].value))
+					if (cmax(max,area[ni][nj].value+(area[ni][nj].belong?100.0:0.0)))
 						atk=mp(mp(i,j),mp(ni,nj));
 				}
 			}
@@ -495,10 +496,10 @@ void go()
 			//prt(atk);
 			//cerr<<area[atk.y.x][atk.y.y].need<<endl;
 			need+=area[atk.y.x][atk.y.y].need+more;
-			prt(area[atk.y.x][atk.y.y].need+more);
+			//prt(area[atk.y.x][atk.y.y].need+more);
 			attacked[atk.y.x][atk.y.y]=true;
 			endpoint[atk.y.x][atk.y.y]=true;
-			prt(atk.y);
+			//prt(atk.y);
 			if (endpoint[atk.x.x][atk.x.y])
 			{
 				need-=more;
@@ -514,8 +515,8 @@ void go()
 				need=bnd;
 				break;
 			}
-			prt(bnd);
-			prt(need);
+			//prt(bnd);
+			//prt(need);
 			lst.pb(atk);
 		}
 		else break;
@@ -530,11 +531,11 @@ void go()
     fdt(i,sz(lst)-1,0)
     {
     	nd[lst[i].y.x][lst[i].y.y]+=area[lst[i].y.x][lst[i].y.y].need;
-    	prt(endpoint[4][6]);
+    	//prt(endpoint[4][6]);
     	if (endpoint[lst[i].y.x][lst[i].y.y])
     	{
-    		prt(lst[i].y);
-    		prt("here");
+    		//prt(lst[i].y);
+    		//prt("here");
     		//prt(soldier_num-need);
     		nd[lst[i].y.x][lst[i].y.y]+=more;
     	}
@@ -545,36 +546,52 @@ void go()
     		puted[lst[i].x.x][lst[i].x.y]=true;
     	if (nd[lst[i].x.x][lst[i].x.y]<0)
     	{
-    		prt(nd[lst[i].x.x][lst[i].x.y]);
+    		//prt(nd[lst[i].x.x][lst[i].x.y]);
     		need-=nd[lst[i].x.x][lst[i].x.y];
     		nd[lst[i].x.x][lst[i].x.y]=0;
     	}
     }
-    fdt(i,sz(lst)-1,0)
+    vpii ls;
+    rep(i,sz(lst)) ls.pb(lst[i].x),ls.pb(lst[i].y);
+    uniq(ls);
+    int max=-oo;
+    pii p;
+    rep(i,sz(lst))
     	if (endpoint[lst[i].y.x][lst[i].y.y])
-    	{
-    		nd[lst[i].y.x][lst[i].y.y]+=soldier_num-need;
-    		whl(area[lst[i].x.x][lst[i].x.y].belong!=my_player_id)
+    		p=lst[i].y;
+    rep(lsi,sz(ls))
+    {
+    	int i=ls[lsi].x;
+    	int j=ls[lsi].y;
+		rep(di,4)
+		{
+			int ni=i+dx[di];
+			int nj=j+dy[di];
+			if (check_area(ni,nj)&&area[ni][nj].belong!=my_player_id&&!attacked[ni][nj])
+			{
+				if (cmax(max,area[ni][nj].soldier_num))
+					p=ls[lsi];
+			}
+		}
+    }
+    whl(area[p.x][p.y].belong!=my_player_id)
+    {
+    	bool fnd=false;
+    	nd[p.x][p.y]+=soldier_num-need;
+    	rep(j,sz(lst))
+		{
+    		if (lst[j].y==p)
     		{
-        		nd[lst[i].x.x][lst[i].x.y]+=soldier_num-need;
-        		prt(lst[i]);
-        		prt(soldier_num-need);
-    			rep(j,sz(lst))
-				{
-    				if (lst[j].y==lst[i].x)
-    				{
-    					i=j;
-    					break;
-    				}
-				}
+    			p=lst[j].x;
+    			fnd=true;
+    			break;
     		}
-    		prt(nd[lst[i].x.x][lst[i].x.y]);
-    		prt(lst[i].x);
-    		prt(soldier_num-need);
-    		nd[lst[i].x.x][lst[i].x.y]+=soldier_num-need;
-    		need=soldier_num;
-    		break;
-    	}
+		}
+      		if (!fnd) break;
+    }
+    nd[p.x][p.y]+=soldier_num-need;
+    need=soldier_num;
+
     clr(puted);
     rep(i,sz(lst))
     	if (!puted[lst[i].x.x][lst[i].x.y]&&area[lst[i].x.x][lst[i].x.y].belong==my_player_id)
@@ -582,8 +599,8 @@ void go()
     		puted[lst[i].x.x][lst[i].x.y]=true;
     rep(i,sz(lst))
     	attack(my_player_id,lst[i].x.x,lst[i].x.y,lst[i].y.x,lst[i].y.y,nd[lst[i].y.x][lst[i].y.y]);
-    prt(soldier_num);
-    prt(need);
+    //prt(soldier_num);
+    //prt(need);
 }
 
 int main() {
