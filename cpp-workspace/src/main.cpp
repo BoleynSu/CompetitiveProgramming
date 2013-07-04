@@ -266,14 +266,19 @@ bool check_end() {
 
 //放置士兵
 void set_soldier(int player_id, int x, int y, int number) {
-    if (!check_area(x, y)) return ; //检查坐标是否合法
-    if (area[x][y].belong != player_id) return ; //检查区域是否属于自己
+//    if (!check_area(x, y)) return ; //检查坐标是否合法
+//    if (area[x][y].belong != player_id) return ; //检查区域是否属于自己
     area[x][y].soldier_num += number;
 
     //自己的决策需要打印出来
     if (player_id == my_player_id) {
         soldier_num -= number;
         printf("1 %d %d %d\n", x, y, number);
+    }
+    //else
+    {
+    	rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+    	cerr<<endl;
     }
 }
 
@@ -303,6 +308,11 @@ void attack(int player_id, int x1, int y1, int x2, int y2, int number) {
     //自己的决策需要打印出来
     if (player_id == my_player_id) {
         printf("2 %d %d %d %d %d\n", x1, y1, x2, y2, number);
+    }
+    //else
+    {
+    	rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+    	cerr<<endl;
     }
 }
 
@@ -372,19 +382,6 @@ void read_operator(int player_id) {
     }
 }
 
-db my_factor(int d)
-{
-	static bool calced;
-	//        0   1   2   3    4     5 ...
-	db f[20]={1,0.8,0.7,0.6,0.5,0.25};
-	if (!calced)
-	{
-		repf(i,5,20) f[i]=f[i-1]/2;
-		calced=true;
-	}
-	rtn f[d];
-}
-
 void calc_value_and_need()
 {
 	rep(i,height) rep(j,width)
@@ -392,14 +389,14 @@ void calc_value_and_need()
 		if (area[i][j].terrain==1)
 		{
 			area[i][j].value=-oo;
-			area[i][j].need=+oo;
+			area[i][j].need=+oo/2;
 		}
 		else
 		{
 			if (area[i][j].belong==my_player_id)
 			{
 				area[i][j].value=-oo;
-				area[i][j].need=+oo;
+				area[i][j].need=+oo/2;
 			}
 			else if (area[i][j].belong==3-my_player_id)
 			{
@@ -407,7 +404,7 @@ void calc_value_and_need()
 			    int S = area[i][j].bonus;
 			    int K = attack_factor;
 			    int C = (int)(K*B/10+S);
-				area[i][j].value=db(2*area[i][j].bonus+area[i][j].soldier_num)/C;
+			    area[i][j].value=2.5*area[i][j].bonus+area[i][j].soldier_num;
 				area[i][j].need=C;
 			}
 			else
@@ -417,190 +414,142 @@ void calc_value_and_need()
 			    int S = area[i][j].bonus;
 			    int K = attack_factor;
 			    int C = (int)(K*B/10+S);
-				area[i][j].value=db(area[i][j].bonus)/C;
+				area[i][j].value=area[i][j].bonus;
 				area[i][j].need=C;
 			}
 		}
-		//cerr<<i<<" "<<j<<":"<<area[i][j].need<<endl;
-	}
-	db nva[height][width];
-	rep(i,height) rep(j,width)
-	{
-		db& nval=nva[i][j];
-		nval=area[i][j].value;
-//		prt(nval);
-		int d[height][width];
-		db value[height][width];
-		fl(d,-1);
-		queue<pii> q;
-		q.push(mp(i,j));
-		d[i][j]=0;
-		value[i][j]=0;
-		whl(sz(q))
-		{
-			int i=q.front().x;
-			int j=q.front().y;
-			nval+=d[i][j]?max(value[i][j],0.0)*my_factor(d[i][j])/d[i][j]:0;
-			q.pop();
-			rep(di,4)
-			{
-				int ni=i+dx[di];
-				int nj=j+dy[di];
-				if (check_area(ni,nj)&&d[ni][nj]==-1)
-				{
-					d[ni][nj]=d[i][j]+1;
-					value[ni][nj]=value[i][j]+(area[ni][nj].value-area[ni][nj].need);
-					q.push(mp(ni,nj));
-				}
-			}
-		}
-		cerr<<int(nva[i][j]*100)<<(j==width-1?"e\n":"e\t");
-		area[i][j].value=nva[i][j];
 	}
 }
+
+bool attacked[6][8];
+int need[6][8];
+int hold[6][8];
+
+const int MAXSTEP=10;
+const int MORE=1;
+const db NONEED_FACTOR=0.5;
+vpii path;
+bool atked[6][8];
+db bst;
+vpii bpath;
+int brneed;
+int bneed;
+void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
+{
+	if (step==MAXSTEP)
+	{
+		if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)))
+		{
+			bneed=need+MORE;
+			bpath=path;
+		}
+	}
+	else
+	{
+		bool go=false;
+		rep(d,4)
+		{
+			int ni=i+dx[d];
+			int nj=j+dy[d];
+			if (check_area(ni,nj)&&!attacked[ni][nj]&&!atked[ni][nj]&&max(need+area[ni][nj].need+MORE-hold,0)<=soldier_num)
+			{
+				go=true;
+				path.pb(mp(ni,nj));
+				atked[ni][nj]=true;
+				dfs(step+1,soldier_num,hold,need+area[ni][nj].need,value+area[ni][nj].value,ni,nj);
+				atked[ni][nj]=false;
+				path.pop_back();
+			}
+		}
+		if (!go)
+		{
+			if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)))
+			{
+				bneed=need+MORE;
+				bpath=path;
+			}
+		}
+	}
+}
+
 void go()
 {
 	calc_value_and_need();
-    soldier_num = get_bonus(my_player_id);
-    bool endpoint[height][width];
-    clr(endpoint);
-    int need=0;
-    bool attacked[height][width];
-    clr(attacked);
-    vec<pr<pii,pii> > lst;
-	int more=currentRound>10?2:1;
-    whl(need<soldier_num)
-    {
-    	//cerr<<need<<":"<<soldier_num<<endl;
-    	db max=-oo;
-    	pr<pii,pii> atk;
-		rep(i,height) rep(j,width) if (area[i][j].belong==my_player_id||attacked[i][j])
+
+    clr(attacked),clr(need),clr(hold);
+	rep(i,height) rep(j,width)
+		if (area[i][j].belong==my_player_id)
 		{
-			rep(di,4)
-			{
-				int ni=i+dx[di];
-				int nj=j+dy[di];
-				if (check_area(ni,nj)&&area[ni][nj].belong!=my_player_id&&!attacked[ni][nj])
-				{
-					if (cmax(max,area[ni][nj].value+(area[ni][nj].belong?100.0:0.0)))
-						atk=mp(mp(i,j),mp(ni,nj));
-				}
-			}
+			attacked[i][j]=true;
+			need[i][j]=0;
+			hold[i][j]=area[i][j].soldier_num;
 		}
-		//cerr<<max<<endl;
-		if (max!=-oo&&area[atk.y.x][atk.y.y].need!=+oo
-				&&(area[atk.x.x][atk.x.y].belong==my_player_id||attacked[atk.x.x][atk.x.y])
-				&&area[atk.y.x][atk.y.y].belong!=my_player_id&&!attacked[atk.y.x][atk.y.y])
-		{
-			int bnd=need;
-			//prt(atk);
-			//cerr<<area[atk.y.x][atk.y.y].need<<endl;
-			need+=area[atk.y.x][atk.y.y].need+more;
-			//prt(area[atk.y.x][atk.y.y].need+more);
-			attacked[atk.y.x][atk.y.y]=true;
-			endpoint[atk.y.x][atk.y.y]=true;
-			//prt(atk.y);
-			if (endpoint[atk.x.x][atk.x.y])
-			{
-				need-=more;
-				if (need>soldier_num)
-				{
-					need=bnd;
-					break;
-				}
-				endpoint[atk.x.x][atk.x.y]=false;
-			}
-			if (need>soldier_num)
-			{
-				need=bnd;
-				break;
-			}
-			//prt(bnd);
-			//prt(need);
-			lst.pb(atk);
-		}
-		else break;
-    }
-//    prt(soldier_num);
-//    prt(need);
-    //rep(i,sz(lst)) prt(lst[i]);
-    int nd[height][width];
-    clr(nd);
-    bool puted[height][width];
-    clr(puted);
-    fdt(i,sz(lst)-1,0)
+	soldier_num = get_bonus(my_player_id);
+
+	int rest=soldier_num;prt(rest);
+	map<pii,int> attack_num;
+	map<pii,vpii> attacked_by;
+	vec<pr<pii,pii> > attack_list;
+    for (;;)
     {
-    	nd[lst[i].y.x][lst[i].y.y]+=area[lst[i].y.x][lst[i].y.y].need;
-    	//prt(endpoint[4][6]);
-    	if (endpoint[lst[i].y.x][lst[i].y.y])
-    	{
-    		//prt(lst[i].y);
-    		//prt("here");
-    		//prt(soldier_num-need);
-    		nd[lst[i].y.x][lst[i].y.y]+=more;
-    	}
-    	nd[lst[i].x.x][lst[i].x.y]+=nd[lst[i].y.x][lst[i].y.y];
-    	if (!puted[lst[i].x.x][lst[i].x.y]&&area[lst[i].x.x][lst[i].x.y].belong==my_player_id)
-    		nd[lst[i].x.x][lst[i].x.y]-=area[lst[i].x.x][lst[i].x.y].soldier_num,
-    		need-=area[lst[i].x.x][lst[i].x.y].soldier_num,
-    		puted[lst[i].x.x][lst[i].x.y]=true;
-    	if (nd[lst[i].x.x][lst[i].x.y]<0)
-    	{
-    		//prt(nd[lst[i].x.x][lst[i].x.y]);
-    		need-=nd[lst[i].x.x][lst[i].x.y];
-    		nd[lst[i].x.x][lst[i].x.y]=0;
-    	}
-    }
-    vpii ls;
-    rep(i,sz(lst)) ls.pb(lst[i].x),ls.pb(lst[i].y);
-    uniq(ls);
-    int max=-oo;
-    pii p;
-    rep(i,sz(lst))
-    	if (endpoint[lst[i].y.x][lst[i].y.y])
-    		p=lst[i].y;
-    rep(lsi,sz(ls))
-    {
-    	int i=ls[lsi].x;
-    	int j=ls[lsi].y;
-		rep(di,4)
+    	db best=-inf;
+    	pii beststart;
+    	vpii bestpath;
+    	int bestneed=+oo/2;
+    	rep(i,height) rep(j,width) if (attacked[i][j])
 		{
-			int ni=i+dx[di];
-			int nj=j+dy[di];
-			if (check_area(ni,nj)&&area[ni][nj].belong!=my_player_id&&!attacked[ni][nj])
-			{
-				if (cmax(max,area[ni][nj].soldier_num))
-					p=ls[lsi];
-			}
-		}
-    }
-    whl(area[p.x][p.y].belong!=my_player_id)
-    {
-    	bool fnd=false;
-    	nd[p.x][p.y]+=soldier_num-need;
-    	rep(j,sz(lst))
-		{
-    		if (lst[j].y==p)
+    		bst=-inf;
+    		dfs(0,rest,hold[i][j],0,0,i,j);
+    		if (sz(bpath)&&cmax(best,bst))
     		{
-    			p=lst[j].x;
-    			fnd=true;
-    			break;
+    			beststart=mp(i,j);
+    			bestpath=bpath;
+    			bestneed=bneed;
     		}
 		}
-      		if (!fnd) break;
+    	if (best==-inf) break;
+    	prt(bestneed);
+    	prt(hold[beststart.x][beststart.y]);
+    	rest-=max(bestneed-hold[beststart.x][beststart.y],0);
+    	hold[beststart.x][beststart.y]-=min(hold[beststart.x][beststart.y],bestneed);
+    	attacked_by[bestpath.front()].pb(beststart),
+    	attack_num[beststart]++,
+    	attack_list.pb(mp(beststart,bestpath.front()));
+    	rep(i,sz(bestpath)-1)
+    		attacked_by[bestpath[i+1]].pb(bestpath[i]),
+    		attack_num[bestpath[i]]++,
+    		attack_list.pb(mp(bestpath[i],bestpath[i+1]));
+    	attack_num[bestpath.back()];
+    	rep(i,sz(bestpath)) need[bestpath[i].x][bestpath[i].y]=area[bestpath[i].x][bestpath[i].y].need;
+    	hold[bestpath.back().x][bestpath.back().y]=MORE;
     }
-    nd[p.x][p.y]+=soldier_num-need;
-    need=soldier_num;
+    queue<pii> q;
+    feach(i,attack_num)
+        if (i->y==0)
+        	q.push(i->x),hold[i->x.x][i->x.y]+=rest,rest=0;
+    whl(sz(q))
+    {
+    	pii u=q.front();
+    	need[u.x][u.y]+=hold[u.x][u.y];
+    	q.pop();
+    	feach(i,attacked_by[u])
+    	{
+    		pii v=*i;
+    		need[v.x][v.y]+=need[u.x][u.y];
+    		if (--attack_num[v]==0)
+    			q.push(v);
+    	}
+    }
 
-    clr(puted);
-    rep(i,sz(lst))
-    	if (!puted[lst[i].x.x][lst[i].x.y]&&area[lst[i].x.x][lst[i].x.y].belong==my_player_id)
-    		set_soldier(my_player_id,lst[i].x.x,lst[i].x.y,nd[lst[i].x.x][lst[i].x.y]),
-    		puted[lst[i].x.x][lst[i].x.y]=true;
-    rep(i,sz(lst))
-    	attack(my_player_id,lst[i].x.x,lst[i].x.y,lst[i].y.x,lst[i].y.y,nd[lst[i].y.x][lst[i].y.y]);
-    //prt(soldier_num);
-    //prt(need);
+    feach(i,attacked_by)
+    		if (sz(i->y)==0&&area[i->x.x][i->x.y].belong==my_player_id)
+    		{
+    			set_soldier(my_player_id,i->x.x,i->x.y,need[i->x.x][i->x.y]-area[i->x.x][i->x.y].soldier_num);
+    			prt(need[i->x.x][i->x.y]);
+    		}
+    rep(i,sz(attack_list))
+    	attack(my_player_id,attack_list[i].x.x,attack_list[i].x.y,attack_list[i].y.x,attack_list[i].y.y,need[attack_list[i].y.x][attack_list[i].y.y]);
+    prt(soldier_num);
 }
 
 int main() {
