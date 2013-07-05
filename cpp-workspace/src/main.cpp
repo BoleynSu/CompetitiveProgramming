@@ -154,7 +154,7 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 //初始化
-struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+//struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
 //非标准
 #define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
@@ -165,60 +165,515 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 using __gnu_cxx::rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 
-lli a[24];
-lli b[2];
-lli sum[1<<24];
-int bc[1<<24];
-int h[1<<24];
-int l[1<<24];
-lli f[24+1];
-int g[1<<24];
+//2013-6-30 20:53
+#include <stdio.h>
+#include <stdlib.h>
 
-int main()
+struct Area {
+    int terrain; //0为土地，1为山地
+    int bonus; //土地bonus值
+    int belong; //0为无归属，1为玩家一，2为玩家2
+    int soldier_num; //该土地上目前的士兵数目
+    double value;
+    int need;
+};
+
+int height, width; //地图高和宽
+int my_player_id; //我的玩家编号
+int attack_factor; //攻击损失系数
+int currentRound; //当前回合数
+Area area[6][8]; //地图
+
+int soldier_num; //每回合新出现的士兵
+
+//初始化地图信息和局面信息
+void init() {
+
+    //读取地形数据,坐标从(0,0)开始
+    scanf("%d%d", &height, &width);
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            scanf("%d", &area[i][j].terrain);
+        }
+    }
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            scanf("%d", &area[i][j].bonus);
+        }
+    }
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            scanf("%d", &area[i][j].belong);
+        }
+    }
+
+    //初始化复制
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            area[i][j].soldier_num = 0;
+        }
+    }
+    currentRound = 0;
+
+    scanf("%d%d", &my_player_id, &attack_factor);
+}
+
+//计算bonus总和
+int get_bonus(int player_id) {
+    int bonus = 0;
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            if (area[i][j].belong == player_id) {
+                bonus += area[i][j].bonus;
+            }
+        }
+    }
+    return bonus;
+}
+
+//检查一区域是否可用
+bool check_area(int x, int y) {
+    return (x<height && y<width && x>=0 && y>=0 && area[x][y].terrain==0);
+}
+
+//检查两区域是否相邻（参数为两区域坐标）
+bool check_near(int x1, int y1, int x2, int y2) {
+    int dx[]={0, 1, 0, -1};
+    int dy[]={1, 0, -1, 0};
+    for (int d=0; d<4; d++) {
+        if (x1 + dx[d] == x2 && y1 + dy[d] == y2) return true;
+    }
+    return false;
+}
+
+//检查游戏是否结束
+bool check_end() {
+    if (currentRound > 300) return true;
+
+    //检查是否所有可用土地属于同一个玩家
+    int player_id = -1;
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            if (area[i][j].terrain == 0) {
+                if (player_id == -1) player_id = area[i][j].belong;
+                else if (area[i][j].belong != player_id) return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+//放置士兵
+void set_soldier(int player_id, int x, int y, int number) {
+    area[x][y].soldier_num += number;
+
+    //自己的决策需要打印出来
+    if (player_id == my_player_id) {
+        soldier_num -= number;
+        printf("1 %d %d %d\n", x, y, number);
+    }
+}
+
+//进行攻击
+void attack(int player_id, int x1, int y1, int x2, int y2, int number) {
+    int A = number;
+    int B = area[x2][y2].soldier_num;
+    int S = area[x2][y2].bonus;
+    int K = attack_factor;
+    int C = (int)(K*B/10+S);
+    if (A > C) { //攻击成功
+        area[x2][y2].belong = player_id;
+        area[x2][y2].soldier_num = A - C;
+        area[x1][y1].soldier_num -= A;
+    } else { //攻击失败
+        int D = (int)((A-1)*10/K);
+        if (D > B) D = B;
+        area[x2][y2].soldier_num -= D;
+        area[x1][y1].soldier_num -= A;
+    }
+
+    //自己的决策需要打印出来
+    if (player_id == my_player_id) {
+        printf("2 %d %d %d %d %d\n", x1, y1, x2, y2, number);
+    }
+}
+
+//读取对手的操作，维护地图状态
+void read_operator(int player_id) {
+    while(true) {
+        int type,x,y,x1,y1,x2,y2,number;
+        scanf("%d", &type); //读类型
+        if (type == -1) break;
+        if (type == 1) {
+            scanf("%d%d%d", &x, &y, &number);
+            set_soldier(player_id, x, y, number); //放置士兵操作
+        } else if (type == 2) {
+            scanf("%d%d%d%d%d", &x1, &y1, &x2, &y2, &number);
+            attack(player_id, x1, y1, x2, y2, number); //攻击操作
+        }
+    }
+}
+
+int type[6][8];
+//0 bit 是否离我很近要攻？
+//1 bit 是否离敌人很近要守？
+int d_to_me[6][8],d_to_enemy[6][8];
+
+bool attacked[6][8];
+int need[6][8];
+int hold[6][8];
+int defend[6][8];
+
+const int MAXSTEP=15;
+const int MORE=1;
+const db NONEED_FACTOR=0.5;
+const db CANNOT_GO=-19930309;
+vpii path;
+bool atked[6][8];
+db bst;
+vpii bpath;
+int brneed;
+int bneed;
+
+map<pii,vpii> attacked_by;
+vec<pr<pii,pii> > attack_list;
+
+void calc_value_and_need()
 {
-	lli n;
-	cin>>n;
-	rep(i,n) cin>>a[i];
-	lli k;
-	cin>>k;
-	rep(i,k) cin>>b[i];
-	sort(a,a+n),sort(b,b+k);
-	rep(m,1<<n)
+	rep(i,height) rep(j,width)
 	{
-		bc[m]=bc[m>>1]+(m&1);
-		l[m]=m&1?1:l[m>>1]<<1;
-		h[m]=m==1?1:h[m>>1]<<1;
-		sum[m]+=sum[m^l[m]]+(l[m]?a[bc[l[m]-1]]:0);
-	}
-	lli ans;
-	f[0]=ans=1;
-	ft(i,1,n) f[i]=ans=mod(ans*i);
-	if (k==0) ;
-	else if (k==1)
-	{
-		rep(m,1<<n) if (sum[m]==b[0]) ans=mod(ans-f[bc[m]]*f[n-bc[m]]);
-	}
-	else if (k==2)
-	{
-		rep(m,1<<n)
+		if (area[i][j].terrain==1)
 		{
-			if (sum[m]==b[0]) ans=mod(ans-f[bc[m]]*f[n-bc[m]]);
-			else if (sum[m]==b[1]) ans=mod(ans-f[bc[m]]*f[n-bc[m]]);
+			area[i][j].need=+oo/2;
 		}
-		prt(ans);
-		ft(bc0,1,n)
+		else
 		{
-			clr(g);
-			rep(m,1<<n)
+			if (area[i][j].belong==my_player_id)
 			{
-				if (sum[m]==b[0]&&bc[m]==bc0) g[m]=1;
-				if (l[m]!=h[m]) g[m]=mod(g[m]+g[m^h[m]]+g[m^l[m]]-g[m^h[m]^l[m]]);
-				if (sum[m]==b[1]) ans=mod(ans+mod(g[m]*mod(f[bc0]*f[bc[m]-bc0]))*f[n-bc[m]]);
+				area[i][j].need=+oo/2;
+			}
+			else if (area[i][j].belong==3-my_player_id)
+			{
+			    int B = area[i][j].soldier_num;
+			    int S = area[i][j].bonus;
+			    int K = attack_factor;
+			    int C = (int)(K*B/10+S);
+				area[i][j].need=C;
+			}
+			else
+			{
+				area[i][j].value=1.2*area[i][j].bonus;
+			    int B = area[i][j].soldier_num;
+			    int S = area[i][j].bonus;
+			    int K = attack_factor;
+			    int C = (int)(K*B/10+S);
+				area[i][j].need=C;
 			}
 		}
-		prt(ans);
 	}
-	else ;//never happen
-	if (ans<0) ans+=MOD;
-	cout<<ans<<endl;
+
+	queue<pii> q;
+	fl(d_to_me,0x0f),fl(d_to_enemy,0x0f);
+	rep(i,height) rep(j,width) if (area[i][j].belong==my_player_id)
+	{
+		q.push(mp(i,j));
+		d_to_me[i][j]=0;
+	}
+	whl(sz(q))
+	{
+		int i=q.front().x;
+		int j=q.front().y;
+		q.pop();
+		rep(d,4)
+		{
+			int ni=i+dx[d];
+			int nj=j+dy[d];
+			if (check_area(ni,nj)&&cmin(d_to_me[ni][nj],d_to_me[i][j]+area[ni][nj].need))
+			{
+				q.push(mp(ni,nj));
+			}
+		}
+	}
+	rep(i,height) rep(j,width) if (area[i][j].belong==3-my_player_id)
+	{
+		q.push(mp(i,j));
+		d_to_enemy[i][j]=0;
+	}
+	whl(sz(q))
+	{
+		int i=q.front().x;
+		int j=q.front().y;
+		q.pop();
+		rep(d,4)
+		{
+			int ni=i+dx[d];
+			int nj=j+dy[d];
+			if (check_area(ni,nj)&&cmin(d_to_enemy[ni][nj],d_to_enemy[i][j]+area[ni][nj].need))
+			{
+				q.push(mp(ni,nj));
+			}
+		}
+	}
+
+	int mb=get_bonus(my_player_id),eb=get_bonus(3-my_player_id);
+	bool to_attack[6][8];
+	clr(to_attack);
+	rep(i,height) rep(j,width) if (d_to_me[i][j]<=mb/2)
+	{
+		q.push(mp(i,j));
+		to_attack[i][j]=true;
+	}
+	whl(sz(q))
+	{
+		int i=q.front().x;
+		int j=q.front().y;
+		q.pop();
+		rep(d,4)
+		{
+			int ni=i+dx[d];
+			int nj=j+dy[d];
+			if (check_area(ni,nj)&&area[ni][nj].belong==3-my_player_id&&cmax(to_attack[ni][nj],true))
+			{
+				q.push(mp(ni,nj));
+			}
+		}
+	}
+	clr(type);
+	rep(i,height) rep(j,width) if (to_attack[i][j]&&area[i][j].belong==3-my_player_id)
+	{
+		type[i][j]|=1;
+	}
+	rep(i,height) rep(j,width) if (d_to_enemy[i][j]<=eb/2)
+	{
+		type[i][j]|=2;
+	}
+
+	rep(i,height) rep(j,width)
+	{
+		if (area[i][j].terrain==1)
+		{
+			area[i][j].value=-oo;
+		}
+		else
+		{
+			if (area[i][j].belong==my_player_id)
+			{
+				area[i][j].value=-oo;
+			}
+			else if (area[i][j].belong==3-my_player_id)
+			{
+				if (type[i][j]&1)
+				{
+					area[i][j].value=+oo/2;
+				}
+				else if (type[i][j]&2)
+				{
+					area[i][j].value=-oo/2;
+				}
+				else area[i][j].value=area[i][j].bonus*2.0+area[i][j].soldier_num?area[i][j].bonus:area[i][j].soldier_num;
+			}
+			else
+			{
+				if (type[i][j]&1)
+				{
+					area[i][j].value=+oo/2;
+				}
+				else if (type[i][j]&2)
+				{
+					area[i][j].value=-oo/2;
+				}
+				else area[i][j].value=area[i][j].bonus*1.5;
+			}
+		}
+	}
+
+	rep(i,height) rep(j,width)
+	{
+		if (area[i][j].terrain==1)
+		{
+		}
+		else
+		{
+			if (area[i][j].belong==my_player_id)
+			{
+			}
+			else if (area[i][j].belong==3-my_player_id)
+			{
+				if (d_to_enemy[i][j]<eb/2&&area[i][j].bonus>=3)
+				{
+					area[i][j].need+=2;
+				}
+			}
+			else
+			{
+				if ((type[i][j]&1)&&area[i][j].bonus>=3)
+				{
+					area[i][j].need+=2;
+				}
+			}
+		}
+	}
+}
+
+void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
+{
+	if (step==MAXSTEP)
+	{
+		if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)))
+		{
+			bneed=need+MORE;
+			bpath=path;
+		}
+	}
+	else
+	{
+		bool go=false;
+		rep(d,4)
+		{
+			int ni=i+dx[d];
+			int nj=j+dy[d];
+			if (check_area(ni,nj)&&!attacked[ni][nj]&&!atked[ni][nj]&&max(need+area[ni][nj].need+MORE-hold,0)<=soldier_num)
+			{
+				go=true;
+				path.pb(mp(ni,nj));
+				atked[ni][nj]=true;
+				dfs(step+1,soldier_num,hold,need+area[ni][nj].need,value+area[ni][nj].value,ni,nj);
+				atked[ni][nj]=false;
+				path.pop_back();
+			}
+		}
+		if (!go)
+		{
+			bool go=false;
+			rep(d,4)
+			{
+				int ni=i+dx[d];
+				int nj=j+dy[d];
+				if (check_area(ni,nj))
+				{
+					go=true;
+				}
+			}
+			if (go?cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)):cmax(bst,min(value/max(db(need+MORE-hold),NONEED_FACTOR),CANNOT_GO)))
+			{
+				bneed=need+MORE;
+				bpath=path;
+			}
+		}
+	}
+}
+void calc_action()
+{
+    clr(attacked),clr(need),clr(hold);
+	rep(i,height) rep(j,width)
+		if (area[i][j].belong==my_player_id)
+		{
+			attacked[i][j]=true;
+			need[i][j]=0;
+			hold[i][j]=area[i][j].soldier_num;
+		}
+
+	int rest=get_bonus(my_player_id);
+	map<pii,int> attack_num;
+	attack_list.clear();
+	attacked_by.clear();
+    for (;;)
+    {
+    	db best=-inf;
+    	pii beststart;
+    	vpii bestpath;
+    	int bestneed=+oo/2;
+    	rep(i,height) rep(j,width) if (attacked[i][j])
+		{
+    		bst=-inf;
+    		dfs(0,rest,hold[i][j],0,0,i,j);
+    		if (sz(bpath)&&cmax(best,bst))
+    		{
+    			beststart=mp(i,j);
+    			bestpath=bpath;
+    			bestneed=bneed;
+    		}
+		}
+    	if (best==-inf) break;
+    	rest-=max(bestneed-hold[beststart.x][beststart.y],0);
+    	hold[beststart.x][beststart.y]-=min(hold[beststart.x][beststart.y],bestneed);
+    	attacked_by[bestpath.front()].pb(beststart),
+    	attack_num[beststart]++,
+    	attack_list.pb(mp(beststart,bestpath.front()));
+    	attacked[bestpath.front().x][bestpath.front().y]=true;
+    	rep(i,sz(bestpath)-1)
+    		attacked_by[bestpath[i+1]].pb(bestpath[i]),
+    		attack_num[bestpath[i]]++,
+    		attack_list.pb(mp(bestpath[i],bestpath[i+1])),
+    		attacked[bestpath[i+1].x][bestpath[i+1].y]=true;
+    	attack_num[bestpath.back()];
+    	rep(i,sz(bestpath)) need[bestpath[i].x][bestpath[i].y]=area[bestpath[i].x][bestpath[i].y].need;
+    	hold[bestpath.back().x][bestpath.back().y]=MORE;
+    }
+    //TODO defend rest
+    queue<pii> q;
+    feach(i,attack_num)
+        if (i->y==0)
+        	q.push(i->x);
+    whl(sz(q))
+    {
+    	pii u=q.front();
+    	need[u.x][u.y]+=hold[u.x][u.y];
+    	q.pop();
+    	feach(i,attacked_by[u])
+    	{
+    		pii v=*i;
+    		need[v.x][v.y]+=need[u.x][u.y];
+    		if (--attack_num[v]==0)
+    			q.push(v);
+    	}
+    }
+}
+
+void do_action()
+{
+    soldier_num=get_bonus(my_player_id);
+    feach(i,attacked_by)
+    		if (sz(i->y)==0&&area[i->x.x][i->x.y].belong==my_player_id)
+    		{
+    			set_soldier(my_player_id,i->x.x,i->x.y,need[i->x.x][i->x.y]-area[i->x.x][i->x.y].soldier_num);
+    		    rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+    		    cerr<<endl;
+    		}
+    rep(i,sz(attack_list))
+    {
+    	attack(my_player_id,attack_list[i].x.x,attack_list[i].x.y,attack_list[i].y.x,attack_list[i].y.y,need[attack_list[i].y.x][attack_list[i].y.y]);
+        rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+        cerr<<endl;
+    }
+}
+
+void go()
+{
+	calc_value_and_need();
+	calc_action();
+	do_action();
+}
+
+int main() {
+    init(); //初始化
+    int cur_player_id = 1;
+    while (!check_end()) { //如果游戏没有结束
+        currentRound++;
+        if (cur_player_id == my_player_id) {
+            //自己行动
+            //set_all_soldier(); //进行放置士兵决策
+            //do_all_attack(); //进行攻击决策
+        	go();
+            printf("-1\n");
+            fflush(stdout); //注意！此句在每回合输出后必须加，以刷新缓冲区。
+        } else {
+            //读取对手行动
+            read_operator(cur_player_id);
+        }
+        if (cur_player_id == 1) cur_player_id = 2;
+        else cur_player_id = 1; //交换行动者
+    }
+	return 0;
 }
