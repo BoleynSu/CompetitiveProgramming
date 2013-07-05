@@ -165,29 +165,60 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 using __gnu_cxx::rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 
-db f[102][102][102][2][2];
+lli a[24];
+lli b[2];
+lli sum[1<<24];
+int bc[1<<24];
+int h[1<<24];
+int l[1<<24];
+lli f[24+1];
+int g[1<<24];
 
 int main()
 {
-	int T;
-	cin>>T;
-	whl(T--)
+	lli n;
+	cin>>n;
+	rep(i,n) cin>>a[i];
+	lli k;
+	cin>>k;
+	rep(i,k) cin>>b[i];
+	sort(a,a+n),sort(b,b+k);
+	rep(m,1<<n)
 	{
-		int T,N,M,K;
-		cin>>T>>N>>M>>K;
-		vi t(N);
-		cin>>t;
-		clr(f);
-		f[0][M][0][0][0]=1.0;
-		rep(i,N)
-		{
-			ft(j,0,M)
-				rep(k,i+1)
-					rep(m,2)
-						rep(w,2)
-						{
-							if (m)
-						}
-		}
+		bc[m]=bc[m>>1]+(m&1);
+		l[m]=m&1?1:l[m>>1]<<1;
+		h[m]=m==1?1:h[m>>1]<<1;
+		sum[m]+=sum[m^l[m]]+(l[m]?a[bc[l[m]-1]]:0);
 	}
+	lli ans;
+	f[0]=ans=1;
+	ft(i,1,n) f[i]=ans=mod(ans*i);
+	if (k==0) ;
+	else if (k==1)
+	{
+		rep(m,1<<n) if (sum[m]==b[0]) ans=mod(ans-f[bc[m]]*f[n-bc[m]]);
+	}
+	else if (k==2)
+	{
+		rep(m,1<<n)
+		{
+			if (sum[m]==b[0]) ans=mod(ans-f[bc[m]]*f[n-bc[m]]);
+			else if (sum[m]==b[1]) ans=mod(ans-f[bc[m]]*f[n-bc[m]]);
+		}
+		prt(ans);
+		ft(bc0,1,n)
+		{
+			clr(g);
+			rep(m,1<<n)
+			{
+				if (sum[m]==b[0]&&bc[m]==bc0) g[m]=1;
+				if (l[m]!=h[m]) g[m]=mod(g[m]+g[m^h[m]]+g[m^l[m]]-g[m^h[m]^l[m]]);
+				if (sum[m]==b[1]) ans=mod(ans+mod(g[m]*mod(f[bc0]*f[bc[m]-bc0]))*f[n-bc[m]]);
+			}
+		}
+		prt(ans);
+	}
+	else ;//never happen
+	if (ans<0) ans+=MOD;
+	cout<<ans<<endl;
 }
