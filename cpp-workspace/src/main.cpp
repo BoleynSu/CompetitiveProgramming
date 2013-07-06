@@ -324,6 +324,7 @@ bool isAttack,isDefend;
 bool attacked[6][8];
 int need[6][8];
 int hold[6][8];
+int DEFEND_MORE[6][8];
 
 const int MAXSTEP=15;
 const int MORE=1;
@@ -426,11 +427,18 @@ void calc_value_and_need()
 	int mb=0;
 	rep(i,height) rep(j,width) if (area[i][j].belong==my_player_id) cmax(mb,area[i][j].soldier_num);
 	mb+=get_bonus(3-my_player_id);
+	int eb=0;
+	rep(i,height) rep(j,width) if (area[i][j].belong==3-my_player_id) cmax(mb,area[i][j].soldier_num);
+	eb+=get_bonus(3-my_player_id);
 	isAttack=false,isDefend=true;
 	rep(i,height) rep(j,width) if (area[i][j].belong==my_player_id&&d_to_enemy[i][j]<=max(GO_DIS,mb/3))
 		isAttack=true,isDefend=false;
 
 	clr(dangerous);
+	rep(i,height) rep(j,width) if (d_to_enemy[i][j]<=eb-max(GO_DIS,eb/3)&&d_to_me[i][j]>SAFE_DIS)
+	{
+		dangerous[i][j]=true;
+	}
 
 	if (isAttack)
 	{
@@ -448,23 +456,18 @@ void calc_value_and_need()
 				}
 				else if (area[i][j].belong==3-my_player_id)
 				{
-					area[i][j].value=(area[i][j].soldier_num*SOLDIER_FACTOR)+area[i][j].bonus;
+					area[i][j].value=+oo*area[i][j].bonus;
 				}
 				else
 				{
-					area[i][j].value=-oo*area[i][j].bonus;
+					area[i][j].value=area[i][j].bonus;
 				}
 			}
 		}
 	}
 
-	int eb=get_bonus(3-my_player_id);
 	if (isDefend)
 	{
-		rep(i,height) rep(j,width) if (d_to_enemy[i][j]<=eb-max(GO_DIS,eb/3)&&d_to_me[i][j]>SAFE_DIS)
-		{
-			dangerous[i][j]=true;
-		}
 		rep(i,height) rep(j,width)
 		{
 			if (area[i][j].terrain==1)
@@ -479,18 +482,18 @@ void calc_value_and_need()
 				}
 				else if (area[i][j].belong==3-my_player_id)
 				{
-					area[i][j].value=-oo*area[i][j].bonus;
+					area[i][j].value=area[i][j].bonus;
 				}
 				else
 				{
-					area[i][j].value=area[i][j].bonus;
+					area[i][j].value=+oo*area[i][j].bonus;
 				}
 			}
 		}
 	}
 }
 
-void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
+void dfs(int step,int soldier_num,int hold,int need,int realneed,db value,int i,int j)
 {
 	if (step==MAXSTEP)
 	{
@@ -528,7 +531,7 @@ void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
 		{
 			delta=IN_THE_WAY_VALUE*cnt;
 		}
-		if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)+delta))
+		if (cmax(bst,value+delta))
 		{
 			bneed=need+MORE;
 			bpath=path;
@@ -541,12 +544,12 @@ void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
 		{
 			int ni=i+dx[d];
 			int nj=j+dy[d];
-			if (check_area(ni,nj)&&!dangerous[ni][nj]&&!attacked[ni][nj]&&!atked[ni][nj]&&max(need+area[ni][nj].need+MORE-hold,0)<=soldier_num)
+			if (check_area(ni,nj)&&(isAttack||!dangerous[ni][nj])&&!attacked[ni][nj]&&!atked[ni][nj]&&max(need+area[ni][nj].need+DEFEND_MORE[ni][nj]+MORE-hold,0)<=soldier_num)
 			{
 				go=true;
 				path.pb(mp(ni,nj));
 				atked[ni][nj]=true;
-				dfs(step+1,soldier_num,hold,need+area[ni][nj].need,value+area[ni][nj].value,ni,nj);
+				dfs(step+1,soldier_num,hold,need+area[ni][nj].need+DEFEND_MORE[ni][nj],realneed+area[ni][nj].need,value+area[ni][nj].value,ni,nj);
 				atked[ni][nj]=false;
 				path.pop_back();
 			}
@@ -587,7 +590,7 @@ void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
 			{
 				delta=IN_THE_WAY_VALUE*cnt;
 			}
-			if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)+delta))
+			if (cmax(bst,value+delta))
 			{
 				bneed=need+MORE;
 				bpath=path;
@@ -607,6 +610,23 @@ void calc_action()
 		}
 
 	rest=get_bonus(my_player_id);
+//	rep(i,height) rep(j,width)
+//	{
+//		if (currentRound>10)
+//		{
+//			if (area[i][j].value>=2&&dangerous[i][j]) DEFEND_MORE[i][j]=4;
+//			else if (area[i][j].value>=4&&dangerous[i][j]) DEFEND_MORE[i][j]=6;
+//		}
+//		if (currentRound>2)
+//		{
+//			if (area[i][j].value>=2&&dangerous[i][j]) DEFEND_MORE[i][j]=2;
+//			else if (area[i][j].value>=4&&dangerous[i][j]) DEFEND_MORE[i][j]=4;
+//		}
+//		else DEFEND_MORE[i][j]=0;
+//
+//		if (dangerous[i][j]&&attacked[i][j]) need[i][j]+=DEFEND_MORE[i][j],rest-=DEFEND_MORE[i][j];
+//	}
+
 	attack_num.clear();
 	attack_list.clear();
 	attacked_by.clear();
@@ -619,7 +639,7 @@ void calc_action()
     	rep(i,height) rep(j,width) if (attacked[i][j])
 		{
     		bst=-inf;
-    		dfs(0,rest,hold[i][j],0,0,i,j);
+    		dfs(0,rest,hold[i][j],0,0,0,i,j);
     		if (sz(bpath)&&cmax(best,bst))
     		{
     			beststart=mp(i,j);
@@ -640,7 +660,7 @@ void calc_action()
     		attack_list.pb(mp(bestpath[i],bestpath[i+1])),
     		attacked[bestpath[i+1].x][bestpath[i+1].y]=true;
     	attack_num[bestpath.back()];
-    	rep(i,sz(bestpath)) need[bestpath[i].x][bestpath[i].y]=area[bestpath[i].x][bestpath[i].y].need;
+    	rep(i,sz(bestpath)) need[bestpath[i].x][bestpath[i].y]+=area[bestpath[i].x][bestpath[i].y].need+DEFEND_MORE[bestpath[i].x][bestpath[i].y];
     	hold[bestpath.back().x][bestpath.back().y]=MORE;
     }
 }
@@ -657,7 +677,6 @@ void do_action()
     	if (put==mp(-1,-1)||d_to_enemy[put.x][put.y]>d_to_enemy[i][j])
     		put=mp(i,j);
     }
-    prt(put);
     int mind=d_to_enemy[put.x][put.y];
     rep(bi,height) rep(bj,width)
     {
@@ -718,28 +737,32 @@ void do_action()
     	}
     }
     soldier_num=get_bonus(my_player_id);
-    bool fnd=false;
-    rep(i,sz(attack_list))
-    	if (attack_list[i].x==put||attack_list[i].y==put) fnd=true;
-    if (!fnd)
+    rep(i,height) rep(j,width) if (!attack_num.count(mp(i,j))&&need[i][j])
     {
-		set_soldier(my_player_id,put.x,put.y,need[put.x][put.y]);
-	    rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
-	    cerr<<endl;
+		set_soldier(my_player_id,i,j,need[i][j]);
+#ifdef display_graph
+    	rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+        cerr<<endl;
+#endif
     }
     feach(i,attacked_by)
     		if (sz(i->y)==0&&area[i->x.x][i->x.y].belong==my_player_id)
     		{
     			set_soldier(my_player_id,i->x.x,i->x.y,need[i->x.x][i->x.y]-area[i->x.x][i->x.y].soldier_num);
-    		    rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
-    		    cerr<<endl;
+#ifdef display_graph
+    	rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+        cerr<<endl;
+#endif
     		}
     rep(i,sz(attack_list))
     {
     	attack(my_player_id,attack_list[i].x.x,attack_list[i].x.y,attack_list[i].y.x,attack_list[i].y.y,need[attack_list[i].y.x][attack_list[i].y.y]);
-        rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+#ifdef display_graph
+    	rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
         cerr<<endl;
+#endif
     }
+    prt(isAttack);
     prt(soldier_num);
 }
 
