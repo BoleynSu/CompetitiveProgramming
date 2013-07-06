@@ -154,7 +154,7 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 //初始化
-//struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
 
 //非标准
 #define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
@@ -315,20 +315,22 @@ void read_operator(int player_id) {
     }
 }
 
-int type[6][8];
-//0 bit 是否离我很近要攻？
-//1 bit 是否离敌人很近要守？
+const int GO_DIS=5;
+const int SAFE_DIS=4;
 int d_to_me[6][8],d_to_enemy[6][8];
+bool dangerous[6][8];
+bool isAttack,isDefend;
 
 bool attacked[6][8];
 int need[6][8];
 int hold[6][8];
-int defend[6][8];
 
 const int MAXSTEP=15;
 const int MORE=1;
+const int IN_THE_WAY_LIMIT=4;
 const db NONEED_FACTOR=0.5;
-const db CANNOT_GO=-19930309;
+const db SOLDIER_FACTOR=-19930309;
+const db IN_THE_WAY_VALUE=-1e20;
 vpii path;
 bool atked[6][8];
 db bst;
@@ -336,8 +338,10 @@ vpii bpath;
 int brneed;
 int bneed;
 
+map<pii,int> attack_num;
 map<pii,vpii> attacked_by;
 vec<pr<pii,pii> > attack_list;
+int rest;
 
 void calc_value_and_need()
 {
@@ -351,7 +355,11 @@ void calc_value_and_need()
 		{
 			if (area[i][j].belong==my_player_id)
 			{
-				area[i][j].need=+oo/2;
+			    int B = area[i][j].soldier_num;
+			    int S = area[i][j].bonus;
+			    int K = attack_factor;
+			    int C = (int)(K*B/10+S);
+				area[i][j].need=C;
 			}
 			else if (area[i][j].belong==3-my_player_id)
 			{
@@ -363,7 +371,6 @@ void calc_value_and_need()
 			}
 			else
 			{
-				area[i][j].value=1.2*area[i][j].bonus;
 			    int B = area[i][j].soldier_num;
 			    int S = area[i][j].bonus;
 			    int K = attack_factor;
@@ -416,100 +423,67 @@ void calc_value_and_need()
 		}
 	}
 
-	int mb=get_bonus(my_player_id),eb=get_bonus(3-my_player_id);
-	bool to_attack[6][8];
-	clr(to_attack);
-	rep(i,height) rep(j,width) if (d_to_me[i][j]<=mb/2)
-	{
-		q.push(mp(i,j));
-		to_attack[i][j]=true;
-	}
-	whl(sz(q))
-	{
-		int i=q.front().x;
-		int j=q.front().y;
-		q.pop();
-		rep(d,4)
-		{
-			int ni=i+dx[d];
-			int nj=j+dy[d];
-			if (check_area(ni,nj)&&area[ni][nj].belong==3-my_player_id&&cmax(to_attack[ni][nj],true))
-			{
-				q.push(mp(ni,nj));
-			}
-		}
-	}
-	clr(type);
-	rep(i,height) rep(j,width) if (to_attack[i][j]&&area[i][j].belong==3-my_player_id)
-	{
-		type[i][j]|=1;
-	}
-	rep(i,height) rep(j,width) if (d_to_enemy[i][j]<=eb/2)
-	{
-		type[i][j]|=2;
-	}
+	int mb=0;
+	rep(i,height) rep(j,width) if (area[i][j].belong==my_player_id) cmax(mb,area[i][j].soldier_num);
+	mb+=get_bonus(3-my_player_id);
+	isAttack=false,isDefend=true;
+	rep(i,height) rep(j,width) if (area[i][j].belong==my_player_id&&d_to_enemy[i][j]<=max(GO_DIS,mb/3))
+		isAttack=true,isDefend=false;
 
-	rep(i,height) rep(j,width)
+	clr(dangerous);
+
+	if (isAttack)
 	{
-		if (area[i][j].terrain==1)
+		rep(i,height) rep(j,width)
 		{
-			area[i][j].value=-oo;
-		}
-		else
-		{
-			if (area[i][j].belong==my_player_id)
+			if (area[i][j].terrain==1)
 			{
 				area[i][j].value=-oo;
 			}
-			else if (area[i][j].belong==3-my_player_id)
-			{
-				if (type[i][j]&1)
-				{
-					area[i][j].value=+oo/2;
-				}
-				else if (type[i][j]&2)
-				{
-					area[i][j].value=-oo/2;
-				}
-				else area[i][j].value=area[i][j].bonus*2.0+area[i][j].soldier_num?area[i][j].bonus:area[i][j].soldier_num;
-			}
 			else
 			{
-				if (type[i][j]&1)
+				if (area[i][j].belong==my_player_id)
 				{
-					area[i][j].value=+oo/2;
+					area[i][j].value=-oo;
 				}
-				else if (type[i][j]&2)
+				else if (area[i][j].belong==3-my_player_id)
 				{
-					area[i][j].value=-oo/2;
+					area[i][j].value=(area[i][j].soldier_num*SOLDIER_FACTOR)+area[i][j].bonus;
 				}
-				else area[i][j].value=area[i][j].bonus*1.5;
+				else
+				{
+					area[i][j].value=-oo*area[i][j].bonus;
+				}
 			}
 		}
 	}
 
-	rep(i,height) rep(j,width)
+	int eb=get_bonus(3-my_player_id);
+	if (isDefend)
 	{
-		if (area[i][j].terrain==1)
+		rep(i,height) rep(j,width) if (d_to_enemy[i][j]<=eb-max(GO_DIS,eb/3)&&d_to_me[i][j]>SAFE_DIS)
 		{
+			dangerous[i][j]=true;
 		}
-		else
+		rep(i,height) rep(j,width)
 		{
-			if (area[i][j].belong==my_player_id)
+			if (area[i][j].terrain==1)
 			{
-			}
-			else if (area[i][j].belong==3-my_player_id)
-			{
-				if (d_to_enemy[i][j]<eb/2&&area[i][j].bonus>=3)
-				{
-					area[i][j].need+=2;
-				}
+				area[i][j].value=-oo;
 			}
 			else
 			{
-				if ((type[i][j]&1)&&area[i][j].bonus>=3)
+				if (area[i][j].belong==my_player_id)
 				{
-					area[i][j].need+=2;
+					area[i][j].value=-oo;
+				}
+				else if (area[i][j].belong==3-my_player_id)
+				{
+					area[i][j].value=-oo*area[i][j].bonus;
+				}
+				else
+				{
+					area[i][j].value=area[i][j].bonus;
 				}
 			}
 		}
@@ -520,7 +494,41 @@ void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
 {
 	if (step==MAXSTEP)
 	{
-		if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)))
+		int cnt=0;
+		rep(i,height) rep(j,width) if (attacked[i][j])
+		{
+			bool itw=true;
+			rep(d,4)
+			{
+				int ni=i+dx[d];
+				int nj=j+dy[d];
+				if (check_area(ni,nj)&&!attacked[ni][nj])
+				{
+					itw=false;
+				}
+			}
+			if (itw) cnt-=::hold[i][j];
+		}
+		rep(i,height) rep(j,width) if (attacked[i][j]||atked[i][j])
+		{
+			bool itw=true;
+			rep(d,4)
+			{
+				int ni=i+dx[d];
+				int nj=j+dy[d];
+				if (check_area(ni,nj)&&!(attacked[ni][nj]||atked[ni][nj]))
+				{
+					itw=false;
+				}
+			}
+			if (itw) cnt+=::hold[i][j];
+		}
+		db delta=0;
+		if (cnt>IN_THE_WAY_LIMIT)
+		{
+			delta=IN_THE_WAY_VALUE*cnt;
+		}
+		if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)+delta))
 		{
 			bneed=need+MORE;
 			bpath=path;
@@ -533,7 +541,7 @@ void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
 		{
 			int ni=i+dx[d];
 			int nj=j+dy[d];
-			if (check_area(ni,nj)&&!attacked[ni][nj]&&!atked[ni][nj]&&max(need+area[ni][nj].need+MORE-hold,0)<=soldier_num)
+			if (check_area(ni,nj)&&!dangerous[ni][nj]&&!attacked[ni][nj]&&!atked[ni][nj]&&max(need+area[ni][nj].need+MORE-hold,0)<=soldier_num)
 			{
 				go=true;
 				path.pb(mp(ni,nj));
@@ -545,17 +553,41 @@ void dfs(int step,int soldier_num,int hold,int need,db value,int i,int j)
 		}
 		if (!go)
 		{
-			bool go=false;
-			rep(d,4)
+			int cnt=0;
+			rep(i,height) rep(j,width) if (attacked[i][j])
 			{
-				int ni=i+dx[d];
-				int nj=j+dy[d];
-				if (check_area(ni,nj))
+				bool itw=true;
+				rep(d,4)
 				{
-					go=true;
+					int ni=i+dx[d];
+					int nj=j+dy[d];
+					if (check_area(ni,nj)&&!attacked[ni][nj])
+					{
+						itw=false;
+					}
 				}
+				if (itw) cnt-=::hold[i][j];
 			}
-			if (go?cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)):cmax(bst,min(value/max(db(need+MORE-hold),NONEED_FACTOR),CANNOT_GO)))
+			rep(i,height) rep(j,width) if (attacked[i][j]||atked[i][j])
+			{
+				bool itw=true;
+				rep(d,4)
+				{
+					int ni=i+dx[d];
+					int nj=j+dy[d];
+					if (check_area(ni,nj)&&!(attacked[ni][nj]||atked[ni][nj]))
+					{
+						itw=false;
+					}
+				}
+				if (itw) cnt+=::hold[i][j];
+			}
+			db delta=0;
+			if (cnt>IN_THE_WAY_LIMIT)
+			{
+				delta=IN_THE_WAY_VALUE*cnt;
+			}
+			if (cmax(bst,value/max(db(need+MORE-hold),NONEED_FACTOR)+delta))
 			{
 				bneed=need+MORE;
 				bpath=path;
@@ -574,8 +606,8 @@ void calc_action()
 			hold[i][j]=area[i][j].soldier_num;
 		}
 
-	int rest=get_bonus(my_player_id);
-	map<pii,int> attack_num;
+	rest=get_bonus(my_player_id);
+	attack_num.clear();
 	attack_list.clear();
 	attacked_by.clear();
     for (;;)
@@ -611,11 +643,67 @@ void calc_action()
     	rep(i,sz(bestpath)) need[bestpath[i].x][bestpath[i].y]=area[bestpath[i].x][bestpath[i].y].need;
     	hold[bestpath.back().x][bestpath.back().y]=MORE;
     }
-    //TODO defend rest
+}
+
+void do_action()
+{
     queue<pii> q;
     feach(i,attack_num)
         if (i->y==0)
         	q.push(i->x);
+    pii put=mp(-1,-1);
+    rep(i,height) rep(j,width) if (attacked[i][j])
+    {
+    	if (put==mp(-1,-1)||d_to_enemy[put.x][put.y]>d_to_enemy[i][j])
+    		put=mp(i,j);
+    }
+    prt(put);
+    int mind=d_to_enemy[put.x][put.y];
+    rep(bi,height) rep(bj,width)
+    {
+    	//TODO
+		bool itw=true;
+		rep(d,4)
+		{
+			int ni=bi+dx[d];
+			int nj=bj+dy[d];
+			if (check_area(ni,nj)&&!attacked[ni][nj])
+			{
+				itw=false;
+			}
+		}
+		if (itw) continue;
+    	queue<pii> q;
+    	fl(d_to_enemy,0x0f);
+    	rep(i,height) rep(j,width) if (area[i][j].belong==3-my_player_id)
+    	{
+    		q.push(mp(i,j));
+    		d_to_enemy[i][j]=0;
+    	}
+    	whl(sz(q))
+    	{
+    		int i=q.front().x;
+    		int j=q.front().y;
+    		q.pop();
+    		rep(d,4)
+    		{
+    			int ni=i+dx[d];
+    			int nj=j+dy[d];
+    			if (check_area(ni,nj)&&!(ni==bi&&nj==bj)&&cmin(d_to_enemy[ni][nj],d_to_enemy[i][j]+area[ni][nj].need))
+    			{
+    				q.push(mp(ni,nj));
+    			}
+    		}
+    	}
+    	int get=+oo;
+    	rep(i,height) rep(j,width) if (attacked[i][j])
+        {
+    		cmin(get,d_to_enemy[i][j]);
+        }
+    	if (cmin(mind,get)) put=mp(bi,bj);
+    }
+
+    need[put.x][put.y]+=rest,rest=0;
     whl(sz(q))
     {
     	pii u=q.front();
@@ -629,11 +717,16 @@ void calc_action()
     			q.push(v);
     	}
     }
-}
-
-void do_action()
-{
     soldier_num=get_bonus(my_player_id);
+    bool fnd=false;
+    rep(i,sz(attack_list))
+    	if (attack_list[i].x==put||attack_list[i].y==put) fnd=true;
+    if (!fnd)
+    {
+		set_soldier(my_player_id,put.x,put.y,need[put.x][put.y]);
+	    rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
+	    cerr<<endl;
+    }
     feach(i,attacked_by)
     		if (sz(i->y)==0&&area[i->x.x][i->x.y].belong==my_player_id)
     		{
@@ -647,10 +740,12 @@ void do_action()
         rep(i,6) rep(j,8) cerr<<(area[i][j].belong!=my_player_id?"e":"m")<<area[i][j].soldier_num<<char(j==7?'\n':' ');
         cerr<<endl;
     }
+    prt(soldier_num);
 }
 
 void go()
 {
+	inf=1e100;
 	calc_value_and_need();
 	calc_action();
 	do_action();
