@@ -34,7 +34,7 @@ using namespace std;
 #define rep(i,n) repf(i,0,n)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=(b);--i)
-#define fsubset(subset,set) for (int subset=(set)&((set)-1);subset;subset=(subset-1)&(set))
+#define for_nonempty_subsets(subset,set) for (int subset=set;subset;subset=(subset-1)&(set))
 #define forin(i,charset) for (cstr i=(charset);*i;i++)
 #define whl while
 #define rtn return
@@ -164,3 +164,6 @@ struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie
 #include <ext/pb_ds/tag_and_trait.hpp>
 using __gnu_cxx::rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+#define ctz __builtin_ctz
+#define clz __builtin_clz
+#define bc __builtin_popcount
