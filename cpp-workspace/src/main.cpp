@@ -170,5 +170,4 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 
 int main()
 {
-	int testFetch;
 }
