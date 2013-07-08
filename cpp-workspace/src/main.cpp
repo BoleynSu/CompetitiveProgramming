@@ -154,7 +154,14 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 //初始化
-struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+struct Initializer
+{
+#ifndef DEBUG
+	Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
+#else
+	~Initializer(){runtime();}
+#endif
+}initializer;
 
 //非标准
 #define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
@@ -209,8 +216,8 @@ struct Graph
 
 struct Strategy
 {
-	vpii d;
-	vec<pr<pii,int> > a;
+	deque<pii> d;
+	deque<pr<pii,int> > a;
 };
 
 struct Undo
@@ -223,27 +230,36 @@ struct Undo
 struct GraphState
 {
 	int p;
+	int cr;
 	int ttl;
 	vi o,n;
 	vec<Undo> udl;
 	GraphState()
 	{
 	}
-	GraphState(int p):p(p),o(sz(graph.nd)),n(sz(graph.nd))
+	GraphState(int p,int cr):p(p),cr(cr),o(sz(graph.nd)),n(sz(graph.nd))
 	{
 	}
-	GraphState(const Config& c):p(c.p),o(sz(graph.nd)),n(sz(graph.nd))
+	GraphState(const Config& c):p(c.p),cr(0),o(sz(graph.nd)),n(sz(graph.nd))
 	{
 		rep(i,c.h) rep(j,c.w) if (graph.id.count(mp(i,j)))
 			o[graph.id[mp(i,j)]]=c.o[i][j];
 	}
-	int me()
+	int me() const
 	{
 		rtn p;
 	}
-	int enemy()
+	int enemy() const
 	{
 		rtn 3-p;
+	}
+	int need(int to) const
+	{
+		int B=n[to];
+		int S=graph.b[to];
+		int K=config.k;
+		int C=K*B/10+S;
+		rtn C;
 	}
 	void getTotal()
 	{
@@ -318,6 +334,7 @@ struct GraphState
 				attack(enemy(),graph.id[p1],graph.id[p2],n);
 			}
 		}
+		cr++;
 	}
 	void apply(const Strategy& s)
 	{
@@ -330,8 +347,9 @@ struct GraphState
 			attack(me(),s.a[i].x.x,s.a[i].x.y,s.a[i].y),
 			cout<<"2 "<<graph.nd[s.a[i].x.x]<<" "<<graph.nd[s.a[i].x.y]<<" "<<s.a[i].y<<endl;
 		cout<<"-1"<<endl;
+		cr++;
 	}
-	void show()
+	void show() const
 	{
 		rep(i,config.h) rep(j,config.w)
 		{
@@ -349,34 +367,197 @@ struct GraphState
 
 struct AI
 {
-	static const int MAXROUND=2;
+	static const int MAX_ROUND=2;
 
-	int currentRound;
+	int alpha,beta;
 	pr<Strategy,int> best;
 
-	int rest;
-	GraphState graphState;
-	Strategy strategy;
-	void dfs(pii currentPlace)
+	int currentRound;
+	GraphState currentState;
+	Strategy currentStrategy;
+
+	void dfs(int currentPlace)
 	{
+		if (alpha>=beta) rtn;
+		currentState.p=currentState.enemy();
+		AI ai;
+		pr<Strategy,int> get=ai.getStrategy(currentState,currentRound+1,alpha,beta);
+		currentState.p=currentState.enemy();
+		if (currentState.me()==config.p)
+		{
+			alpha=max(alpha,get.y);
+			if (get.y>best.y) best.y=get.y,best.x=currentStrategy;
+		}
+		else
+		{
+			beta=min(beta,get.y);
+			if (get.y<best.y) best.y=get.y,best.x=currentStrategy;
+		}
+		rep(i,sz(graph.adj[currentPlace]))
+		{
+			int nextPlace=graph.adj[currentPlace][i];
+			if (currentState.o[nextPlace]!=currentState.me())
+			{
+				currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
+				currentState.attack(currentState.me(),
+									currentStrategy.a.back().x.x,
+									currentStrategy.a.back().x.y,
+									currentStrategy.a.back().y);
+				if (currentState.o[nextPlace]!=currentState.me())
+				{
+					currentState.undo();
+					currentStrategy.a.pop_back();
+					continue;
+				}
+				dfs(nextPlace);
+				currentState.undo();
+				currentStrategy.a.pop_back();
+			}
+		}
+	}
+	pr<Strategy,int> getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo)
+	{
+		alpha=a,beta=b;
+		if (cr==MAX_ROUND)
+		{
+			int value=0;
+			rep(i,sz(graph.nd))
+			{
+				if (cs.o[i]==config.p)
+				{
+					value+=graph.b[i]*12;
+//					int nv=-5;
+//					qi q;
+//					vb inq(sz(graph.nd));
+//					inq[i]=true;
+//					q.push(i);
+//					whl(sz(q))
+//					{
+//						int u=q.front();
+//						q.pop();
+//						rep(i,sz(graph.adj[u]))
+//						{
+//							int v=graph.adj[u][i];
+//							if (cs.o[v]!=cs.me()&&!inq[v])
+//							{
+//								inq[v]=true;
+//								q.push(v);
+//								cmax(nv,5);
+//								if (cs.o[v]==cs.enemy()) cmax(nv,10);
+//							}
+//						}
+//					}
+//					value+=cs.n[i]*nv;
+					value+=cs.n[i]*8;
+				}
+				if (cs.o[i]&&cs.o[i]!=config.p)
+				{
+					value-=graph.b[i]*9;
+//					int nv=-4;
+//					qi q;
+//					vb inq(sz(graph.nd));
+//					inq[i]=true;
+//					q.push(i);
+//					whl(sz(q))
+//					{
+//						int u=q.front();
+//						q.pop();
+//						rep(i,sz(graph.adj[u]))
+//						{
+//							int v=graph.adj[u][i];
+//							if (cs.o[v]!=cs.me()&&!inq[v])
+//							{
+//								inq[v]=true;
+//								q.push(v);
+//								cmax(nv,4);
+//								if (cs.o[v]==cs.enemy()) cmax(nv,11);
+//							}
+//						}
+//					}
+//					value-=cs.n[i]*nv;
+					value-=cs.n[i]*6;
+				}
+			}
+			best.y=value;
+		}
+		else
+		{
+			currentState=cs;
+			currentRound=cr;
+
+			currentState.getTotal();
+			if (currentState.me()==config.p) best.y=-oo;
+			else best.y=+oo;
+			rep(i,sz(graph.nd)) if (currentState.o[i]==currentState.me())
+			{
+				currentStrategy.d.pb(mp(i,currentState.ttl));
+				currentState.distribute(currentState.me(),
+										currentStrategy.d.back().x,
+										currentStrategy.d.back().y);
+				dfs(i);
+				currentState.undo();
+				currentStrategy.d.pop_back();
+			}
+		}
+		rtn best;
 	}
 
-	pr<Strategy,int> getStrategy(const GraphState& gs,int cr=0)
+	pr<Strategy,int> getStrategyForTest(const GraphState& gs,int cr=0)
 	{
-		graphState=gs;
-		currentRound=cr;
-//		rep(i,sz(graphState.))
-	//	dfs();
+		pr<Strategy,int> best;
+		best.y=-oo;
+		GraphState graphState=gs;
+		graphState.getTotal();
+		whl(graphState.ttl)
+		{
+			rep(i,sz(graph.nd)) if (graphState.o[i]==graphState.me())
+			{
+				if (!graphState.ttl) break;
+				rep(j,sz(graph.adj[i]))
+					if (graphState.o[graph.adj[i][j]]!=graphState.me())
+					{
+						pii d=mp(i,unsigned(rand())%graphState.ttl+1);
+						graphState.distribute(graphState.me(),d.x,d.y);
+						best.x.d.pb(d);
+						break;
+					}
+			}
+		}
+		rep(i,sz(graph.nd)) if (graphState.o[i]==graphState.me()&&graphState.n[i])
+		{
+			int u=i;
+			whl(graphState.o[u]==graphState.me())
+			{
+				bool fnd=false;
+				rep(j,sz(graph.adj[u]))
+					if (graphState.o[graph.adj[u][j]]!=graphState.me())
+					{
+						int v=graph.adj[u][j];
+						pr<pii,int> a=mp(mp(u,v),graphState.n[u]);
+						graphState.attack(graphState.me(),a.x.x,a.x.y,a.y);
+						best.x.a.pb(a);
+						u=v;
+						fnd=true;
+						break;
+					}
+				if (!fnd) break;
+			}
+			if (graphState.o[u]!=graphState.me())
+			{
+				graphState.undo();
+				best.x.a.pop_back();
+			}
+		}
 		rtn best;
 	}
 }ai;
 
 struct Game
 {
-	static const int MAXROUND=300;
+	static const int MAX_ROUND=300;
 	Game()
 	{
-		rep(i,MAXROUND)
+		rep(i,MAX_ROUND)
 		{
 			if (i%2+1==config.p) graphState.apply(ai.getStrategy(graphState).x);
 			else graphState.update();
