@@ -388,8 +388,7 @@ struct GraphState
 
 struct AI
 {
-	static const int MB=9,MN=6,EB=12,EN=8;
-	static const int MAX_ROUND=3;
+	static const int MAX_ROUND=2;
 
 	int alpha,beta;
 	pr<Strategy,int> best;
@@ -401,7 +400,7 @@ struct AI
 	set<pr<lli,int> > calced;
 	int currentSet;
 
-	void dfs(int currentPlace,int value)
+	void dfs(int currentPlace)
 	{
 		if (calced.count(mp(currentSet,currentPlace))) rtn;
 		calced.ins(mp(currentSet,currentPlace));
@@ -410,7 +409,7 @@ struct AI
 
 		currentState.p=currentState.enemy();
 		AI ai;
-		pr<Strategy,int> get=ai.getStrategy(currentState,currentRound+1,alpha,beta,value);
+		pr<Strategy,int> get=ai.getStrategy(currentState,currentRound+1,alpha,beta);
 		currentState.p=currentState.enemy();
 		if (currentState.me()==config.p)
 		{
@@ -429,19 +428,6 @@ struct AI
 			if (currentState.o[nextPlace]!=currentState.me())
 			{
 				currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
-				int newValue=value;
-				if (currentState.me()==config.p)
-				{
-					newValue+=-currentState.need(nextPlace)*MN+graph.b[nextPlace]*MB;
-					if (currentState.o[nextPlace]==currentState.enemy())
-						newValue-=-(graph.b[nextPlace]*EB)-(currentState.n[nextPlace]*EN);
-				}
-				else
-				{
-					newValue-=-currentState.need(nextPlace)*EN+graph.b[nextPlace]*EB;
-					if (currentState.o[nextPlace]==currentState.enemy())
-						newValue+=-(graph.b[nextPlace]*MB)-(currentState.n[nextPlace]*MN);
-				}
 				currentState.attack(currentState.me(),
 									currentStrategy.a.back().x.x,
 									currentStrategy.a.back().x.y,
@@ -453,7 +439,7 @@ struct AI
 					continue;
 				}
 				currentSet^=1ll<<nextPlace;
-				dfs(nextPlace,newValue);
+				dfs(nextPlace);
 				currentSet^=1ll<<nextPlace;
 				currentState.undo();
 				currentStrategy.a.pop_back();
@@ -461,10 +447,23 @@ struct AI
 		}
 	}
 	inline
-	pr<Strategy,int> getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo,int value=0)
+	pr<Strategy,int> getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo)
 	{
 		alpha=a,beta=b;
-		if (cr==MAX_ROUND) best.y=value;
+		if (cr==MAX_ROUND)
+		{
+			int value=0;
+			rep(i,sz(graph.nd)) if (cs.o[i])
+			{
+				if (cs.o[i]==config.p)
+					value+=graph.b[i]*9,
+					value+=cs.n[i]*6;
+				else
+					value-=graph.b[i]*12,
+					value-=cs.n[i]*8;
+			}
+			best.y=value;
+		}
 		else
 		{
 			currentState=cs;
@@ -477,30 +476,14 @@ struct AI
 			if (currentState.me()==config.p) best.y=-oo;
 			else best.y=+oo;
 
-			if (currentRound==0)
-			{
-				rep(i,sz(graph.nd)) if (currentState.o[i])
-				{
-					if (currentState.o[i]==config.p)
-						value+=graph.b[i]*MB,
-						value+=currentState.n[i]*MN;
-					else
-						value-=graph.b[i]*EB,
-						value-=currentState.n[i]*EN;
-				}
-			}
-
 			rep(i,sz(graph.nd)) if (currentState.o[i]==currentState.me())
 			{
 				currentStrategy.d.pb(mp(i,currentState.ttl));
-				int newValue=value;
-				if (currentState.me()==config.p) newValue+=currentState.ttl*MN;
-				else newValue-=currentState.ttl*EN;
 				currentState.distribute(currentState.me(),
 										currentStrategy.d.back().x,
 										currentStrategy.d.back().y);
 				calced.clear();
-				dfs(i,newValue);
+				dfs(i);
 				currentState.undo();
 				currentStrategy.d.pop_back();
 			}
