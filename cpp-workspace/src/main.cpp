@@ -433,13 +433,13 @@ struct AI
 				if (currentState.me()==config.p)
 				{
 					newValue+=-currentState.need(nextPlace)*MN+graph.b[nextPlace]*MB;
-					if (currentState.o[i]==currentState.enemy())
+					if (currentState.o[nextPlace]==currentState.enemy())
 						newValue-=-(graph.b[nextPlace]*EB)-(currentState.n[nextPlace]*EN);
 				}
 				else
 				{
 					newValue-=-currentState.need(nextPlace)*EN+graph.b[nextPlace]*EB;
-					if (currentState.o[i]==currentState.enemy())
+					if (currentState.o[nextPlace]==currentState.enemy())
 						newValue+=-(graph.b[nextPlace]*MB)-(currentState.n[nextPlace]*MN);
 				}
 				currentState.attack(currentState.me(),
