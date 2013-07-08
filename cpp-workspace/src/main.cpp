@@ -168,6 +168,225 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 #define clz __builtin_clz
 #define bc __builtin_popcount
 
+struct Config
+{
+	int h,w;
+	vvi t,b,o;
+	int p,k;
+	Config()
+	{
+		cin>>h>>w;
+		t=b=o=vvi(h,vi(w));
+		cin>>t>>b>>o;
+		cin>>p>>k;
+	}
+}config;
+
+struct Graph
+{
+	map<pii,int> id;
+	vpii nd;
+	vi b;
+	vvi adj;
+	Graph()
+	{
+		rep(i,config.h) rep(j,config.w) if (config.t[i][j]==0)
+		{
+			id.insert(mp(mp(i,j),sz(id)));
+			nd.pb(mp(i,j));
+			b.pb(config.b[i][j]);
+		}
+		adj=vvi(sz(nd));
+		rep(i,sz(nd))
+			rep(d,4)
+			{
+				pii u=nd[i]+mp(dx[d],dy[d]);
+				if (id.count(u))
+					adj[i].pb(id[u]);
+			}
+	}
+}graph;
+
+struct Strategy
+{
+	vpii d;
+	vec<pr<pii,int> > a;
+};
+
+struct Undo
+{
+	int ttl;
+	vpii n;
+	vpii o;
+};
+
+struct GraphState
+{
+	int p;
+	int ttl;
+	vi o,n;
+	vec<Undo> udl;
+	GraphState()
+	{
+	}
+	GraphState(int p):p(p),o(sz(graph.nd)),n(sz(graph.nd))
+	{
+	}
+	GraphState(const Config& c):p(c.p),o(sz(graph.nd)),n(sz(graph.nd))
+	{
+		rep(i,c.h) rep(j,c.w) if (graph.id.count(mp(i,j)))
+			o[graph.id[mp(i,j)]]=c.o[i][j];
+	}
+	int me()
+	{
+		rtn p;
+	}
+	int enemy()
+	{
+		rtn 3-p;
+	}
+	void getTotal()
+	{
+		ttl=0;
+		rep(i,sz(graph.nd)) if (o[i]==me()) ttl+=graph.b[i];
+	}
+	void distribute(int p,int to,int num)
+	{
+		Undo ud;
+		ud.ttl=ttl;
+		ud.n.pb(mp(to,n[to]));
+		udl.pb(ud);
+		ttl-=num;
+		n[to]+=num;
+	}
+	void attack(int p,int from,int to,int num)
+	{
+		int A=num;
+		int B=n[to];
+		int S=graph.b[to];
+		int K=config.k;
+		int C=K*B/10+S;
+		if (A>C)
+		{
+			Undo ud;
+			ud.ttl=ttl;
+			ud.n.pb(mp(from,n[from]));
+			ud.n.pb(mp(to,n[to]));
+			ud.o.pb(mp(to,o[to]));
+			udl.pb(ud);
+			o[to]=p;
+			n[to]=A-C;
+			n[from]-=A;
+		}
+		else
+		{
+			int D=min((A-1)*10/K,B);
+			Undo ud;
+			ud.ttl=ttl;
+			ud.n.pb(mp(from,n[from]));
+			ud.n.pb(mp(to,n[to]));
+			udl.pb(ud);
+			n[to]-=D;
+			n[from]-=A;
+		}
+	}
+	void undo()
+	{
+		Undo& ud=udl.back();
+		ttl=ud.ttl;
+		rep(i,sz(ud.n)) n[ud.n[i].x]=ud.n[i].y;
+		rep(i,sz(ud.o)) o[ud.o[i].x]=ud.o[i].y;
+		udl.pop_back();
+	}
+	void update()
+	{
+		int t;
+		whl(cin>>t,~t)
+		{
+			if (t==1)
+			{
+				pii p;
+				int n;
+				cin>>p>>n;
+				distribute(enemy(),graph.id[p],n);
+			}
+			if (t==2)
+			{
+				pii p1,p2;
+				int n;
+				cin>>p1>>p2>>n;
+				attack(enemy(),graph.id[p1],graph.id[p2],n);
+			}
+		}
+	}
+	void apply(const Strategy& s)
+	{
+		rep(i,sz(s.d))
+		{
+			distribute(me(),s.d[i].x,s.d[i].y),
+			cout<<"1 "<<graph.nd[s.d[i].x]<<" "<<s.d[i].y<<endl;
+		}
+		rep(i,sz(s.a))
+			attack(me(),s.a[i].x.x,s.a[i].x.y,s.a[i].y),
+			cout<<"2 "<<graph.nd[s.a[i].x.x]<<" "<<graph.nd[s.a[i].x.y]<<" "<<s.a[i].y<<endl;
+		cout<<"-1"<<endl;
+	}
+	void show()
+	{
+		rep(i,config.h) rep(j,config.w)
+		{
+			if (graph.id.count(mp(i,j)))
+				cerr<<(o[graph.id[mp(i,j)]]==me()?"m":
+						o[graph.id[mp(i,j)]]==enemy()?"e":
+						"p")
+					<<n[graph.id[mp(i,j)]]
+					<<"\t";
+			else cerr<<"x\t";
+			if (j+1==config.w) cerr<<endl;
+		}
+	}
+}graphState(config);
+
+struct AI
+{
+	static const int MAXROUND=2;
+
+	int currentRound;
+	pr<Strategy,int> best;
+
+	int rest;
+	GraphState graphState;
+	Strategy strategy;
+	void dfs(pii currentPlace)
+	{
+	}
+
+	pr<Strategy,int> getStrategy(const GraphState& gs,int cr=0)
+	{
+		graphState=gs;
+		currentRound=cr;
+//		rep(i,sz(graphState.))
+	//	dfs();
+		rtn best;
+	}
+}ai;
+
+struct Game
+{
+	static const int MAXROUND=300;
+	Game()
+	{
+		rep(i,MAXROUND)
+		{
+			if (i%2+1==config.p) graphState.apply(ai.getStrategy(graphState).x);
+			else graphState.update();
+#ifdef DEBUG
+			graphState.show();
+#endif
+		}
+	}
+}game;
+
 int main()
 {
 }
