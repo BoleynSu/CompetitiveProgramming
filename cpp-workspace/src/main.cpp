@@ -385,7 +385,7 @@ struct GraphState
 		}
 	}
 }graphState(config);
-
+int flag;
 struct AI
 {
 	static const int MAX_ROUND=2;
@@ -400,7 +400,7 @@ struct AI
 	set<pr<lli,int> > calced;
 	int currentSet;
 
-	void dfs(int currentPlace,bool isFromEnemy=false)
+	void dfs(int currentPlace)
 	{
 		if (calced.count(mp(currentSet,currentPlace))) rtn;
 		calced.ins(mp(currentSet,currentPlace));
@@ -411,6 +411,7 @@ struct AI
 		AI ai;
 		pr<Strategy,int> get=ai.getStrategy(currentState,currentRound+1,alpha,beta);
 		currentState.p=currentState.enemy();
+
 		if (currentState.me()==config.p)
 		{
 			cmax(alpha,get.y);
@@ -425,10 +426,8 @@ struct AI
 		rep(i,sz(graph.adj[currentPlace]))
 		{
 			int nextPlace=graph.adj[currentPlace][i];
-			if (isFromEnemy?currentState.o[nextPlace]!=currentState.me():
-							currentState.o[nextPlace]==currentState.enemy())
+			if (currentState.o[nextPlace]!=currentState.me())
 			{
-				bool newIsFromEnemy=currentState.o[nextPlace]==currentState.enemy();
 				currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
 				currentState.attack(currentState.me(),
 									currentStrategy.a.back().x.x,
@@ -441,7 +440,7 @@ struct AI
 					continue;
 				}
 				currentSet^=1ll<<nextPlace;
-				dfs(nextPlace,isFromEnemy||newIsFromEnemy);
+				dfs(nextPlace);
 				currentSet^=1ll<<nextPlace;
 				currentState.undo();
 				currentStrategy.a.pop_back();
@@ -492,6 +491,50 @@ struct AI
 		}
 		rtn best;
 	}
+	inline
+	const pr<Strategy,int>& getStrategyWithStart(const GraphState& cs,int start,int cr=0,int a=-oo,int b=+oo)
+	{
+		if (cr==MAX_ROUND)
+		{
+			int value=0;
+			rep(i,sz(graph.nd)) if (cs.o[i])
+			{
+				if (cs.o[i]==config.p)
+					value+=graph.b[i]*12,
+					value+=cs.n[i]*8;
+				else
+					value-=graph.b[i]*9,
+					value-=cs.n[i]*6;
+			}
+			best.y=value;
+		}
+		else
+		{
+			currentState=cs;
+			currentRound=cr;
+			alpha=a,beta=b;
+
+			currentState.getTotal();
+
+			best.x.d.clear();
+			best.x.a.clear();
+			if (currentState.me()==config.p) best.y=-oo;
+			else best.y=+oo;
+
+			rep(i,sz(graph.nd)) if (i==start)
+			{
+				currentStrategy.d.pb(mp(i,currentState.ttl));
+				currentState.distribute(currentState.me(),
+										currentStrategy.d.back().x,
+										currentStrategy.d.back().y);
+				calced.clear();
+				dfs(i);
+				currentState.undo();
+				currentStrategy.d.pop_back();
+			}
+		}
+		rtn best;
+	}
 }ai;
 
 struct Game
@@ -520,6 +563,12 @@ struct Game
 					strategy.d.pb(mp(16,13));
 					strategy.a.pb(mp(mp(16,15),14));
 					graphState.apply(strategy);
+				}
+				else if (i==5)
+				{
+					flag=true;
+					Strategy strategy;
+					graphState.apply(ai.getStrategyWithStart(graphState,15).x);
 				}
 				else graphState.apply(ai.getStrategy(graphState).x);
 			}
