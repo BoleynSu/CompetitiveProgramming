@@ -388,7 +388,7 @@ struct GraphState
 
 struct AI
 {
-	static const int MAX_ROUND=2;
+	static const int MAX_ROUND=3;
 
 	int alpha,beta;
 	pr<Strategy,int> best;
@@ -414,18 +414,26 @@ struct AI
 		if (currentState.me()==config.p)
 		{
 			cmax(alpha,get.y);
-			if (get.y>best.y) best.y=get.y,best.x=currentStrategy;
+			if (cmax(best.y,get.y)) best.x=currentStrategy;
 		}
 		else
 		{
 			cmin(beta,get.y);
-			if (get.y<best.y) best.y=get.y,best.x=currentStrategy;
+			if (cmin(best.y,get.y)) best.x=currentStrategy;
 		}
 
+		bool hasEnemy=false;
 		rep(i,sz(graph.adj[currentPlace]))
 		{
 			int nextPlace=graph.adj[currentPlace][i];
-			if (currentState.o[nextPlace]!=currentState.me())
+			if (currentState.o[nextPlace]==currentState.enemy())
+				hasEnemy=true;
+		}
+		rep(i,sz(graph.adj[currentPlace]))
+		{
+			int nextPlace=graph.adj[currentPlace][i];
+			if (hasEnemy?currentState.o[nextPlace]==currentState.enemy():
+						currentState.o[nextPlace]!=currentState.me())
 			{
 				currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
 				currentState.attack(currentState.me(),
@@ -447,7 +455,7 @@ struct AI
 		}
 	}
 	inline
-	pr<Strategy,int> getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo)
+	const pr<Strategy,int>& getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo)
 	{
 		alpha=a,beta=b;
 		if (cr==MAX_ROUND)
