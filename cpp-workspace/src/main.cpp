@@ -388,7 +388,7 @@ struct GraphState
 
 struct AI
 {
-	static const int MAX_ROUND=3;
+	static const int MAX_ROUND=2;
 
 	int alpha,beta;
 	pr<Strategy,int> best;
@@ -400,7 +400,7 @@ struct AI
 	set<pr<lli,int> > calced;
 	int currentSet;
 
-	void dfs(int currentPlace)
+	void dfs(int currentPlace,bool isFromEnemy=false)
 	{
 		if (calced.count(mp(currentSet,currentPlace))) rtn;
 		calced.ins(mp(currentSet,currentPlace));
@@ -422,19 +422,13 @@ struct AI
 			if (cmin(best.y,get.y)) best.x=currentStrategy;
 		}
 
-		bool hasEnemy=false;
 		rep(i,sz(graph.adj[currentPlace]))
 		{
 			int nextPlace=graph.adj[currentPlace][i];
-			if (currentState.o[nextPlace]==currentState.enemy())
-				hasEnemy=true;
-		}
-		rep(i,sz(graph.adj[currentPlace]))
-		{
-			int nextPlace=graph.adj[currentPlace][i];
-			if (hasEnemy?currentState.o[nextPlace]==currentState.enemy():
-						currentState.o[nextPlace]!=currentState.me())
+			if (isFromEnemy?currentState.o[nextPlace]!=currentState.me():
+							currentState.o[nextPlace]==currentState.enemy())
 			{
+				bool newIsFromEnemy=currentState.o[nextPlace]==currentState.enemy();
 				currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
 				currentState.attack(currentState.me(),
 									currentStrategy.a.back().x.x,
@@ -447,7 +441,7 @@ struct AI
 					continue;
 				}
 				currentSet^=1ll<<nextPlace;
-				dfs(nextPlace);
+				dfs(nextPlace,isFromEnemy||newIsFromEnemy);
 				currentSet^=1ll<<nextPlace;
 				currentState.undo();
 				currentStrategy.a.pop_back();
@@ -457,18 +451,17 @@ struct AI
 	inline
 	const pr<Strategy,int>& getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo)
 	{
-		alpha=a,beta=b;
 		if (cr==MAX_ROUND)
 		{
 			int value=0;
 			rep(i,sz(graph.nd)) if (cs.o[i])
 			{
 				if (cs.o[i]==config.p)
-					value+=graph.b[i]*9,
-					value+=cs.n[i]*6;
+					value+=graph.b[i]*12,
+					value+=cs.n[i]*8;
 				else
-					value-=graph.b[i]*12,
-					value-=cs.n[i]*8;
+					value-=graph.b[i]*9,
+					value-=cs.n[i]*6;
 			}
 			best.y=value;
 		}
@@ -476,6 +469,7 @@ struct AI
 		{
 			currentState=cs;
 			currentRound=cr;
+			alpha=a,beta=b;
 
 			currentState.getTotal();
 
@@ -508,7 +502,27 @@ struct Game
 	{
 		rep(i,MAX_ROUND)
 		{
-			if (i%2+1==config.p) graphState.apply(ai.getStrategy(graphState).x);
+			if (i%2+1==config.p)
+			{
+				if (i==1)
+				{
+					Strategy strategy;
+					strategy.d.pb(mp(5,7));
+					strategy.a.pb(mp(mp(5,4),7));
+					strategy.a.pb(mp(mp(4,11),6));
+					strategy.a.pb(mp(mp(11,10),5));
+					strategy.a.pb(mp(mp(10,16),3));
+					graphState.apply(strategy);
+				}
+				else if (i==3)
+				{
+					Strategy strategy;
+					strategy.d.pb(mp(16,13));
+					strategy.a.pb(mp(mp(16,15),14));
+					graphState.apply(strategy);
+				}
+				else graphState.apply(ai.getStrategy(graphState).x);
+			}
 			else graphState.update();
 #ifdef DEBUG
 			graphState.show();
