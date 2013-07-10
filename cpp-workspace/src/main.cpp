@@ -385,7 +385,7 @@ struct AI
 	set<pr<lli,int> > calced;
 	int currentSet;
 
-	void dfs(int currentPlace)
+	void dfs(int currentPlace,int cost=0)
 	{
 		if (calced.count(mp(currentSet,currentPlace))) rtn;
 		calced.ins(mp(currentSet,currentPlace));
@@ -394,7 +394,7 @@ struct AI
 
 		AI ai;
 		currentState.p=currentState.enemy();
-		pr<Strategy,int> get=ai.getStrategy(currentState,currentRound+1,alpha,beta);
+		pr<Strategy,int> get=ai.getStrategy(currentState,currentRound+1,alpha,beta,cost);
 		currentState.p=currentState.enemy();
 
 		if (currentState.me()==config.p)
@@ -413,11 +413,20 @@ struct AI
 			int nextPlace=graph.adj[currentPlace][i];
 			if (currentState.o[nextPlace]!=currentState.me())
 			{
+				int newCost=cost,delta=0;
+				if (currentState.o[nextPlace]!=currentState.enemy())
+					delta+=currentState.need(nextPlace)*2;
+				else
+					delta+=(currentState.need(nextPlace)-currentState.n[nextPlace]-graph.b[nextPlace])*9;
+				if (currentState.me()==config.p) newCost+=delta;
+				else newCost-=delta;
+
 				currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
 				currentState.attack(currentState.me(),
 									currentStrategy.a.back().x.x,
 									currentStrategy.a.back().x.y,
 									currentStrategy.a.back().y);
+
 				if (currentState.o[nextPlace]!=currentState.me())
 				{
 					currentState.undo();
@@ -425,20 +434,20 @@ struct AI
 					continue;
 				}
 				currentSet^=1ll<<nextPlace;
-				dfs(nextPlace);
+				dfs(nextPlace,newCost);
 				currentSet^=1ll<<nextPlace;
 				currentState.undo();
 				currentStrategy.a.pop_back();
 			}
 		}
 	}
-	pr<Strategy,int> getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo)
+	pr<Strategy,int> getStrategy(const GraphState& cs,int cr=0,int a=-oo,int b=+oo,int cost=0)
 	{
 		if (cr==MAX_ROUND)
 		{
-			int value=0;
 			if (config.p==1)
 			{
+				int value=0;
 				rep(i,sz(graph.nd)) if (cs.o[i])
 				{
 					if (cs.o[i]==config.p)
@@ -448,11 +457,13 @@ struct AI
 						value-=graph.b[i]*9,
 						value-=cs.n[i]*6;
 				}
-//				{prt(value);
+				best.y=value-cost;
+//				{prt(best.y);
 //				cs.show();}
 			}
 			else
 			{
+				int value=0;
 				rep(i,sz(graph.nd)) if (cs.o[i])
 				{
 					if (cs.o[i]==config.p)
@@ -462,8 +473,8 @@ struct AI
 						value-=graph.b[i]*9,
 						value-=cs.n[i]*6;
 				}
+				best.y=value;
 			}
-			best.y=value;
 		}
 		else
 		{
@@ -485,7 +496,7 @@ struct AI
 										currentStrategy.d.back().x,
 										currentStrategy.d.back().y);
 				calced.clear();
-				dfs(i);
+				dfs(i,cost);
 				currentState.undo();
 				currentStrategy.d.pop_back();
 			}
