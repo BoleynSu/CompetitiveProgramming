@@ -222,8 +222,8 @@ struct Graph
 
 struct Strategy
 {
-	deque<pii> d;
-	deque<pr<pii,int> > a;
+	vpii d;
+	vec<pr<pii,int> > a;
 };
 
 struct Undo
@@ -394,7 +394,9 @@ struct AI
 
 		AI ai;
 		currentState.p=currentState.enemy();
+		currentState.cr++;
 		pr<Strategy,int> get=ai.getStrategy(currentState,currentRound+1,alpha,beta,cost);
+		currentState.cr--;
 		currentState.p=currentState.enemy();
 
 		if (currentState.me()==config.p)
@@ -415,18 +417,16 @@ struct AI
 			{
 				int newCost=cost,delta=0;
 				if (currentState.o[nextPlace]!=currentState.enemy())
-					delta+=currentState.need(nextPlace)*2;
+					delta+=currentState.need(nextPlace)*(currentState.cr>=3?6:0);
 				else
-					delta+=(currentState.need(nextPlace)-currentState.n[nextPlace]-graph.b[nextPlace])*9;
+					delta+=(currentState.need(nextPlace)-currentState.n[nextPlace]-graph.b[nextPlace])*6;
 				if (currentState.me()==config.p) newCost+=delta;
 				else newCost-=delta;
-
-				currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
+					currentStrategy.a.pb(mp(mp(currentPlace,nextPlace),currentState.n[currentPlace]));
 				currentState.attack(currentState.me(),
 									currentStrategy.a.back().x.x,
 									currentStrategy.a.back().x.y,
 									currentStrategy.a.back().y);
-
 				if (currentState.o[nextPlace]!=currentState.me())
 				{
 					currentState.undo();
@@ -445,36 +445,17 @@ struct AI
 	{
 		if (cr==MAX_ROUND)
 		{
-			if (config.p==1)
+			int value=0;
+			rep(i,sz(graph.nd)) if (cs.o[i])
 			{
-				int value=0;
-				rep(i,sz(graph.nd)) if (cs.o[i])
-				{
-					if (cs.o[i]==config.p)
-						value+=graph.b[i]*12,
-						value+=cs.n[i]*8;
-					else
-						value-=graph.b[i]*9,
-						value-=cs.n[i]*6;
-				}
-				best.y=value-cost;
-//				{prt(best.y);
-//				cs.show();}
+				if (cs.o[i]==config.p)
+					value+=graph.b[i]*12,
+					value+=cs.n[i]*8;
+				else
+					value-=graph.b[i]*9,
+					value-=cs.n[i]*6;
 			}
-			else
-			{
-				int value=0;
-				rep(i,sz(graph.nd)) if (cs.o[i])
-				{
-					if (cs.o[i]==config.p)
-						value+=graph.b[i]*12,
-						value+=cs.n[i]*8;
-					else
-						value-=graph.b[i]*9,
-						value-=cs.n[i]*6;
-				}
-				best.y=value;
-			}
+			best.y=value-cost;
 		}
 		else
 		{
@@ -501,9 +482,36 @@ struct AI
 				currentStrategy.d.pop_back();
 			}
 		}
+
+		if (currentRound==0&&sz(best.x.a))
+		{
+			rep(i,sz(best.x.d)) currentState.distribute(currentState.me(),
+														best.x.d[i].x,
+														best.x.d[i].y);
+			rep(i,sz(best.x.a)) currentState.attack(currentState.me(),
+													best.x.a[i].x.x,
+													best.x.a[i].x.y,
+													best.x.a[i].y);
+			int extra=currentState.n[best.x.a.back().x.y]-1;
+			fdt(i,sz(best.x.a)-1,0)
+			{
+				int u=best.x.a[i].x.x;
+				rep(j,sz(graph.adj[u]))
+				{
+					int v=graph.adj[u][j];
+					if (currentState.o[v]==currentState.enemy())
+					{
+						repf(k,i,sz(best.x.a))
+							best.x.a[k].y-=extra;
+						return best;
+					}
+				}
+			}
+		}
+
 		rtn best;
 	}
-	const pr<Strategy,int>& getStrategyWithStart(const GraphState& cs,int start,int cr=0,int a=-oo,int b=+oo)
+	pr<Strategy,int> getStrategyWithStart(const GraphState& cs,int start,int cr=0,int a=-oo,int b=+oo)
 	{
 		currentState=cs;
 		currentRound=cr;
@@ -528,9 +536,35 @@ struct AI
 			currentStrategy.d.pop_back();
 		}
 
+		if (sz(best.x.a))
+		{
+			rep(i,sz(best.x.d)) currentState.distribute(currentState.me(),
+														best.x.d[i].x,
+														best.x.d[i].y);
+			rep(i,sz(best.x.a)) currentState.attack(currentState.me(),
+													best.x.a[i].x.x,
+													best.x.a[i].x.y,
+															best.x.a[i].y);
+			int extra=currentState.n[best.x.a.back().x.y]-1;
+			fdt(i,sz(best.x.a)-1,0)
+			{
+				int u=best.x.a[i].x.x;
+				rep(j,sz(graph.adj[u]))
+				{
+					int v=graph.adj[u][j];
+					if (currentState.o[v]==currentState.enemy())
+					{
+						repf(k,i,sz(best.x.a))
+							best.x.a[k].y-=extra;
+						return best;
+					}
+				}
+			}
+		}
+
 		rtn best;
 	}
-	const pr<Strategy,int>& getStrategyWithExtraDistribution(const GraphState& cs,int start,int to,int num,int cr=0,int a=-oo,int b=+oo)
+	pr<Strategy,int> getStrategyWithExtraDistribution(const GraphState& cs,int start,vpii extra,int cr=0,int a=-oo,int b=+oo)
 	{
 		currentState=cs;
 		currentRound=cr;
@@ -543,10 +577,13 @@ struct AI
 		if (currentState.me()==config.p) best.y=-oo;
 		else best.y=+oo;
 
-		currentStrategy.d.pb(mp(to,num));
-		currentState.distribute(currentState.me(),
-								currentStrategy.d.back().x,
-								currentStrategy.d.back().y);
+		rep(i,sz(extra))
+		{
+			currentStrategy.d.pb(mp(extra[i].x,extra[i].y));
+			currentState.distribute(currentState.me(),
+									currentStrategy.d.back().x,
+									currentStrategy.d.back().y);
+		}
 
 		if (currentState.ttl>=0)
 			rep(i,sz(graph.nd)) if (i==start)
@@ -561,8 +598,37 @@ struct AI
 				currentStrategy.d.pop_back();
 			}
 
-		currentState.undo();
-		currentStrategy.d.pop_back();
+		rep(i,sz(extra))
+		{
+			currentState.undo();
+			currentStrategy.d.pop_back();
+		}
+
+		if (sz(best.x.a))
+		{
+			rep(i,sz(best.x.d)) currentState.distribute(currentState.me(),
+														best.x.d[i].x,
+														best.x.d[i].y);
+			rep(i,sz(best.x.a)) currentState.attack(currentState.me(),
+													best.x.a[i].x.x,
+													best.x.a[i].x.y,
+															best.x.a[i].y);
+			int extra=currentState.n[best.x.a.back().x.y]-1;
+			fdt(i,sz(best.x.a)-1,0)
+			{
+				int u=best.x.a[i].x.x;
+				rep(j,sz(graph.adj[u]))
+				{
+					int v=graph.adj[u][j];
+					if (currentState.o[v]==currentState.enemy())
+					{
+						repf(k,i,sz(best.x.a))
+							best.x.a[k].y-=extra;
+						return best;
+					}
+				}
+			}
+		}
 
 		rtn best;
 	}
@@ -596,32 +662,40 @@ struct Game
 				}
 				else if (i==5)
 				{
-					graphState.apply(ai.getStrategyWithStart(graphState,15).x);
+					pr<Strategy,int> a=ai.getStrategyWithStart(graphState,15);
+					if (!sz(a.x.a))
+					{
+						a.x.a.pb(mp(mp(15,21),(3+a.x.d.back().y)/2));
+					}
+					graphState.apply(a.x);
 				}
-//				else if (i==0)
-//				{
-//					Strategy strategy;
-//					strategy.d.pb(mp(30,5));
-//					strategy.a.pb(mp(mp(30,31),5));
-//					strategy.a.pb(mp(mp(31,24),4));
-//					strategy.a.pb(mp(mp(24,25),3));
-//					graphState.apply(strategy);
-//
-//				}
-//				else if (i==2)
-//				{
-//					Strategy strategy;
-//					strategy.d.pb(mp(25,9));
-//					strategy.a.pb(mp(mp(25,19),10));
-//					strategy.a.pb(mp(mp(19,20),8));
-//					graphState.apply(strategy);
-//				}
-//				else if (i==4)
-//				{
-//					pr<Strategy,int> a=ai.getStrategyWithExtraDistribution(graphState,20,24,7);
-//					pr<Strategy,int> b=ai.getStrategy(graphState);
-//					graphState.apply(a.y>b.y?a.x:b.x);
-//				}
+				else if (i==0)
+				{
+					Strategy strategy;
+					strategy.d.pb(mp(30,5));
+					strategy.a.pb(mp(mp(30,31),5));
+					strategy.a.pb(mp(mp(31,24),4));
+					strategy.a.pb(mp(mp(24,25),3));
+					graphState.apply(strategy);
+
+				}
+				else if (i==2)
+				{
+					Strategy strategy;
+					strategy.d.pb(mp(25,9));
+					strategy.a.pb(mp(mp(25,19),10));
+					strategy.a.pb(mp(mp(19,20),8));
+					graphState.apply(strategy);
+				}
+				else if (i==4)
+				{
+					vpii extra;
+					extra.pb(mp(19,6));
+					pr<Strategy,int> a=ai.getStrategyWithExtraDistribution(graphState,20,extra);
+					pr<Strategy,int> b=ai.getStrategy(graphState);
+					prt(a.y),prt(b.y);
+					graphState.apply(a.y>=b.y?a.x:b.x);
+				}
 				else graphState.apply(ai.getStrategy(graphState).x);
 			}
 			else graphState.update();
