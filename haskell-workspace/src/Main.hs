@@ -1,9 +1,10 @@
 module Main where
-data SegmentTree = Null | Node SegmentTree SegmentTree Int Int Int
 
-getValue::SegmentTree->Int
-getValue Null = 0
-getValue (Node _ _ _ _ value) = value
+import Data.Int
+
+type Long=Int64
+data SegmentTree = Null | Node SegmentTree SegmentTree Int Int Long
+
 build::Int->Int->SegmentTree
 build l r | l==r = Node Null Null l r 0
 build l r = Node left right l r 0
@@ -11,25 +12,49 @@ build l r = Node left right l r 0
         right = build (m+1) r
         m     = (l+r) `div` 2
 
-update::SegmentTree->Int->Int->SegmentTree
-update Null _ _ = Null
-update (Node Null Null l r value) p x | l <= p && p<=r = Node Null Null l r (value + x)
-update (Node left right l r _) p x | l <= p && p<=r = Node newLeft newRight l r newValue
-  where newLeft  = update left p x
-        newRight = update right p x
-        newValue = getValue newLeft + getValue newRight
-update t _ _ = t
+update::SegmentTree->Int->Int->Long->SegmentTree
+update Null _ _ _ = Null
+update (Node left right l r value) begin end _ | r < begin || end < l = Node left right l r value
+update (Node left right l r _) begin end x | begin <= l && r<=end = Node newLeft newRight l r x
+  where newLeft  = update left begin end x
+        newRight = update right begin end x
+update (Node left right l r _) begin end x = Node newLeft newRight l r newValue
+  where newLeft  = update left begin end x
+        newRight = update right begin end x
+        newValue = max newLeftValue newRightValue
+        (Node _ _ _ _ newLeftValue)  =  newLeft
+        (Node _ _ _ _ newRightValue) =  newRight
 
-query::SegmentTree->Int->Int->Int
+query::SegmentTree->Int->Int->Long
 query Null _ _ = 0
-query _ begin end | begin> end = 0
+query (Node _ _ l r _) begin end | r < begin || end < l = 0 
 query (Node _ _ l r value) begin end | begin<=l && r<=end = value 
-query (Node left right _ _ _) begin end = query left begin end + query right begin end
+query (Node left right _ _ _) begin end = max (query left begin end) (query right begin end)
+
+makeTuple::[Int]->[(Int,Int)]
+makeTuple [ ] = []
+makeTuple [_] = []
+makeTuple (a:b:c) = (a,b) : makeTuple c
+
+initTree::SegmentTree->Int->[Int]->SegmentTree
+initTree t _ [] = t
+initTree t p (x:xs) = initTree (update t p p (fromIntegral x::Long)) (p+1) xs
+
+solveAQuery::SegmentTree->[(Int,Int)]->[Long]
+solveAQuery _ [] = []
+solveAQuery t ((w,h):xs) = ans:solveAQuery newT xs
+  where ans  = query t 1 w
+        newT = update t 1 w (ans+(fromIntegral h::Long))
+
+solve::Int->[Int]->[(Int,Int)]->[Long]
+solve n a = solveAQuery (initTree (build 1 n) 1 a)
 
 main::IO()
-main =
+main = do
+  input <- getContents
   let
-    t0 = build 1 10
-    t1 = update t0 1 10
-    t2 = update t1 2 4
- in putStrLn $ show $ query t2 1 10
+    (n:number0) = map read (words input)::[Int]
+    a = take n number0
+    (m:number1) = drop n number0
+    wh = take m (makeTuple number1)
+  putStr $ foldr (\x y->show x ++ "\n" ++ y) "" (solve n a wh)
