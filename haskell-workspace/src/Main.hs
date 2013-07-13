@@ -19,11 +19,9 @@ update (Node left right l r _) begin end x | begin <= l && r<=end = Node newLeft
   where newLeft  = update left begin end x
         newRight = update right begin end x
 update (Node left right l r _) begin end x = Node newLeft newRight l r newValue
-  where newLeft  = update left begin end x
-        newRight = update right begin end x
+  where newLeft  @ (Node _ _ _ _ newLeftValue)  = update left begin end x
+        newRight @ (Node _ _ _ _ newRightValue) = update right begin end x
         newValue = max newLeftValue newRightValue
-        (Node _ _ _ _ newLeftValue)  =  newLeft
-        (Node _ _ _ _ newRightValue) =  newRight
 
 query::SegmentTree->Int->Int->Long
 query Null _ _ = 0
