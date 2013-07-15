@@ -1,6 +1,6 @@
 name:           haskell-workspace
 version:        0.1
-cabal-version:  >=1.2
+cabal-version:  >= 1.2
 build-type:     Simple
 author:         boleynsu
 
@@ -13,7 +13,8 @@ executable haskell-workspace
 library 
   build-depends:   
                    base >= 4,
-                   array
+                   array,
+                   time
   hs-source-dirs:  src
   ghc-options:     -Wall
 

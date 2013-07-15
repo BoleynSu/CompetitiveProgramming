@@ -35,7 +35,7 @@ using namespace std;
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=(b);--i)
 #define for_nonempty_subsets(subset,set) for (int subset=set;subset;subset=(subset-1)&(set))
-#define forin(i,charset) for (cstr i=(charset);*i;i++)
+#define for_in_charset(i,charset) for (cstr i=(charset);*i;i++)
 #define whl while
 #define rtn return
 #define fl(x,y) memset((x),char(y),sizeof(x))
@@ -154,7 +154,14 @@ inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn 
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 //初始化
-struct Initializer{Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}~Initializer(){runtime();}}initializer;
+struct Initializer
+{
+#ifndef DEBUG
+	Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
+#else
+	~Initializer(){runtime();}
+#endif
+}initializer;
 
 //非标准
 #define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)

@@ -6,7 +6,7 @@ type Long=Int64
 data SegmentTree = Null | Node SegmentTree SegmentTree Int Int Long
 
 build::Int->Int->SegmentTree
-build l r | l==r = Node Null Null l r 0
+build l r | l == r = Node Null Null l r 0
 build l r = Node left right l r 0
   where left  = build l m
         right = build (m+1) r
@@ -14,23 +14,21 @@ build l r = Node left right l r 0
 
 update::Int->Int->Long->SegmentTree->SegmentTree
 update begin end x = update'
-  where update' Null =Null
+  where update' Null = Null
         update' t @ (Node _ _ l r _) | r < begin || end < l = t
-        update' (Node left right l r _) | begin <= l && r<=end = let
-          newLeft  = update' left
-          newRight = update' right
-          in Node newLeft newRight l r x
-        update' (Node left right l r _) = let 
-          newLeft  @ (Node _ _ _ _ newLeftValue)  = update' left
-          newRight @ (Node _ _ _ _ newRightValue) = update' right
-          newValue = max newLeftValue newRightValue
-          in Node newLeft newRight l r newValue
+        update' (Node left right l r _) | begin <= l && r <= end = Node newLeft newRight l r x
+          where newLeft  = update' left
+                newRight = update' right
+        update' (Node left right l r _) = Node newLeft newRight l r newValue
+          where newLeft  @ (Node _ _ _ _ newLeftValue)  = update' left
+                newRight @ (Node _ _ _ _ newRightValue) = update' right
+                newValue = max newLeftValue newRightValue
 
 query::Int->Int->SegmentTree->Long
 query begin end = query'
   where query' Null = 0
         query' (Node _ _ l r _) | r < begin || end < l = 0
-        query' (Node _ _ l r value) | begin <= l && r <= end = value 
+        query' (Node _ _ l r value) | begin <= l && r <= end = value
         query' (Node left right _ _ _) = max (query' left) (query' right)
 
 makeTuple::[Int]->[(Int,Int)]
