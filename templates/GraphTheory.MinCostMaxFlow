@@ -1,4 +1,4 @@
 #ifndef SCL_GRAPH_THEORY_MCMF
 #define SCL_GRAPH_THEORY_MCMF
-#include <GraphTheory.MinCostMaxFlow.h>
+#include <GraphTheory.MinCostMaxFlow.hpp>
 #endif

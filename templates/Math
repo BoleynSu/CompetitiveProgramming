@@ -1,4 +1,4 @@
 #ifndef SCL_MATH
 #define SCL_MATH
-#include <Math_.h>
+#include <Math.hpp>
 #endif

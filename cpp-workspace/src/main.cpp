@@ -67,11 +67,11 @@ using namespace std;
 //调试相关的宏
 #ifdef DEBUG
 #define prt(x) cerr<<#x"="<<(x)<<endl
-#define asrtWA(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
-#define asrtTLE(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
-#define asrtMLE(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
-#define asrtOLE(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
-#define asrtRE(s) do if(!(s))do{cerr<<"assert("#s")"<<endl;}whl(0);whl(0)
+#define asrtWA(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtTLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtMLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtOLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;;whl(0)
+#define asrtRE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
 #define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
 #define input(in) do{}whl(0)
 #define output(out) do{}whl(0)
