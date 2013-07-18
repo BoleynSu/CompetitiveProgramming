@@ -1,59 +1,98 @@
+{-#LANGUAGE BangPatterns#-}
 module Main where
 
-import Data.Int
+import qualified Data.ByteString.Lazy.Char8 as L
+import Data.Char (isSpace)
 
-type Long=Int64
-data SegmentTree = Null | Node SegmentTree SegmentTree Int Int Long
+-- begin template
 
-build::Int->Int->SegmentTree
-build l r | l == r = Node Null Null l r 0
-build l r = Node left right l r 0
-  where left  = build l m
-        right = build (m+1) r
-        m     = (l+r) `div` 2
+import Data.List
 
-update::Int->Int->Long->SegmentTree->SegmentTree
-update begin end x = update'
-  where update' Null = Null
-        update' t @ (Node _ _ l r _) | r < begin || end < l = t
-        update' (Node left right l r _) | begin <= l && r <= end = Node newLeft newRight l r x
-          where newLeft  = update' left
-                newRight = update' right
-        update' (Node left right l r _) = Node newLeft newRight l r newValue
-          where newLeft  @ (Node _ _ _ _ newLeftValue)  = update' left
-                newRight @ (Node _ _ _ _ newRightValue) = update' right
-                newValue = max newLeftValue newRightValue
+uniqueBy::Ord a=>(a->a->Ordering)->[a]->[a]
+uniqueBy cmp (x:y:xs) = if cmp x y == EQ then uniqueBy cmp (y:xs) else x:uniqueBy cmp (y:xs)
+uniqueBy _ x = x
 
-query::Int->Int->SegmentTree->Long
-query begin end = query'
-  where query' Null = 0
-        query' (Node _ _ l r _) | r < begin || end < l = 0
-        query' (Node _ _ l r value) | begin <= l && r <= end = value
-        query' (Node left right _ _ _) = max (query' left) (query' right)
+unique::Ord a=>[a]->[a]
+unique = uniqueBy compare
 
-makeTuple::[Int]->[(Int,Int)]
-makeTuple [ ] = []
-makeTuple [_] = []
-makeTuple (a:b:c) = (a,b) : makeTuple c
+{-
+readInt::[String]->(Int,[String])
+readInt (x:xs) = (read x,xs)
+
+readInts::[String]->Int->([Int],[String])
+readInts (x:xs) y | y/=0 = let (get,rest) = readInts xs (y-1) in (read x:get,rest)
+readInts x _ = ([],x)
+-}
+-- end template
+
+split :: [a] -> ([a],[a])
+split xs = go xs xs where
+  go (x:xs) (_:_:zs) = (x:us,vs) where (us,vs)=go xs zs
+  go    xs   _       = ([],xs)
+merge :: (a -> a -> Bool) -> [a] -> [a] -> [a]
+merge pred xs []         = xs
+merge pred [] ys         = ys
+merge pred (x:xs) (y:ys) =
+  case pred x y of
+    True  -> x: merge pred xs (y:ys)
+    False -> y: merge pred (x:xs) ys
+
+mergesort :: (a -> a -> Bool) -> [a] -> [a]
+mergesort pred []   = []
+mergesort pred [x]  = [x]
+mergesort pred xs = merge pred (mergesort pred xs1) (mergesort pred xs2)
+  where
+    (xs1,xs2) = split xs
+
+parseInput :: Parser ([Int],[Int])
+parseInput = do
+    n <- readInt
+    a <- readInts n
+    m <- readInt
+    b <- readInts m
+    return (a,b)
+
+-- Implementation of State monad, because Codeforces doesn't have
+-- necessary libraries installed.
+data Parser a = Parser {runParser :: L.ByteString -> (a, L.ByteString)}
+instance Monad Parser where
+  return x  = Parser (\c -> (x, c))
+  mx >>= my = Parser f
+    where f c = let (x, c')  = runParser mx c
+                    (y, c'') = runParser (my x) c'
+                in (y, c'')
+
+get :: Parser L.ByteString
+get = Parser (\c -> (c, c))
+
+put :: L.ByteString -> Parser ()
+put c = Parser (\_ -> ((), c))
+-- End of State monad
+
+skipSpace :: Parser ()
+skipSpace = do
+    c <- get
+    let (space, next) = L.span isSpace c
+    put next
+
+readInt :: Parser Int
+readInt = do
+    skipSpace
+    c <- get
+    let Just (n, rest) = L.readInt c
+    put rest
+    return n
+
+readInts :: Int -> Parser [Int]
+readInts count = mapM (const readInt) [1..count]
 
 main::IO()
 main = do
-  input <- getContents
+  input <- L.getContents
   let
-    (n:number0) = map read (words input)::[Int]
-    a = take n number0
-    (m:number1) = drop n number0
-    wh = take m (makeTuple number1)
-    t = initTree 1 a $ build 1 n
-  solve t wh
-  where initTree::Int->[Int]->SegmentTree->SegmentTree
-        initTree _ [] t = t
-        initTree p (x:xs) t = initTree (p+1) xs $ update p p (fromIntegral x::Long) t
-
-        solve::SegmentTree->[(Int,Int)]->IO()
-        solve _ [] = return ()
-        solve t ((w,h):xs) = do
-          print ans
-          solve nt xs
-          where ans = query 1 w t
-                nt  = update 1 w (ans+(fromIntegral h::Long)) t
+    ((a,b),_) = runParser parseInput input
+  print $ solve (unique $ mergesort (<) a) (mergesort (<) b) 0
+  where solve a@(!x:xs) (!y:ys) !ans | x==y = solve a ys (ans+1)
+        solve (!x:xs) b@(!y:ys) !ans | x<y  = solve xs b ans
+        solve a@(!x:xs) (!y:ys) !ans | x>y  = solve a ys ans
+        solve _ _ !ans = ans::Int

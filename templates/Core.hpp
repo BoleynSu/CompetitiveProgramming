@@ -65,17 +65,7 @@ using namespace std;
 #define rev(x) reverse(all(x))
 
 //调试相关的宏
-#ifdef DEBUG
-#define prt(x) cerr<<#x"="<<(x)<<endl
-#define asrtWA(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define asrtTLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define asrtMLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define asrtOLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;;whl(0)
-#define asrtRE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
-#define input(in) do{}whl(0)
-#define output(out) do{}whl(0)
-#else
+#ifndef DEBUG
 #define prt(x) (cerr)
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
@@ -85,6 +75,16 @@ using namespace std;
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
 #define output(out) freopen(out,"w",stdout)
+#else
+#define prt(x) cerr<<#x"="<<(x)<<endl
+#define asrtWA(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtTLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtMLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtOLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;;whl(0)
+#define asrtRE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
+#define input(in)
+#define output(out)
 #endif
 
 //常用数据类型

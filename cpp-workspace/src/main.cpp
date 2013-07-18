@@ -65,17 +65,7 @@ using namespace std;
 #define rev(x) reverse(all(x))
 
 //调试相关的宏
-#ifdef DEBUG
-#define prt(x) cerr<<#x"="<<(x)<<endl
-#define asrtWA(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define asrtTLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define asrtMLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define asrtOLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;;whl(0)
-#define asrtRE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
-#define input(in) do{}whl(0)
-#define output(out) do{}whl(0)
-#else
+#ifndef DEBUG
 #define prt(x) (cerr)
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
 #define asrtTLE(s) do if(!(s))whl(1);whl(0)
@@ -85,6 +75,16 @@ using namespace std;
 #define runtime() (cerr)
 #define input(in) freopen(in,"r",stdin)
 #define output(out) freopen(out,"w",stdout)
+#else
+#define prt(x) cerr<<#x"="<<(x)<<endl
+#define asrtWA(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtTLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtMLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define asrtOLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;;whl(0)
+#define asrtRE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
+#define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
+#define input(in)
+#define output(out)
 #endif
 
 //常用数据类型
@@ -175,105 +175,6 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 #define clz __builtin_clz
 #define bc __builtin_popcount
 
-int h,w;
-char g[50+2][50+2];
-
-int dx2[][2]={{2,2},{0,1},{-1,-1},{0,1}};
-int dy2[][2]={{0,1},{2,2},{0,1},{-1,-1}};
-
-map<pr<pii,pii>,vvi> calced;
-
-int get(pii k,pii a,pii b)
-{
-	if (!calced.count(mp(k,a)))
-	{
-		char og[50+2][50+2];
-		cpy(og,g);
-		rep(i,2) rep(j,2) g[k.x+i][k.y+j]='*';
-		vvi& d=calced[mp(k,a)];
-		d=vvi(h+2,vi(w+2,oo));
-		queue<pii> q;
-		if (cmin(d[a.x][a.y],0)) q.push(a);
-		whl(sz(q))
-		{
-			pii u=q.front();
-			q.pop();
-			rep(i,4)
-			{
-				pii v;
-				v.x=u.x+dx[i];
-				v.y=u.y+dy[i];
-				if (g[v.x][v.y]!='*'&&cmin(d[v.x][v.y],d[u.x][u.y]+1))
-					q.push(v);
-			}
-		}
-		cpy(g,og);
-	}
-	rtn calced[mp(k,a)][b.x][b.y];
-}
-int get(pii k,pii a,pii b,int t)
-{
-	pii c=mp(k.x+dx2[t][0],k.y+dy2[t][0]);
-	pii d=mp(k.x+dx2[t][1],k.y+dy2[t][1]);
-	rtn min(get(k,a,c)+get(k,b,d),get(k,a,d)+get(k,b,c));
-}
-int get(pii k,int f,int t)
-{
-	pii a=mp(k.x+dx2[f][0],k.y+dy2[f][0]);
-	pii b=mp(k.x+dx2[f][1],k.y+dy2[f][1]);
-	rtn get(k,a,b,t);
-}
-
 int main()
 {
-	oo/=4;
-	whl(cin>>h>>w,h||w)
-	{
-		fl(g,'*');
-		ft(i,1,h) ft(j,1,w) cin>>g[i][j];
-		pii S;
-		ft(i,1,h) ft(j,1,w) if (g[i][j]=='X')
-			S=mp(i,j);
-		S.x--,S.y--;
-		vpii s;
-		ft(i,1,h) ft(j,1,w) if (g[i][j]=='.')
-			s.pb(mp(i,j));
-		if (S==mp(1,1)) cout<<0<<endl;
-		else
-		{
-			calced.clear();
-			vec<vvi> d(h+2,vvi(w+2,vi(4,+oo)));
-			prq<pr<int,pr<pii,int> > > q;
-			rep(i,4)
-				if (cmin(d[S.x][S.y][i],get(S,s[0],s[1],i)))
-					q.push(mp(-d[S.x][S.y][i],mp(S,i)));
-			bool fnd=false;
-			whl(sz(q))
-			{
-				int du=-q.top().x;
-				pr<pii,int> u=q.top().y;
-				q.pop();
-				if (u.x==mp(1,1))
-				{
-					cout<<du<<endl;
-					fnd=true;
-					break;
-				}
-				if (du==d[u.x.x][u.x.y][u.y])
-				{
-					pr<pii,int> v;
-					v.x=u.x;
-					for (v.y=0;v.y<4;v.y++)
-						if (cmin(d[v.x.x][v.x.y][v.y],du+get(u.x,u.y,v.y)))
-							q.push(mp(-d[v.x.x][v.x.y][v.y],v));
-					v.x.x=u.x.x+dx[u.y];
-					v.x.y=u.x.y+dy[u.y];
-					v.y=(u.y+2)%4;
-					if (cmin(d[v.x.x][v.x.y][v.y],du+1))
-						q.push(mp(-d[v.x.x][v.x.y][v.y],v));
-				}
-			}
-			if (!fnd) cout<<-1<<endl;
-		}
-	}
 }
