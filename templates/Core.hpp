@@ -80,7 +80,7 @@ using namespace std;
 #define asrtWA(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
 #define asrtTLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
 #define asrtMLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
-#define asrtOLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;;whl(0)
+#define asrtOLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
 #define asrtRE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
 #define runtime() cerr<<"Used: "<<db(clock())/CLOCKS_PER_SEC<<"s"<<endl
 #define input(in)
