@@ -4,29 +4,24 @@ import java.util.Scanner;
 
 
 public class Main {
-	static final BigInteger TWO = BigInteger.valueOf(2);
 	public static void main(String[] args) {
-		BigInteger n=new Scanner(System.in).nextBigInteger();
-		BigInteger[] ans=new BigInteger[64];
-		int anss=0;
-		for (int x=0;x<64;x++)
+		int n=new Scanner(System.in).nextInt();
+		BigInteger[][] s=new BigInteger[100][100];
+		BigInteger[] a=new BigInteger[100];
+		for (int i=0;i<s.length;i++) Arrays.fill(s[i],BigInteger.ZERO);
+		Arrays.fill(a,BigInteger.ZERO);
+		a[1]=BigInteger.ONE;
+		for(int k=1;k<n;k++)
 		{
-			BigInteger t=TWO.pow(x);
-			BigInteger tmo=t.subtract(BigInteger.ONE);
-			BigInteger l=BigInteger.ONE.negate(),r=TWO.pow(64);
-			while (!r.subtract(l).equals(BigInteger.ONE))
+			for(int j=1;j<=k;j++)
 			{
-				BigInteger mid=l.add(r).divide(TWO);
-				BigInteger k=mid.multiply(TWO).add(BigInteger.ONE);
-				if (k.multiply(mid.add(tmo)).compareTo(n)>=0) r=mid;
-				else l=mid;
+				for(int i=1;i<=k/j;i++)
+					s[k][j]=s[k][j].add(a[k+1-i*j]);
 			}
-			BigInteger k=r.multiply(TWO).add(BigInteger.ONE);
-			if (k.multiply(r.add(tmo)).equals(n)) ans[anss++]=k.multiply(t);
+			for(int j=1;j<=k;j++)
+				a[k+1]=a[k+1].add(BigInteger.valueOf(j).multiply(a[j]).multiply(s[k][j]));
+			a[k+1]=a[k+1].divide(BigInteger.valueOf(k));
 		}
-		Arrays.sort(ans,0,anss);
-		for (int i=0;i<anss;i++) System.out.println(ans[i]);
-		if (anss==0) System.out.println(-1);
+		System.out.println(a[n]);
 	}
-
 }
