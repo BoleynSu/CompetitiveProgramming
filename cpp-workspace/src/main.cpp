@@ -31,7 +31,9 @@ using namespace std;
 //用于减少代码量的宏
 #define lp for(;;)
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
+#define rrepf(i,a,b) for (int i=(a)-1;i>=(b);--i)
 #define rep(i,n) repf(i,0,n)
+#define rrep(i,n) rrepf(i,n,0)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=(b);--i)
 #define for_nonempty_subsets(subset,set) for (int subset=set;subset;subset=(subset-1)&(set))
@@ -177,4 +179,56 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 
 int main()
 {
+	int n,p,k;
+	cin>>n>>p>>k;
+	vec<pll> lst(n);
+	cin>>lst;
+	vec<pr<pll,int> > nlst(n);
+	rep(i,n) nlst[i]=mp(mp(lst[i].x,lst[i].y),i+1);
+	sort(all(nlst),[](pr<pll,int> a,pr<pll,int> b){rtn a.x.y!=b.x.y?a.x.y>b.x.y:a.x.x>b.x.x;});
+	ooll/=4;
+	vec<lli> pre(n,-ooll),suf(n,-ooll);
+	prq<lli> pq;
+	lli psum=0;
+	rep(i,n)
+	{
+		pq.push(-nlst[i].x.x),psum+=nlst[i].x.x;
+		if (sz(pq)>k) psum+=pq.top(),pq.pop();
+		pre[i]=psum;
+	}
+	prq<lli> sq;
+	lli ssum=0;
+	rrep(i,n)
+	{
+		sq.push(-nlst[i].x.y),ssum+=nlst[i].x.y;
+		if (sz(sq)>p-k) ssum+=sq.top(),sq.pop();
+		suf[i]=ssum;
+	}
+	pll ans=mp(-ooll,-ooll);
+	int ansi=-1;
+	repf(i,k,n-(p-k)) if (cmax(ans,mp(pre[i-1],suf[i]))) ansi=i;
+	if (p==k&&cmax(ans,mp(pre[n-1],0ll))) ansi=n;
+	rep(i,n) if (i==ansi)
+	{
+		vi ans;
+		prq<pr<lli,int> > pq;
+		rep(j,ansi) pq.push(mp(nlst[j].x.x,nlst[j].y));
+		whl(sz(ans)<k) ans.pb(pq.top().y),pq.pop();
+		prq<pr<lli,int> > sq;
+		repf(j,ansi,n) sq.push(mp(nlst[j].x.y,nlst[j].y));
+		whl(sz(ans)<p) ans.pb(sq.top().y),sq.pop();
+		cout<<ans<<endl;
+	}
+	if (ansi==n)
+	{
+		vi ans;
+		prq<pr<lli,int> > pq;
+		rep(j,ansi) pq.push(mp(nlst[j].x.x,nlst[j].y));
+		whl(sz(ans)<k) ans.pb(pq.top().y),pq.pop();
+		prq<pr<lli,int> > sq;
+		repf(j,ansi,n) sq.push(mp(nlst[j].x.y,nlst[j].y));
+		whl(sz(ans)<p) ans.pb(sq.top().y),sq.pop();
+		cout<<ans<<endl;
+	}
+	prt(ans);
 }

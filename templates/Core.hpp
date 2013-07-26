@@ -31,7 +31,9 @@ using namespace std;
 //用于减少代码量的宏
 #define lp for(;;)
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
+#define rrepf(i,a,b) for (int i=(a)-1;i>=(b);--i)
 #define rep(i,n) repf(i,0,n)
+#define rrep(i,n) rrepf(i,n,0)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=(b);--i)
 #define for_nonempty_subsets(subset,set) for (int subset=set;subset;subset=(subset-1)&(set))
