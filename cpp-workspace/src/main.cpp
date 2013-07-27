@@ -90,7 +90,7 @@ using namespace std;
 #endif
 
 //常用数据类型
-typedef long long int lli;
+typedef unsigned long long int lli;
 typedef double db;
 typedef const char* cstr;
 typedef string str;
@@ -165,70 +165,133 @@ struct Initializer
 #endif
 }initializer;
 
-//非标准
-#define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
-#include <ext/rope>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/tag_and_trait.hpp>
-using __gnu_cxx::rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#define ctz __builtin_ctz
-#define clz __builtin_clz
-#define bc __builtin_popcount
+////非标准
+//#define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
+//#include <ext/rope>
+//#include <ext/pb_ds/assoc_container.hpp>
+//#include <ext/pb_ds/tree_policy.hpp>
+//#include <ext/pb_ds/tag_and_trait.hpp>
+//using __gnu_cxx::rope;
+//template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+//#define ctz __builtin_ctz
+//#define clz __builtin_clz
+//#define bc __builtin_popcount
+
+const int MAXV=1000000;
+const int MAXE=1000000;
+typedef struct struct_edge* edge;
+struct struct_edge{int v;edge n;}pool[MAXE];
+edge top;
+int V;
+edge adj[MAXV];
+void build_graph(int v)
+{
+	top=pool;
+	memset(adj,0,sizeof(adj));
+	V=v;
+	//add_edge(u,v);
+}
+void add_edge(int u,int v)
+{
+	top->v=v,top->n=adj[u],adj[u]=top++;
+}
+int ord;
+int dfn[MAXV];
+int low[MAXV];
+int stks;
+int stk[MAXV];
+bool ins[MAXV];
+int cnt;
+int bl[MAXV];
+void dfs(int u)
+{
+	dfn[u]=low[u]=++ord;
+	ins[stk[stks++]=u]=true;
+	for (edge i=adj[u];i;i=i->n)
+		if (!dfn[i->v]) dfs(i->v),cmin(low[u],low[i->v]);
+		else if (ins[i->v]) cmin(low[u],dfn[i->v]);
+	if (dfn[u]==low[u])
+	{
+		cnt++;
+		int v;
+		do ins[v=stk[--stks]]=false,bl[v]=cnt;
+		whl(v!=u);
+	}
+}
+void tarjan()
+{
+	clr(dfn);
+	rep(i,V) if (!dfn[i]) dfs(i);
+}
+
+#define T(x) (x)
+#define F(x) ((x)+N)
+int N;
+void build_2sat(int n)
+{
+	N=n;
+	build_graph(N*2);
+	/*
+	A[x]				=add_edge(F(x),T(x));
+	NOT A[x]			=add_edge(T(x),F(x));
+	A[x] AND A[y]		=add_edge(F(x),T(x)),add_edge(F(y),T(y));
+	A[x] AND NOT A[y]	=add_edge(F(x),T(x)),add_edge(T(y),F(y));
+	A[x] OR A[y]		=add_edge(F(x),T(y)),add_edge(F(y),T(x));
+	A[x] OR NOT A[y]	=add_edge(F(x),F(y)),add_edge(T(y),T(x));
+	NOT (A[x] AND A[y])	=add_edge(T(x),F(y)),add_edge(T(y),F(x));
+	NOT (A[x] OR A[y])	=add_edge(T(x),F(x)),add_edge(T(y),F(y));
+	A[x] XOR A[y]		=add_edge(F(x),T(y)),add_edge(F(y),T(x)),add_edge(T(x),F(y)),add_edge(T(y),F(x));
+	NOT (A[x] XOR A[y])	=add_edge(F(x),F(y)),add_edge(F(y),F(x)),add_edge(T(x),T(y)),add_edge(T(y),T(x));
+	A[x] XOR NOT A[y]	=add_edge(F(x),F(y)),add_edge(F(y),F(x)),add_edge(T(x),T(y)),add_edge(T(y),T(x));
+	u到v有边表示选u必选v
+	*/
+}
+bool possible_2sat()
+{
+	tarjan();
+	rep(i,N) if (bl[T(i)]==bl[F(i)]) rtn false;
+	rtn true;
+}
 
 int main()
 {
-	int n,p,k;
-	cin>>n>>p>>k;
-	vec<pll> lst(n);
-	cin>>lst;
-	vec<pr<pll,int> > nlst(n);
-	rep(i,n) nlst[i]=mp(mp(lst[i].x,lst[i].y),i+1);
-	sort(all(nlst),[](pr<pll,int> a,pr<pll,int> b){rtn a.x.y!=b.x.y?a.x.y>b.x.y:a.x.x>b.x.x;});
-	ooll/=4;
-	vec<lli> pre(n,-ooll),suf(n,-ooll);
-	prq<lli> pq;
-	lli psum=0;
-	rep(i,n)
+	int n;
+	whl(cin>>n)
 	{
-		pq.push(-nlst[i].x.x),psum+=nlst[i].x.x;
-		if (sz(pq)>k) psum+=pq.top(),pq.pop();
-		pre[i]=psum;
+		vvi b(n,vi(n));
+		cin>>b;
+		bool yes=true;
+		rep(d,31)
+		{
+			build_2sat(n);
+			rep(i,n) rep(j,n)
+			{
+				int dgt=(b[i][j]>>d)&1;
+				if (i==j)
+				{
+					if (dgt&1) yes=false;
+				}
+				else
+				{
+					if ((i&1)&&(j&1))
+					{
+						if (dgt) add_edge(F(i),T(j)),add_edge(F(j),T(i));
+						else add_edge(T(i),F(i)),add_edge(T(j),F(j));
+					}
+					else if (!(i&1)&&!(j&1))
+					{
+						if (dgt) add_edge(F(i),T(i)),add_edge(F(j),T(j));
+						else add_edge(T(i),F(j)),add_edge(T(i),F(j));
+					}
+					else
+					{
+						if (dgt) add_edge(F(i),T(j)),add_edge(F(j),T(i)),add_edge(T(i),F(j)),add_edge(T(j),F(i));
+						else add_edge(F(i),F(j)),add_edge(F(j),F(i)),add_edge(T(i),T(j)),add_edge(T(j),T(i));
+					}
+				}
+			}
+			if (!possible_2sat()) yes=false;
+		}
+		cout<<(yes?"YES":"NO")<<endl;
 	}
-	prq<lli> sq;
-	lli ssum=0;
-	rrep(i,n)
-	{
-		sq.push(-nlst[i].x.y),ssum+=nlst[i].x.y;
-		if (sz(sq)>p-k) ssum+=sq.top(),sq.pop();
-		suf[i]=ssum;
-	}
-	pll ans=mp(-ooll,-ooll);
-	int ansi=-1;
-	repf(i,k,n-(p-k)) if (cmax(ans,mp(pre[i-1],suf[i]))) ansi=i;
-	if (p==k&&cmax(ans,mp(pre[n-1],0ll))) ansi=n;
-	rep(i,n) if (i==ansi)
-	{
-		vi ans;
-		prq<pr<lli,int> > pq;
-		rep(j,ansi) pq.push(mp(nlst[j].x.x,nlst[j].y));
-		whl(sz(ans)<k) ans.pb(pq.top().y),pq.pop();
-		prq<pr<lli,int> > sq;
-		repf(j,ansi,n) sq.push(mp(nlst[j].x.y,nlst[j].y));
-		whl(sz(ans)<p) ans.pb(sq.top().y),sq.pop();
-		cout<<ans<<endl;
-	}
-	if (ansi==n)
-	{
-		vi ans;
-		prq<pr<lli,int> > pq;
-		rep(j,ansi) pq.push(mp(nlst[j].x.x,nlst[j].y));
-		whl(sz(ans)<k) ans.pb(pq.top().y),pq.pop();
-		prq<pr<lli,int> > sq;
-		repf(j,ansi,n) sq.push(mp(nlst[j].x.y,nlst[j].y));
-		whl(sz(ans)<p) ans.pb(sq.top().y),sq.pop();
-		cout<<ans<<endl;
-	}
-	prt(ans);
 }
