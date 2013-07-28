@@ -90,7 +90,7 @@ using namespace std;
 #endif
 
 //常用数据类型
-typedef unsigned long long int lli;
+typedef long long int lli;
 typedef double db;
 typedef const char* cstr;
 typedef string str;
@@ -177,121 +177,31 @@ struct Initializer
 //#define clz __builtin_clz
 //#define bc __builtin_popcount
 
-const int MAXV=1000000;
-const int MAXE=1000000;
-typedef struct struct_edge* edge;
-struct struct_edge{int v;edge n;}pool[MAXE];
-edge top;
-int V;
-edge adj[MAXV];
-void build_graph(int v)
-{
-	top=pool;
-	memset(adj,0,sizeof(adj));
-	V=v;
-	//add_edge(u,v);
-}
-void add_edge(int u,int v)
-{
-	top->v=v,top->n=adj[u],adj[u]=top++;
-}
-int ord;
-int dfn[MAXV];
-int low[MAXV];
-int stks;
-int stk[MAXV];
-bool ins[MAXV];
-int cnt;
-int bl[MAXV];
-void dfs(int u)
-{
-	dfn[u]=low[u]=++ord;
-	ins[stk[stks++]=u]=true;
-	for (edge i=adj[u];i;i=i->n)
-		if (!dfn[i->v]) dfs(i->v),cmin(low[u],low[i->v]);
-		else if (ins[i->v]) cmin(low[u],dfn[i->v]);
-	if (dfn[u]==low[u])
-	{
-		cnt++;
-		int v;
-		do ins[v=stk[--stks]]=false,bl[v]=cnt;
-		whl(v!=u);
-	}
-}
-void tarjan()
-{
-	clr(dfn);
-	rep(i,V) if (!dfn[i]) dfs(i);
-}
-
-#define T(x) (x)
-#define F(x) ((x)+N)
-int N;
-void build_2sat(int n)
-{
-	N=n;
-	build_graph(N*2);
-	/*
-	A[x]				=add_edge(F(x),T(x));
-	NOT A[x]			=add_edge(T(x),F(x));
-	A[x] AND A[y]		=add_edge(F(x),T(x)),add_edge(F(y),T(y));
-	A[x] AND NOT A[y]	=add_edge(F(x),T(x)),add_edge(T(y),F(y));
-	A[x] OR A[y]		=add_edge(F(x),T(y)),add_edge(F(y),T(x));
-	A[x] OR NOT A[y]	=add_edge(F(x),F(y)),add_edge(T(y),T(x));
-	NOT (A[x] AND A[y])	=add_edge(T(x),F(y)),add_edge(T(y),F(x));
-	NOT (A[x] OR A[y])	=add_edge(T(x),F(x)),add_edge(T(y),F(y));
-	A[x] XOR A[y]		=add_edge(F(x),T(y)),add_edge(F(y),T(x)),add_edge(T(x),F(y)),add_edge(T(y),F(x));
-	NOT (A[x] XOR A[y])	=add_edge(F(x),F(y)),add_edge(F(y),F(x)),add_edge(T(x),T(y)),add_edge(T(y),T(x));
-	A[x] XOR NOT A[y]	=add_edge(F(x),F(y)),add_edge(F(y),F(x)),add_edge(T(x),T(y)),add_edge(T(y),T(x));
-	u到v有边表示选u必选v
-	*/
-}
-bool possible_2sat()
-{
-	tarjan();
-	rep(i,N) if (bl[T(i)]==bl[F(i)]) rtn false;
-	rtn true;
-}
-
 int main()
 {
-	int n;
-	whl(cin>>n)
+	int n,m,k;
+	whl(cin>>n>>m>>k)
 	{
-		vvi b(n,vi(n));
-		cin>>b;
-		bool yes=true;
-		rep(d,31)
-		{
-			build_2sat(n);
-			rep(i,n) rep(j,n)
-			{
-				int dgt=(b[i][j]>>d)&1;
-				if (i==j)
-				{
-					if (dgt&1) yes=false;
-				}
-				else
-				{
-					if ((i&1)&&(j&1))
+		vi lst;
+		for (int i=1;i*i<=m;i++) if (m%i==0) lst.pb(i),lst.pb(m/i);
+		uniq(lst);
+		//prt(lst);
+		mii id;
+		rep(i,sz(lst)) id[lst[i]]=i;
+		vec<vvi> f(k+1,vvi(sz(lst),vi(n+1)));
+		f[0][id[1]][0]=1;
+		vvi lc(sz(lst),vi(sz(lst)));
+		rep(i,sz(lst)) rep(j,sz(lst)) lc[i][j]=id[lcm(lst[i],lst[j])];
+		rep(i,k)
+			rep(j,sz(lst))
+				rep(o,sz(lst))
+					ft(l,0,n-lst[o])
 					{
-						if (dgt) add_edge(F(i),T(j)),add_edge(F(j),T(i));
-						else add_edge(T(i),F(i)),add_edge(T(j),F(j));
+						int& upd=f[i+1][lc[o][j]][l+lst[o]];
+						//if (f[i][j][l]) prt(i),prt(lst[j]),prt(l),prt(i+1),prt(lst[lc[o][j]]),prt(l+lst[o]);
+						upd+=f[i][j][l];
+						if (upd>=MOD) upd-=MOD;
 					}
-					else if (!(i&1)&&!(j&1))
-					{
-						if (dgt) add_edge(F(i),T(i)),add_edge(F(j),T(j));
-						else add_edge(T(i),F(j)),add_edge(T(i),F(j));
-					}
-					else
-					{
-						if (dgt) add_edge(F(i),T(j)),add_edge(F(j),T(i)),add_edge(T(i),F(j)),add_edge(T(j),F(i));
-						else add_edge(F(i),F(j)),add_edge(F(j),F(i)),add_edge(T(i),T(j)),add_edge(T(j),T(i));
-					}
-				}
-			}
-			if (!possible_2sat()) yes=false;
-		}
-		cout<<(yes?"YES":"NO")<<endl;
+		cout<<f[k][id[m]][n]<<endl;
 	}
 }

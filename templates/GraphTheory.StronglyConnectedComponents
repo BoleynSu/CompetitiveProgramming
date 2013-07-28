@@ -1,0 +1,4 @@
+#ifndef SCL_GRAPH_THEORY_SCC
+#define SCL_GRAPH_THEORY_SCC
+#include <GraphTheory.StronglyConnectedComponents.hpp>
+#endif

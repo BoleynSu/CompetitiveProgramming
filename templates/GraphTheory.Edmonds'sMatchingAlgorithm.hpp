@@ -36,8 +36,7 @@ int V;
 edge adj[MAXV];
 void build_graph(int v)
 {
-	top=pool;
-	clr(adj);
+	top=pool,clr(adj);
 	V=v;//点数 V必须严格等于图中的点的数目
 	//add_edge(u,v);
 }

@@ -1,0 +1,4 @@
+#ifndef SCL_2SAT
+#define SCL_2SAT
+#include <2SAT.hpp>
+#endif

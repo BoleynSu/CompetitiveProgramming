@@ -8,7 +8,7 @@
  * build_graph:构图,详细见函数内的注释
  * add_edge:
  * 输入int u,v;cost_type d
- * add_edge(u,v,d) 加一条u到v的劝值为d的有向边
+ * add_edge(u,v,d) 加一条u到v的权值为d的有向边
  * spfa:
  * 运行后d[u]=S到u的距离
  * dijkstra:
