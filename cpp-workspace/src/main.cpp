@@ -394,7 +394,7 @@ namespace StandardCodeLibrary
 namespace ComputationalGeometry2D
 {
 
-const int MAXN=400000;
+const int MAXN=500000;
 
 typedef Point Vertex;
 typedef int Face;
@@ -402,8 +402,11 @@ struct Edge
 {
 	int idx;
 	Edge* n;
-	Vertex v;
-//	Face f;
+	union
+	{
+		Vertex* v;
+		Face* f;
+	};
 	inline Edge* Rot(){return idx<3?this+1:this-3;}
 	inline Edge* InvRot(){return idx>0?this-1:this+3;}
 	inline Edge* Sym(){rtn idx<2?this+2:this-2;}
@@ -415,22 +418,21 @@ struct Edge
 	inline Edge* Lprev(){rtn Onext()->Sym();}
 	inline Edge* Rnext(){rtn Rot()->Onext()->InvRot();}
 	inline Edge* Rprev(){rtn Sym()->Onext();}
-	inline Vertex& Org(){rtn v;}
-	inline Vertex& Dest(){rtn Sym()->v;}
-//	inline Face& Left(){rtn Rot()->f;}
-//	inline Face& Right(){rtn InvRot()->f;}
-};
-struct QuadEdge
-{
-	Edge e[4];
-}qepool[MAXN],*qetop;
+	inline Vertex*& Org(){rtn v;}
+	inline Vertex*& Dest(){rtn Sym()->v;}
+	inline Face*& Left(){rtn Rot()->f;}
+	inline Face*& Right(){rtn InvRot()->f;}
+}pool[MAXN];
+Edge* top;
 int n;
 Vertex v[MAXN];
 
 Edge* MakeEdge()
 {
-	rep(i,4) qetop->e[i].idx=i,qetop->e[i].n=qetop->e+(4-i)%4;
-	rtn (qetop++)->e;
+	Edge* e=top;
+	rep(i,4) e[i].idx=i,e[i].n=e+(4-i)%4;
+	top+=4;
+	rtn e;
 }
 void Splice(Edge *a, Edge *b)
 {
@@ -460,22 +462,22 @@ void DeleteEdge(Edge* e)
 	Splice(e->Sym(),e->Sym()->Oprev());
 }
 
-bool CCW(Vertex a,Vertex b,Vertex c)
+bool CCW(Vertex* a,Vertex* b,Vertex* c)
 {
-	rtn sgn(cross(a,b,c))>0;
+	rtn sgn(cross(*a,*b,*c))>0;
 }
-bool InCircle(Vertex& a,Vertex& b,Vertex& c,Vertex& d)
+bool InCircle(Vertex* a,Vertex* b,Vertex* c,Vertex* d)
 {
-	rtn sgn(dot(a,a)*cross(b,c,d)-
-			dot(b,b)*cross(a,c,d)+
-			dot(c,c)*cross(a,b,d)-
-			dot(d,d)*cross(a,b,c))>0;
+	rtn sgn(dot(*a,*a)*cross(*b,*c,*d)-
+			dot(*b,*b)*cross(*a,*c,*d)+
+			dot(*c,*c)*cross(*a,*b,*d)-
+			dot(*d,*d)*cross(*a,*b,*c))>0;
 }
-bool RightOf(Vertex& x,Edge* e)
+bool RightOf(Vertex* x,Edge* e)
 {
 	rtn CCW(x,e->Dest(),e->Org());
 }
-bool LeftOf(Vertex& x,Edge* e)
+bool LeftOf(Vertex* x,Edge* e)
 {
 	rtn CCW(x,e->Org(),e->Dest());
 }
@@ -488,16 +490,15 @@ pr<Edge*,Edge*> Delaunay(int l,int r)
 {
 	if (r-l==2)
 	{
-		Vertex s1=v[l],s2=v[l+1];
+		Vertex *s1=v+l,*s2=v+l+1;
 		Edge* a=MakeEdge();
 		a->Org()=s1,a->Dest()=s2;
 		rtn mp(a,a->Sym());
 	}
 	else if (r-l==3)
 	{
-		Vertex s1=v[l],s2=v[l+1],s3=v[l+2];
-		Edge* a=MakeEdge();
-		Edge* b=MakeEdge();
+		Vertex *s1=v+l,*s2=v+l+1,*s3=v+l+2;
+		Edge *a=MakeEdge(),*b=MakeEdge();
 		Splice(a->Sym(),b),a->Org()=s1,a->Dest()=b->Org()=s2,b->Dest()=s3;
 		if (CCW(s1,s2,s3))
 		{
@@ -555,7 +556,7 @@ pr<Edge*,Edge*> Delaunay(int l,int r)
 //Delaunay Triangulation
 Edge* delaunay_triangulation()
 {
-	qetop=qepool;
+	top=pool;
 	sort(v,v+n);
 	rtn Delaunay(0,n).x;
 }
@@ -566,30 +567,19 @@ using namespace StandardCodeLibrary::ComputationalGeometry2D;
 
 int main()
 {
-	int T;
-	cin>>T;
-	whl(T--)
-	{
-		int r;
-		cin>>r;
+		cin>>n;
 		map<Point,int> id;
-		rep(i,+oo)
-		{
-			n=i;
-			cin>>v[i].x;
-			if (v[i].x==-1) break;
-			cin>>v[i].y;
-			id[v[i]]=i;
-		}
+		rep(i,n) cin>>v[i],id[v[i]]=i;
+
 		Edge* v=delaunay_triangulation();
-		set<Edge*> inq;
+		vb inq(top-pool);
 		que<Edge*> q;
 		vec<pr<Number,pii> > edg;
-		if (!inq.count(v))
+		if (!inq[v-pool])
 		{
-			edg.pb(mp(dis(v->Org(),v->Dest()),mp(id[v->Org()],id[v->Dest()])));
+			edg.pb(mp(dis(*v->Org(),*v->Dest()),mp(id[*v->Org()],id[*v->Dest()])));
 			//cerr<<v->Org()<<" "<<v->Dest()<<endl;
-			inq.insert(v);
+			inq[v-pool]=true;
 			q.push(v);
 		}
 		whl(sz(q))
@@ -597,35 +587,73 @@ int main()
 			Edge* u=q.front();
 			q.pop();
 			v=u->Onext();
-			if (!inq.count(v))
+			if (!inq[v-pool])
 			{
-				edg.pb(mp(dis(v->Org(),v->Dest()),mp(id[v->Org()],id[v->Dest()])));
+				edg.pb(mp(dis(*v->Org(),*v->Dest()),mp(id[*v->Org()],id[*v->Dest()])));
 				//cerr<<v->Org()<<" "<<v->Dest()<<endl;
-				inq.insert(v);
+				inq[v-pool]=true;
 				q.push(v);
 			}
 			v=u->Lnext();
-			if (!inq.count(v))
+			if (!inq[v-pool])
 			{
-				edg.pb(mp(dis(v->Org(),v->Dest()),mp(id[v->Org()],id[v->Dest()])));
+				edg.pb(mp(dis(*v->Org(),*v->Dest()),mp(id[*v->Org()],id[*v->Dest()])));
 				//cerr<<v->Org()<<" "<<v->Dest()<<endl;
-				inq.insert(v);
+				inq[v-pool]=true;
 				q.push(v);
 			}
 		}
 		srt(edg);
 		vi st(n);
+		vvi adj(n);
+		vec<vec<Number> > len(n);
 		make_set(st);
-		r=n-r;
-		if (r==0) cout<<0<<endl;
 		rep(i,sz(edg))
 			if (union_set(st,edg[i].y.x,edg[i].y.y))
 			{
-				if (!(--r))
-				{
-					cout<<ceil(edg[i].x)<<endl;
-					break;
-				}
+				adj[edg[i].y.x].pb(edg[i].y.y),
+				adj[edg[i].y.y].pb(edg[i].y.x),
+				len[edg[i].y.x].pb(edg[i].x),
+				len[edg[i].y.y].pb(edg[i].x);
 			}
-	}
+		//rep(i,sz(edg)) prt(edg[i]);
+		vvi p(n,vi(20));
+		vec<vec<Number> > f(n,vec<Number>(20));
+		vi d(n,+oo);
+		que<int> lst;
+		d[0]=0,lst.push(0),p[0][0]=0,f[0][0]=0;
+		whl(sz(lst))
+		{
+			int u=lst.front();
+			lst.pop();
+			rep(i,sz(adj[u]))
+			{
+				int v=adj[u][i];
+				if (cmin(d[v],d[u]+1)) lst.push(v),p[v][0]=u,f[v][0]=len[u][i];
+			}
+		}
+		repf(i,1,20)
+			rep(j,n)
+				p[j][i]=p[p[j][i-1]][i-1],
+				f[j][i]=max(f[j][i-1],f[p[j][i-1]][i-1]);
+		int m;
+		cin>>m;
+		rep(i,m)
+		{
+			int a,b;
+			cin>>a>>b,--a,--b;
+			Number ans=0;
+			rrep(i,20) if (d[a]<=d[p[b][i]]) cmax(ans,f[b][i]),b=p[b][i];
+			rrep(i,20) if (d[b]<=d[p[a][i]]) cmax(ans,f[a][i]),a=p[a][i];
+			rrep(i,20) if (p[a][i]!=p[b][i]) cmax(ans,max(f[a][i],f[b][i])),a=p[a][i],b=p[b][i];
+			//prt(a),prt(b);
+			//prt(ans);
+			if (a!=b)
+			{
+				int i=0;
+				cmax(ans,max(f[a][i],f[b][i])),a=p[a][i],b=p[b][i];
+			}
+			//prt(a),prt(b);
+			pdb(10,ans)<<endl;
+		}
 }
