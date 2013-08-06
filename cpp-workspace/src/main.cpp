@@ -394,154 +394,169 @@ namespace StandardCodeLibrary
 namespace ComputationalGeometry2D
 {
 
-const int MAXN=500000;
-
-typedef Point Vertex;
-typedef int Face;
-struct Edge
+const int MAXV=100000;
+const int MAXE=3*MAXV-6;
+struct Vertex:Point
+{
+	int id;
+	Vertex(){}
+	Vertex(Number x,Number y):Point(x,y){}
+};
+//struct Face:Polygon
+//{
+//	int id;
+//	Face(int n=0):Polygon(0){}
+//};
+typedef struct QuadEdge* Edge;
+struct QuadEdge
 {
 	int idx;
-	Edge* n;
-	union
-	{
-		Vertex* v;
-		Face* f;
-	};
-	inline Edge* Rot(){return idx<3?this+1:this-3;}
-	inline Edge* InvRot(){return idx>0?this-1:this+3;}
-	inline Edge* Sym(){rtn idx<2?this+2:this-2;}
-	inline Edge* Onext(){rtn n;}
-	inline Edge* Oprev(){rtn Rot()->Onext()->Rot();}
-	inline Edge* Dnext(){rtn Sym()->Onext()->Sym();}
-	inline Edge* Dprev(){rtn InvRot()->Onext()->InvRot();}
-	inline Edge* Lnext(){rtn InvRot()->Onext()->Rot();}
-	inline Edge* Lprev(){rtn Onext()->Sym();}
-	inline Edge* Rnext(){rtn Rot()->Onext()->InvRot();}
-	inline Edge* Rprev(){rtn Sym()->Onext();}
-	inline Vertex*& Org(){rtn v;}
-	inline Vertex*& Dest(){rtn Sym()->v;}
-	inline Face*& Left(){rtn Rot()->f;}
-	inline Face*& Right(){rtn InvRot()->f;}
-}pool[MAXN];
-Edge* top;
+	Edge n;
+	Vertex v;
+//	Face f;
+	inline Edge Rot(){return idx<3?this+1:this-3;}
+	inline Edge InvRot(){return idx>0?this-1:this+3;}
+	inline Edge Sym(){rtn idx<2?this+2:this-2;}
+	inline Edge Onext(){rtn n;}
+	inline Edge Oprev(){rtn Rot()->Onext()->Rot();}
+	inline Edge Dnext(){rtn Sym()->Onext()->Sym();}
+	inline Edge Dprev(){rtn InvRot()->Onext()->InvRot();}
+	inline Edge Lnext(){rtn InvRot()->Onext()->Rot();}
+	inline Edge Lprev(){rtn Onext()->Sym();}
+	inline Edge Rnext(){rtn Rot()->Onext()->InvRot();}
+	inline Edge Rprev(){rtn Sym()->Onext();}
+	inline Vertex& Org(){rtn v;}
+	inline Vertex& Dest(){rtn Sym()->v;}
+//	inline Face& Left(){rtn Rot()->f;}
+//	inline Face& Right(){rtn InvRot()->f;}
+}pool[MAXE][4];
+Edge stk[MAXE];
+int stks;
 int n;
-Vertex v[MAXN];
+Vertex v[MAXV];
 
-Edge* MakeEdge()
+inline bool Equal(const Vertex& A,const Vertex& B){rtn sgn(dis(A,B))==0;}
+inline bool CCW(const Vertex& A,const Vertex& B,const Vertex& C){rtn sgn(cross(A,B,C))>0;}
+inline bool RightOf(const Vertex& X,Edge e){rtn CCW(X,e->Dest(),e->Org());}
+inline bool LeftOf(const Vertex& X,Edge e){rtn CCW(X,e->Org(),e->Dest());}
+inline bool Valid(Edge e,Edge basel){rtn RightOf(e->Dest(),basel);}
+inline bool InCircle(const Vertex& A,const Vertex& B,const Vertex& C,const Vertex& D)
 {
-	Edge* e=top;
-	rep(i,4) e[i].idx=i,e[i].n=e+(4-i)%4;
-	top+=4;
+	rtn sgn(dot(A,A)*cross(B,C,D)-
+			dot(B,B)*cross(A,C,D)+
+			dot(C,C)*cross(A,B,D)-
+			dot(D,D)*cross(A,B,C))>0;
+}
+inline bool On(const Vertex& X,Edge e){rtn point_on_segment(X,mp(e->Org(),e->Dest()))==1;}
+
+Edge MakeEdge()
+{
+	Edge e=stk[stks++];
+	rep(i,4) e[i].idx=i,e[i].n=e+(i?4-i:0);
 	rtn e;
 }
-void Splice(Edge *a, Edge *b)
+void Splice(Edge a, Edge b)
 {
-	Edge* alpha=a->Onext()->Rot();
-	Edge* beta=b->Onext()->Rot();
-	Edge* t1=b->Onext();
-	Edge* t2=a->Onext();
-	Edge* t3=beta->Onext();
-	Edge* t4=alpha->Onext();
-	a->n=t1;
-	b->n=t2;
-	alpha->n=t3;
-	beta->n=t4;
+	Edge alpha=a->Onext()->Rot(),beta=b->Onext()->Rot();
+	Edge t1=b->Onext(),t2=a->Onext();
+	Edge t3=beta->Onext(),t4=alpha->Onext();
+	a->n=t1,b->n=t2;
+	alpha->n=t3,beta->n=t4;
 }
-Edge* Connect(Edge* a,Edge* b)
+Edge Connect(Edge a,Edge b)
 {
-	Edge* e=MakeEdge();
-	e->Org()=a->Dest();
-	e->Dest()=b->Org();
-	Splice(e,a->Lnext());
-	Splice(e->Sym(),b);
+	Edge e=MakeEdge();
+	e->Org()=a->Dest(),e->Dest()=b->Org();
+	Splice(e,a->Lnext()),Splice(e->Sym(),b);
 	rtn e;
 }
-void DeleteEdge(Edge* e)
+void DeleteEdge(Edge e)
 {
 	Splice(e,e->Oprev());
 	Splice(e->Sym(),e->Sym()->Oprev());
+	stk[--stks]=e-e->idx;
+}
+void Swap(Edge e)
+{
+	Edge a=e->Oprev(),b=e->Sym()->Oprev();
+	Splice(e,a),Splice(e->Sym(),b);
+	Splice(e,a->Lnext()),Splice(e->Sym(),b->Lnext());
+	e->Org()=a->Dest(),e->Dest()=b->Dest();
+}
+Edge SomeEdge;
+Edge Locate(Vertex X)
+{
+	if (!SomeEdge) SomeEdge=stk[0];
+	Edge& e=SomeEdge;
+	lp
+	{
+		if (Equal(X,e->Org())||Equal(X,e->Dest())) rtn e;
+		else if (RightOf(X,e)) e=e->Sym();
+		else if (!RightOf(X,e->Onext())) e=e->Onext();
+		else if (!RightOf(X,e->Dprev())) e=e->Dprev();
+		else rtn e;
+	}
 }
 
-bool CCW(Vertex* a,Vertex* b,Vertex* c)
+void InitializeDelaunay()
 {
-	rtn sgn(cross(*a,*b,*c))>0;
+	stks=0;
+	rep(i,MAXE) stk[i]=pool[i];
+	sort(v,v+n);
 }
-bool InCircle(Vertex* a,Vertex* b,Vertex* c,Vertex* d)
-{
-	rtn sgn(dot(*a,*a)*cross(*b,*c,*d)-
-			dot(*b,*b)*cross(*a,*c,*d)+
-			dot(*c,*c)*cross(*a,*b,*d)-
-			dot(*d,*d)*cross(*a,*b,*c))>0;
-}
-bool RightOf(Vertex* x,Edge* e)
-{
-	rtn CCW(x,e->Dest(),e->Org());
-}
-bool LeftOf(Vertex* x,Edge* e)
-{
-	rtn CCW(x,e->Org(),e->Dest());
-}
-bool Valid(Edge* e,Edge* basel)
-{
-	rtn RightOf(e->Dest(),basel);
-}
-
-pr<Edge*,Edge*> Delaunay(int l,int r)
+pr<Edge,Edge> Delaunay(int l,int r)
 {
 	if (r-l==2)
 	{
-		Vertex *s1=v+l,*s2=v+l+1;
-		Edge* a=MakeEdge();
+		Vertex s1=v[l],s2=v[l+1];
+		Edge a=MakeEdge();
 		a->Org()=s1,a->Dest()=s2;
 		rtn mp(a,a->Sym());
 	}
 	else if (r-l==3)
 	{
-		Vertex *s1=v+l,*s2=v+l+1,*s3=v+l+2;
-		Edge *a=MakeEdge(),*b=MakeEdge();
+		Vertex s1=v[l],s2=v[l+1],s3=v[l+2];
+		Edge a=MakeEdge(),b=MakeEdge();
 		Splice(a->Sym(),b),a->Org()=s1,a->Dest()=b->Org()=s2,b->Dest()=s3;
 		if (CCW(s1,s2,s3))
 		{
-			Connect(b,a);
+			Edge c=Connect(b,a);
 			rtn mp(a,b->Sym());
 		}
 		else if (CCW(s1,s3,s2))
 		{
-			Edge* c=Connect(b,a);
+			Edge c=Connect(b,a);
 			rtn mp(c->Sym(),c);
 		}
 		else rtn mp(a,b->Sym());
 	}
 	else
 	{
-		pr<Edge*,Edge*> ld=Delaunay(l,(l+r)/2),rd=Delaunay((l+r)/2,r);
-		Edge* ldo=ld.x;
-		Edge* ldi=ld.y;
-		Edge* rdi=rd.x;
-		Edge* rdo=rd.y;
+		pr<Edge,Edge> ld=Delaunay(l,(l+r)/2),rd=Delaunay((l+r)/2,r);
+		Edge ldo=ld.x,ldi=ld.y,rdi=rd.x,rdo=rd.y;
 		lp
 		{
 			if (LeftOf(rdi->Org(),ldi)) ldi=ldi->Lnext();
 			else if (RightOf(ldi->Org(),rdi)) rdi=rdi->Rprev();
 			else break;
 		}
-		Edge* basel=Connect(rdi->Sym(),ldi);
-		if (ldi->Org()==ldo->Org()) ldo=basel->Sym();
-		if (rdi->Org()==rdo->Org()) rdo=basel;
+		Edge basel=Connect(rdi->Sym(),ldi);
+		if (Equal(ldi->Org(),ldo->Org())) ldo=basel->Sym();
+		if (Equal(rdi->Org(),rdo->Org())) rdo=basel;
 		lp
 		{
-			Edge* lcand=basel->Sym()->Onext();
+			Edge lcand=basel->Sym()->Onext();
 			if (Valid(lcand,basel))
 				whl(InCircle(basel->Dest(),basel->Org(),lcand->Dest(),lcand->Onext()->Dest()))
 				{
-					Edge* t=lcand->Onext();
+					Edge t=lcand->Onext();
 					DeleteEdge(lcand),lcand=t;
 				}
-			Edge* rcand=basel->Oprev();
+			Edge rcand=basel->Oprev();
 			if (Valid(rcand,basel))
 				whl(InCircle(basel->Dest(),basel->Org(),rcand->Dest(),rcand->Oprev()->Dest()))
 				{
-					Edge* t=rcand->Oprev();
+					Edge t=rcand->Oprev();
 					DeleteEdge(rcand),rcand=t;
 				}
 			if (!Valid(lcand,basel)&&!Valid(rcand,basel)) break;
@@ -553,107 +568,116 @@ pr<Edge*,Edge*> Delaunay(int l,int r)
 		rtn mp(ldo,rdo);
 	}
 }
-//Delaunay Triangulation
-Edge* delaunay_triangulation()
+void InitializeInsertSite()
 {
-	top=pool;
-	sort(v,v+n);
-	rtn Delaunay(0,n).x;
+	stks=0;
+	rep(i,MAXE) stk[i]=pool[i];
+	Vertex s1(-inf,-inf),s2(0,+inf),s3(+inf,0);
+	s1.id=s2.id=s3.id=-1;
+	Edge a=MakeEdge(),b=MakeEdge();
+	Splice(a->Sym(),b),a->Org()=s1,a->Dest()=b->Org()=s2,b->Dest()=s3;
+	Connect(b,a);
+}
+void InsertSite(const Vertex& X)
+{
+	Edge e=Locate(X);
+	if (Equal(X,e->Org())||Equal(X,e->Dest())) rtn;
+	else if (On(X,e))
+	{
+		Edge t=e->Oprev();
+		DeleteEdge(e),e=t;
+	}
+	Edge base=MakeEdge();
+	Vertex first=e->Org();
+	base->Org()=first,base->Dest()=X,Splice(base,e);
+	do base=Connect(e,base->Sym()),e=base->Oprev();
+	whl(!Equal(e->Dest(),first));
+	e=base->Oprev();
+	lp
+	{
+		Edge t=e->Oprev();
+		if (RightOf(t->Dest(),e)&&InCircle(e->Org(),t->Dest(),e->Dest(),X))
+			Swap(e),e=e->Oprev();
+		else if (Equal(e->Org(),first)) rtn;
+		else e=e->Onext()->Lprev();
+	}
 }
 
 }
 }
 using namespace StandardCodeLibrary::ComputationalGeometry2D;
 
+#define eid(e) (e-Edge(pool))
+bool inq[MAXE*4];
+Edge q[MAXE*2];
+int qh,qt;
+
+//TODO
+/*
+ *
+http://acm.timus.ru/problem.aspx?space=1&num=1384
+这个数据有bug
+6
+0 0
+0 -3
+1 -2
+2 -2
+3 -3
+3 0*/
 int main()
 {
-		cin>>n;
-		map<Point,int> id;
-		rep(i,n) cin>>v[i],id[v[i]]=i;
-
-		Edge* v=delaunay_triangulation();
-		vb inq(top-pool);
-		que<Edge*> q;
-		vec<pr<Number,pii> > edg;
-		if (!inq[v-pool])
+	int N;
+	cin>>N;
+	vpdd P(N);
+	cin>>P;
+	vec<Segment> E;
+	for (int i=0,j=N-1;i<N;j=i++)
+	{
+		db len=dis(P[i],P[j]);
+		pdd d=(P[i]-P[j])/len*0.0001;
+		pdd cur=P[j];
+		whl(dbcmp(dis(cur,P[j]),len)<=0) v[n++]=Vertex(cur.x,cur.y),cur+=d;
+		E.pb(mp(P[i],P[j]));
+	}
+	prt(n);
+	InitializeDelaunay();
+	Delaunay(0,n);
+	Number ans=-inf;
+	Point ansp,ansa,ansb,ansc;
+	Edge v=stk[0];
+	clr(inq),qh=0,qt=-1;
+	if (cmax(inq[eid(v)],true)) q[++qt]=v;
+	whl(qh<=qt)
+	{
+		Edge u=q[qh++];
+		//if (u->Lnext()->Lnext()->Lnext()==u)
 		{
-			edg.pb(mp(dis(*v->Org(),*v->Dest()),mp(id[*v->Org()],id[*v->Dest()])));
-			//cerr<<v->Org()<<" "<<v->Dest()<<endl;
-			inq[v-pool]=true;
-			q.push(v);
+			prt(u->Org());
+			prt(u->Dest());
+			prt(u->Lnext()->Dest());
+			prt(u->Lnext()->Lnext()->Dest());
+			prt(cross(u->Org(),u->Dest(),u->Lnext()->Dest()));
+			cin.get();
 		}
-		whl(sz(q))
+		if (u->Lnext()->Lnext()->Lnext()==u&&!RightOf(u->Lnext()->Dest(),u))
 		{
-			Edge* u=q.front();
-			q.pop();
-			v=u->Onext();
-			if (!inq[v-pool])
-			{
-				edg.pb(mp(dis(*v->Org(),*v->Dest()),mp(id[*v->Org()],id[*v->Dest()])));
-				//cerr<<v->Org()<<" "<<v->Dest()<<endl;
-				inq[v-pool]=true;
-				q.push(v);
-			}
-			v=u->Lnext();
-			if (!inq[v-pool])
-			{
-				edg.pb(mp(dis(*v->Org(),*v->Dest()),mp(id[*v->Org()],id[*v->Dest()])));
-				//cerr<<v->Org()<<" "<<v->Dest()<<endl;
-				inq[v-pool]=true;
-				q.push(v);
-			}
+			Point a=u->Org(),b=u->Dest(),c=u->Lnext()->Dest();
+			Vector ab=b-a,bc=c-b;
+			Point mab=(a+b)/2.0,mbc=(b+c)/2.0;
+			Vector rab=mp(-ab.y,ab.x),rbc=mp(-bc.y,bc.x);
+			Point o=line_intersection(mp(mab,mab+rab),mp(mbc,mbc+rbc));
+			if (point_in_polygon(o,E)&&cmax(ans,dis(o,a)))
+				ansp=o,ansa=a,ansb=b,ansc=c;
 		}
-		srt(edg);
-		vi st(n);
-		vvi adj(n);
-		vec<vec<Number> > len(n);
-		make_set(st);
-		rep(i,sz(edg))
-			if (union_set(st,edg[i].y.x,edg[i].y.y))
-			{
-				adj[edg[i].y.x].pb(edg[i].y.y),
-				adj[edg[i].y.y].pb(edg[i].y.x),
-				len[edg[i].y.x].pb(edg[i].x),
-				len[edg[i].y.y].pb(edg[i].x);
-			}
-		//rep(i,sz(edg)) prt(edg[i]);
-		vvi p(n,vi(20));
-		vec<vec<Number> > f(n,vec<Number>(20));
-		vi d(n,+oo);
-		que<int> lst;
-		d[0]=0,lst.push(0),p[0][0]=0,f[0][0]=0;
-		whl(sz(lst))
-		{
-			int u=lst.front();
-			lst.pop();
-			rep(i,sz(adj[u]))
-			{
-				int v=adj[u][i];
-				if (cmin(d[v],d[u]+1)) lst.push(v),p[v][0]=u,f[v][0]=len[u][i];
-			}
-		}
-		repf(i,1,20)
-			rep(j,n)
-				p[j][i]=p[p[j][i-1]][i-1],
-				f[j][i]=max(f[j][i-1],f[p[j][i-1]][i-1]);
-		int m;
-		cin>>m;
-		rep(i,m)
-		{
-			int a,b;
-			cin>>a>>b,--a,--b;
-			Number ans=0;
-			rrep(i,20) if (d[a]<=d[p[b][i]]) cmax(ans,f[b][i]),b=p[b][i];
-			rrep(i,20) if (d[b]<=d[p[a][i]]) cmax(ans,f[a][i]),a=p[a][i];
-			rrep(i,20) if (p[a][i]!=p[b][i]) cmax(ans,max(f[a][i],f[b][i])),a=p[a][i],b=p[b][i];
-			//prt(a),prt(b);
-			//prt(ans);
-			if (a!=b)
-			{
-				int i=0;
-				cmax(ans,max(f[a][i],f[b][i])),a=p[a][i],b=p[b][i];
-			}
-			//prt(a),prt(b);
-			pdb(10,ans)<<endl;
-		}
+		v=u->Onext();
+		if (cmax(inq[eid(v)],true)) q[++qt]=v;
+		v=u->Lnext();
+		if (cmax(inq[eid(v)],true)) q[++qt]=v;
+	}
+	pdb(2,ans)<<endl;
+	//prt(ansp);
+	prt(ansa);
+	prt(ansb);
+	prt(ansc);
+	rep(i,n) if(InCircle(Vertex(ansa.x,ansa.y),Vertex(ansb.x,ansb.y),Vertex(ansc.x,ansc.y),StandardCodeLibrary::ComputationalGeometry2D::v[i])) prt(StandardCodeLibrary::ComputationalGeometry2D::v[i]);
 }
