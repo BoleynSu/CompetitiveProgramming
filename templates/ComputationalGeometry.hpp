@@ -4,6 +4,7 @@
  * Ray Casting Algorithm 射线法判断点是否在简单多边形内
  * Andrew's Monotone Chain算法 求凸包
  * 半品面交 O(nlogn)算法
+ * Delaunay三角剖分 O(nlogn)分治法(离线)和O(n^2)增量法(在线)
  * */
 #include <Core>
 
@@ -205,6 +206,214 @@ bool halfplane_intersection(Polygon& CH,vec<Halfplane>& AHP,vec<Halfplane> HP)
 		for (int i=0,j=sz(AHP)-1;i<sz(AHP);j=i++)
 			CH[i]=line_intersection(AHP[i],AHP[j]);
 		return true;
+	}
+}
+
+//Delaunay三角剖分 O(nlogn)分治法(离线)和O(n^2)增量法(在线)
+const int MAXV=100000;
+const int MAXE=3*MAXV-6;
+struct Vertex:Point
+{
+	int id;
+	Vertex(){}
+	Vertex(Number x,Number y):Point(x,y){}
+};
+//struct Face:Polygon
+//{
+//	int id;
+//	Face(int n=0):Polygon(0){}
+//};
+typedef struct QuadEdge* Edge;
+struct QuadEdge
+{
+	int idx;
+	Edge n;
+	Vertex v;
+//	Face f;
+	inline Edge Rot(){return idx<3?this+1:this-3;}
+	inline Edge InvRot(){return idx>0?this-1:this+3;}
+	inline Edge Sym(){rtn idx<2?this+2:this-2;}
+	inline Edge Onext(){rtn n;}
+	inline Edge Oprev(){rtn Rot()->Onext()->Rot();}
+	inline Edge Dnext(){rtn Sym()->Onext()->Sym();}
+	inline Edge Dprev(){rtn InvRot()->Onext()->InvRot();}
+	inline Edge Lnext(){rtn InvRot()->Onext()->Rot();}
+	inline Edge Lprev(){rtn Onext()->Sym();}
+	inline Edge Rnext(){rtn Rot()->Onext()->InvRot();}
+	inline Edge Rprev(){rtn Sym()->Onext();}
+	inline Vertex& Org(){rtn v;}
+	inline Vertex& Dest(){rtn Sym()->v;}
+//	inline Face& Left(){rtn Rot()->f;}
+//	inline Face& Right(){rtn InvRot()->f;}
+}pool[MAXE][4];
+Edge stk[MAXE];
+int stks;
+int n;
+Vertex v[MAXV];
+
+inline bool Equal(const Vertex& A,const Vertex& B){rtn sgn(dis(A,B))==0;}
+inline bool CCW(const Vertex& A,const Vertex& B,const Vertex& C){rtn sgn(cross(A,B,C))>0;}
+inline bool RightOf(const Vertex& X,Edge e){rtn CCW(X,e->Dest(),e->Org());}
+inline bool LeftOf(const Vertex& X,Edge e){rtn CCW(X,e->Org(),e->Dest());}
+inline bool Valid(Edge e,Edge basel){rtn RightOf(e->Dest(),basel);}
+inline bool InCircle(const Vertex& A,const Vertex& B,const Vertex& C,const Vertex& D)
+{
+	rtn sgn(dot(A,A)*cross(B,C,D)-
+			dot(B,B)*cross(A,C,D)+
+			dot(C,C)*cross(A,B,D)-
+			dot(D,D)*cross(A,B,C))>0;
+}
+inline bool On(const Vertex& X,Edge e){rtn point_on_segment(X,mp(e->Org(),e->Dest()))==1;}
+
+Edge MakeEdge()
+{
+	Edge e=stk[stks++];
+	rep(i,4) e[i].idx=i,e[i].n=e+(i?4-i:0);
+	rtn e;
+}
+void Splice(Edge a, Edge b)
+{
+	Edge alpha=a->Onext()->Rot(),beta=b->Onext()->Rot();
+	Edge t1=b->Onext(),t2=a->Onext();
+	Edge t3=beta->Onext(),t4=alpha->Onext();
+	a->n=t1,b->n=t2;
+	alpha->n=t3,beta->n=t4;
+}
+Edge Connect(Edge a,Edge b)
+{
+	Edge e=MakeEdge();
+	e->Org()=a->Dest(),e->Dest()=b->Org();
+	Splice(e,a->Lnext()),Splice(e->Sym(),b);
+	rtn e;
+}
+void DeleteEdge(Edge e)
+{
+	Splice(e,e->Oprev());
+	Splice(e->Sym(),e->Sym()->Oprev());
+	stk[--stks]=e-e->idx;
+}
+void Swap(Edge e)
+{
+	Edge a=e->Oprev(),b=e->Sym()->Oprev();
+	Splice(e,a),Splice(e->Sym(),b);
+	Splice(e,a->Lnext()),Splice(e->Sym(),b->Lnext());
+	e->Org()=a->Dest(),e->Dest()=b->Dest();
+}
+Edge Locate(Vertex X)
+{
+	Edge e=stk[rand()%stks];
+	lp
+	{
+		if (Equal(X,e->Org())||Equal(X,e->Dest())) rtn e;
+		else if (RightOf(X,e)) e=e->Sym();
+		else if (!RightOf(X,e->Onext())) e=e->Onext();
+		else if (!RightOf(X,e->Dprev())) e=e->Dprev();
+		else rtn e;
+	}
+}
+
+void InitializeDelaunay()
+{
+	stks=0;
+	rep(i,MAXE) stk[i]=pool[i];
+	sort(v,v+n);
+}
+pr<Edge,Edge> Delaunay(int l,int r)
+{
+	if (r-l==2)
+	{
+		Vertex s1=v[l],s2=v[l+1];
+		Edge a=MakeEdge();
+		a->Org()=s1,a->Dest()=s2;
+		rtn mp(a,a->Sym());
+	}
+	else if (r-l==3)
+	{
+		Vertex s1=v[l],s2=v[l+1],s3=v[l+2];
+		Edge a=MakeEdge(),b=MakeEdge();
+		Splice(a->Sym(),b),a->Org()=s1,a->Dest()=b->Org()=s2,b->Dest()=s3;
+		if (CCW(s1,s2,s3))
+		{
+			Edge c=Connect(b,a);
+			rtn mp(a,b->Sym());
+		}
+		else if (CCW(s1,s3,s2))
+		{
+			Edge c=Connect(b,a);
+			rtn mp(c->Sym(),c);
+		}
+		else rtn mp(a,b->Sym());
+	}
+	else
+	{
+		pr<Edge,Edge> ld=Delaunay(l,(l+r)/2),rd=Delaunay((l+r)/2,r);
+		Edge ldo=ld.x,ldi=ld.y,rdi=rd.x,rdo=rd.y;
+		lp
+		{
+			if (LeftOf(rdi->Org(),ldi)) ldi=ldi->Lnext();
+			else if (RightOf(ldi->Org(),rdi)) rdi=rdi->Rprev();
+			else break;
+		}
+		Edge basel=Connect(rdi->Sym(),ldi);
+		if (Equal(ldi->Org(),ldo->Org())) ldo=basel->Sym();
+		if (Equal(rdi->Org(),rdo->Org())) rdo=basel;
+		lp
+		{
+			Edge lcand=basel->Sym()->Onext();
+			if (Valid(lcand,basel))
+				whl(InCircle(basel->Dest(),basel->Org(),lcand->Dest(),lcand->Onext()->Dest()))
+				{
+					Edge t=lcand->Onext();
+					DeleteEdge(lcand),lcand=t;
+				}
+			Edge rcand=basel->Oprev();
+			if (Valid(rcand,basel))
+				whl(InCircle(basel->Dest(),basel->Org(),rcand->Dest(),rcand->Oprev()->Dest()))
+				{
+					Edge t=rcand->Oprev();
+					DeleteEdge(rcand),rcand=t;
+				}
+			if (!Valid(lcand,basel)&&!Valid(rcand,basel)) break;
+			if (!Valid(lcand,basel)||(Valid(rcand,basel)&&InCircle(lcand->Dest(),lcand->Org(),rcand->Org(),rcand->Dest())))
+				basel=Connect(rcand,basel->Sym());
+			else
+				basel=Connect(basel->Sym(),lcand->Sym());
+		}
+		rtn mp(ldo,rdo);
+	}
+}
+void InitializeInsertSite()
+{
+	stks=0;
+	rep(i,MAXE) stk[i]=pool[i];
+	Vertex s1(-inf,-inf),s2(0,+inf),s3(+inf,0);
+	s1.id=s2.id=s3.id=-1;
+	Edge a=MakeEdge(),b=MakeEdge();
+	Splice(a->Sym(),b),a->Org()=s1,a->Dest()=b->Org()=s2,b->Dest()=s3;
+	Connect(b,a);
+}
+void InsertSite(const Vertex& X)
+{
+	Edge e=Locate(X);
+	if (Equal(X,e->Org())||Equal(X,e->Dest())) rtn;
+	else if (On(X,e))
+	{
+		Edge t=e->Oprev();
+		DeleteEdge(e),e=t;
+	}
+	Edge base=MakeEdge();
+	Vertex first=e->Org();
+	base->Org()=first,base->Dest()=X,Splice(base,e);
+	do base=Connect(e,base->Sym()),e=base->Oprev();
+	whl(!Equal(e->Dest(),first));
+	e=base->Oprev();
+	lp
+	{
+		Edge t=e->Oprev();
+		if (RightOf(t->Dest(),e)&&InCircle(e->Org(),t->Dest(),e->Dest(),X))
+			Swap(e),e=e->Oprev();
+		else if (Equal(e->Org(),first)) rtn;
+		else e=e->Onext()->Lprev();
 	}
 }
 

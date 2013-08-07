@@ -65,6 +65,8 @@ using namespace std;
 #define srt(x) sort(all(x))
 #define uniq(x) srt(x),(x).erase(unique(all(x)),(x).end())
 #define rev(x) reverse(all(x))
+#define shf(x) random_shuffle(all(x))
+#define nxtp(x) next_permutation(all(x))
 
 //调试相关的宏
 #ifndef DEBUG
@@ -78,7 +80,7 @@ using namespace std;
 #define input(in) freopen(in,"r",stdin)
 #define output(out) freopen(out,"w",stdout)
 #else
-#define prt(x) cerr<<#x"="<<(x)<<endl
+#define prt(x) cerr<<"第"<<__LINE__<<"行\t: "<<#x"\t="<<(x)<<endl
 #define asrtWA(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
 #define asrtTLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
 #define asrtMLE(s) do if(!(s))cerr<<"assert("#s")"<<endl;whl(0)
