@@ -166,17 +166,17 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #endif
 }initializer;
 
-//非标准;
-#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
-#include <ext/rope>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/tag_and_trait.hpp>
-typedef __gnu_cxx::rope<char> rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#define ctz __builtin_ctz
-#define clz __builtin_clz
-#define bc __builtin_popcount
+////非标准;
+//#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
+//#include <ext/rope>
+//#include <ext/pb_ds/assoc_container.hpp>
+//#include <ext/pb_ds/tree_policy.hpp>
+//#include <ext/pb_ds/tag_and_trait.hpp>
+//typedef __gnu_cxx::rope<char> rope;
+//template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+//#define ctz __builtin_ctz
+//#define clz __builtin_clz
+//#define bc __builtin_popcount
 
 /*
  * Package: StandardCodeLibrary.BalancedBinarySearchTree.SizeBalancedTree
@@ -193,8 +193,11 @@ namespace SplayTree
 
 struct type
 {
-	int k,s;//s用于find_by_order/order_of_key/size
-	type(int k=0):k(k),s(0)
+	int k;//k为关键字
+	int s;//s用于find_by_order/order_of_key/size
+	int delta,value;
+	lli sum;
+	type(int k=0,int value=0):k(k),s(0),delta(0),value(value),sum(0)
 	{
 	}
 	friend bool operator<(const type& a,const type& b)
@@ -213,15 +216,31 @@ node make(const type& k)
 {
 	rtn top->k=k,top->p=top->c[0]=top->c[1]=null,top++;
 }
+void apply(node x,int delta)
+{
+	if (x!=null)
+	{
+		x->k.delta+=delta;
+		x->k.value+=delta;
+		x->k.sum+=lli(x->k.s)*lli(delta);
+	}
+}
 void pushup(node x)
 {
 	if (x!=null)
 	{
 		x->k.s=x->c[0]->k.s+x->c[1]->k.s+1;
+		x->k.sum=x->c[0]->k.sum+x->c[1]->k.sum+x->k.value;
 	}
 }
 void pushdown(node x)
 {
+	if (x!=null&&x->k.delta)
+	{
+		apply(x->c[0],x->k.delta);
+		apply(x->c[1],x->k.delta);
+		x->k.delta=0;
+	}
 }
 bool dir(node x)
 {
@@ -382,5 +401,38 @@ int main()
 	int N,Q;
 	cin>>N>>Q;
 	tree t;
-	ft(i,1,N) t.ins(i);
+	t.ins(type(0,0));
+	ft(i,1,N)
+	{
+		int a;
+		cin>>a;
+		t.ins(type(i,a));
+	}
+	t.ins(type(N+1,0));
+	rep(i,Q)
+	{
+		char c;
+		cin>>c;
+		prt(i);
+		if (c=='C')
+		{
+			int a,b,c;
+			cin>>a>>b>>c;
+			node x=lower_bound(t.rt,a-1).x;
+			splay(x,null),t.rt=x;
+			node y=lower_bound(x->c[1],b+1).x;
+			splay(y,x);
+			apply(y->c[0],c),pushup(y),pushup(x);
+		}
+		else
+		{
+			int a,b;
+			cin>>a>>b;
+			node x=lower_bound(t.rt,a-1).x;
+			splay(x,null),t.rt=x;
+			node y=lower_bound(x->c[1],b+1).x;
+			splay(y,x);
+			cout<<y->c[0]->k.sum<<endl;
+		}
+	}
 }
