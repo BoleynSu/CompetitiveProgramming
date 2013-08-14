@@ -16,7 +16,7 @@ struct type
 {
 	int k;//k用于lower_bound/upper_bound/find
 	int s;//s用于find_by_order/order_of_key/size
-	type(int k=0,int km=0):k(k),s(0)
+	type(int k=0):k(k),s(0)
 	{
 	}
 	friend bool operator<(const type& a,const type& b)
