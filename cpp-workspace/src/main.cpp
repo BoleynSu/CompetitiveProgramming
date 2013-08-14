@@ -275,27 +275,25 @@ void splay(node x,node p=null)
 	}
 	pushup(x);
 }
-pr<node,int> lower_bound(node rt,const type& k)
+node lower_bound(node rt,const type& k)
 {
-	int cnt=0;
 	node l=rt,r=null;
 	whl(l!=null)
 	{
-		if (l->k<k) cnt+=l->c[0]->k.s,l=l->c[1];
+		if (l->k<k) l=l->c[1];
 		else r=l,l=l->c[0];
 	}
-	rtn mp(r,cnt);
+	rtn r;
 }
-pr<node,int> upper_bound(node rt,const type& k)
+node upper_bound(node rt,const type& k)
 {
-	int cnt=0;
 	node l=rt,r=null;
 	whl(l!=null)
 	{
 		if (k<l->k) r=l,l=l->c[0];
-		else cnt+=l->c[0]->k.s+1,l=l->c[1];
+		else l=l->c[1];
 	}
-	rtn mp(r,cnt);
+	rtn r;
 }
 node find_by_order(node rt,int cnt)
 {
@@ -327,13 +325,13 @@ struct tree
 	tree():rt(null){}
 	node lower_bound(const type& k)
 	{
-		node x=SplayTree::lower_bound(rt,k).x;
+		node x=SplayTree::lower_bound(rt,k);
 		if (x!=null) SplayTree::splay(x,null),rt=x;
 		rtn x;
 	}
 	node upper_bound(const type& k)
 	{
-		node x=SplayTree::upper_bound(rt,k).x;
+		node x=SplayTree::upper_bound(rt,k);
 		if (x!=null) SplayTree::splay(x,null),rt=x;
 		rtn x;
 	}
@@ -350,13 +348,13 @@ struct tree
 	}
 	int order_of_key(const type& k)
 	{
-		pr<node,int> r=SplayTree::lower_bound(rt,k);
-		if (r.x!=null) SplayTree::splay(r.x,null),rt=r.x;
-		rtn r.y;
+		node x=SplayTree::lower_bound(rt,k);
+		if (x!=null) SplayTree::splay(x,null),rt=x;
+		rtn x==null?x->k.s:x->c[0]->k.s;
 	}
 	node insert(const type& k)
 	{
-		node x=SplayTree::upper_bound(rt,k).x;
+		node x=SplayTree::upper_bound(rt,k);
 		splay(x);
 		node y=make(k);
 		if (x==null) set(y,0,rt);
@@ -399,40 +397,39 @@ using namespace StandardCodeLibrary::BinarySearchTree::SplayTree;
 int main()
 {
 	int N,Q;
-	cin>>N>>Q;
+	sf("%d%d",&N,&Q);
 	tree t;
 	t.ins(type(0,0));
 	ft(i,1,N)
 	{
 		int a;
-		cin>>a;
+		sf("%d",&a);
 		t.ins(type(i,a));
 	}
 	t.ins(type(N+1,0));
 	rep(i,Q)
 	{
 		char c;
-		cin>>c;
-		prt(i);
+		sf(" %c",&c);
 		if (c=='C')
 		{
 			int a,b,c;
-			cin>>a>>b>>c;
-			node x=lower_bound(t.rt,a-1).x;
+			sf("%d%d%d",&a,&b,&c);
+			node x=lower_bound(t.rt,a-1);
 			splay(x,null),t.rt=x;
-			node y=lower_bound(x->c[1],b+1).x;
+			node y=lower_bound(x->c[1],b+1);
 			splay(y,x);
 			apply(y->c[0],c),pushup(y),pushup(x);
 		}
 		else
 		{
 			int a,b;
-			cin>>a>>b;
-			node x=lower_bound(t.rt,a-1).x;
+			sf("%d%d",&a,&b);
+			node x=lower_bound(t.rt,a-1);
 			splay(x,null),t.rt=x;
-			node y=lower_bound(x->c[1],b+1).x;
+			node y=lower_bound(x->c[1],b+1);
 			splay(y,x);
-			cout<<y->c[0]->k.sum<<endl;
+			pf("%I64d\n",y->c[0]->k.sum);
 		}
 	}
 }
