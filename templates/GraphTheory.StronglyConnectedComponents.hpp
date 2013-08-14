@@ -14,6 +14,13 @@
  * */
 #include <Core>
 
+namespace StandardCodeLibrary
+{
+namespace GraphTheory
+{
+namespace StronglyConnectedComponents
+{
+
 const int MAXV=1000;
 const int MAXE=1000000;
 typedef struct struct_edge* edge;
@@ -58,4 +65,8 @@ void tarjan()
 {
 	ord=0,clr(dfn),cnt=0;
 	rep(i,V) if (!dfn[i]) dfs(i);
+}
+
+}
+}
 }

@@ -1,7 +1,7 @@
 /*
  * Package: StandardCodeLibrary.Core
  * */
-//引进常用的头文件并使用std名字空间
+//引进常用的头文件并使用std名字空间;
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -28,7 +28,7 @@
 #include <climits>
 using namespace std;
 
-//用于减少代码量的宏
+//用于减少代码量的宏;
 #define lp for(;;)
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
 #define rrepf(i,a,b) for (int i=(a)-1;i>=(b);--i)
@@ -68,7 +68,7 @@ using namespace std;
 #define shf(x) random_shuffle(all(x))
 #define nxtp(x) next_permutation(all(x))
 
-//调试相关的宏
+//调试相关的宏;
 #ifndef DEBUG
 #define prt(x) (cerr)
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
@@ -91,7 +91,7 @@ using namespace std;
 #define output(out)
 #endif
 
-//常用数据类型
+//常用数据类型;
 typedef long long int lli;
 typedef double db;
 typedef const char* cstr;
@@ -113,7 +113,7 @@ typedef que<int> qi;
 typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 
-//常用常量:int的最大值;lli的最大值;db的误差相关常数;欧拉常数;圆周率;移动向量;取模使用的除数
+//常用常量:int的最大值;lli的最大值;db的误差相关常数;欧拉常数;圆周率;移动向量;取模使用的除数;
 int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
@@ -157,24 +157,242 @@ inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
-//初始化
-struct Initializer
-{
+//初始化;
+struct Initializer{
 #ifndef DEBUG
-	Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
+Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #else
-	~Initializer(){runtime();}
+~Initializer(){runtime();}
 #endif
 }initializer;
 
-//非标准
-#define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
+//非标准;
+#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
 #include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
-using __gnu_cxx::rope;
+typedef __gnu_cxx::rope<char> rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #define ctz __builtin_ctz
 #define clz __builtin_clz
 #define bc __builtin_popcount
+
+/*
+ * Package: StandardCodeLibrary.BalancedBinarySearchTree.SizeBalancedTree
+ * Usage:
+ * MAXNODE:SizeBalancedTree最多有多少个节点,null会占用一个节点
+ * */
+
+namespace StandardCodeLibrary
+{
+namespace BinarySearchTree
+{
+namespace SplayTree
+{
+
+struct type
+{
+	int k,s;//s用于find_by_order/order_of_key/size
+	type(int k=0):k(k),s(0)
+	{
+	}
+	friend bool operator<(const type& a,const type& b)
+	{
+		rtn a.k<b.k;
+	}
+};
+const int MAXNODE=1000000;
+typedef struct struct_node* node;
+struct struct_node{type k;node p,c[2];}pool[MAXNODE];
+node top,null;
+
+struct Initializer{Initializer(){top=pool,null=top++,null->p=null->c[0]=null->c[1]=null;}}initializer;
+
+node make(const type& k)
+{
+	rtn top->k=k,top->p=top->c[0]=top->c[1]=null,top++;
+}
+void applay(node x,int delta)
+{
+
+}
+void pushup(node x)
+{
+	if (x!=null)
+	{
+		x->k.s=x->c[0]->k.s+x->c[1]->k.s+1;
+	}
+}
+void pushdown(node x)
+{
+}
+bool dir(node x)
+{
+	rtn x->p->c[1]==x;
+}
+void set(node x,bool d,node y)
+{
+	if (x!=null) x->c[d]=y;
+	if (y!=null) y->p=x;
+}
+void rotate(node x)
+{
+	node y=x->p;
+	bool d=dir(x);
+	pushdown(y),pushdown(x);
+	set(y,d,x->c[!d]),set(y->p,dir(y),x),set(x,!d,y);
+	pushup(y);
+}
+
+struct tree
+{
+	node rt;
+	tree():rt(null){}
+	void splay(node x,node p=null)
+	{
+		pushdown(x);
+		whl(x->p!=p)
+		{
+			if(x->p->p==p) rotate(x);
+			else
+			{
+				if(dir(x->p)==dir(x)) rotate(x->p);
+				else rotate(x);
+				rotate(x);
+			}
+		}
+		pushup(x);
+		if (p==null) rt=x;
+	}
+	node lower_bound(const type& k)
+	{
+		node l=rt,r=null;
+		whl(l!=null)
+		{
+			pushdown(l);
+			if (l->k<k) l=l->c[1];
+			else r=l,l=l->c[0];
+		}
+		rtn r;
+	}
+	node upper_bound(const type& k)
+	{
+		node l=rt,r=null;
+		whl(l!=null)
+		{
+			pushdown(l);
+			if (k<l->k) r=l,l=l->c[0];
+			else l=l->c[1];
+		}
+		if (r!=null) splay(r);
+		rtn r;
+	}
+	node find(const type& k)
+	{
+		node x=lower_bound(k);
+		rtn x==null||k<x->k?null:x;
+	}
+	node find_by_order(int i)
+	{
+		node x=rt;
+		whl(x!=null)
+		{
+			pushdown(x);
+			if (x->c[0]->k.s==i) break;
+			else if (x->c[0]->k.s<i) i-=x->c[0]->k.s+1,x=x->c[1];
+			else x=x->c[0];
+		}
+		if (x!=null) splay(x);
+		rtn x;
+	}
+	int order_of_key(const type& k)
+	{
+		int ord=0;
+		node l=rt,r=null;
+		whl(l!=null)
+		{
+			pushdown(l);
+			if (l->k<k) ord+=l->c[0]->k.s,l=l->c[1];
+			else r=l,l=l->c[0];
+		}
+		if (r!=null) splay(r);
+		rtn ord;
+	}
+	node insert(const type& k)
+	{
+		node x=rt;
+		if (x==null) x=make(k);
+		else
+		{
+			lp
+			{
+				pushdown(x);
+				bool d=!(k<x->k);
+				if (x->c[d]==null)
+				{
+					set(x,d,make(k)),x=x->c[d];
+					break;
+				}
+				else x=x->c[d];
+			}
+		}
+		splay(x);
+		rtn x;
+	}
+	node erase(const type& k)
+	{
+		//TODO
+		node x=find(k);
+		if (x!=null)
+		{
+
+		}
+		rtn x;
+	}
+};
+
+}
+}
+}
+using namespace StandardCodeLibrary::BinarySearchTree::SplayTree;
+
+vi lst;
+int maxd;
+void show(node x,int d=1)
+{
+	if (x!=null)
+	{
+		cmax(maxd,d);
+		show(x->c[0],d+1);
+		lst.pb(x->k.k);//cout<<x->k<<" ";
+		if (x->k.s!=x->c[0]->k.s+x->c[1]->k.s+1) prt(sz(lst));
+		show(x->c[1],d+1);
+	}
+}
+
+int main()
+{
+	int N=1000000-1;
+	tree t;
+	rep(i,N) t.ins(rand()*RAND_MAX+rand());
+	show(t.rt);cout<<endl;
+
+	prt(t.rt->k.s);
+
+	vi cp=lst;
+	srt(cp);
+	cout<<(cp==lst)<<endl;
+
+	//rep(i,N) t.find_by_order((rand()*RAND_MAX+rand())%N);
+	repf(i,1,N)
+	{
+		if (t.find_by_order(i-1)->k.k>t.find_by_order(i)->k.k)
+		{
+			int a=(t.find_by_order(i-1)->k.k);
+			int b=(t.find_by_order(i)->k.k);
+			prt(i),prt(a),prt(b);
+		}
+	}
+
+}

@@ -1,7 +1,7 @@
 /*
  * Package: StandardCodeLibrary.Core
  * */
-//引进常用的头文件并使用std名字空间
+//引进常用的头文件并使用std名字空间;
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -28,7 +28,7 @@
 #include <climits>
 using namespace std;
 
-//用于减少代码量的宏
+//用于减少代码量的宏;
 #define lp for(;;)
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
 #define rrepf(i,a,b) for (int i=(a)-1;i>=(b);--i)
@@ -68,7 +68,7 @@ using namespace std;
 #define shf(x) random_shuffle(all(x))
 #define nxtp(x) next_permutation(all(x))
 
-//调试相关的宏
+//调试相关的宏;
 #ifndef DEBUG
 #define prt(x) (cerr)
 #define asrtWA(s) do if(!(s))exit(0);whl(0)
@@ -91,7 +91,7 @@ using namespace std;
 #define output(out)
 #endif
 
-//常用数据类型
+//常用数据类型;
 typedef long long int lli;
 typedef double db;
 typedef const char* cstr;
@@ -113,7 +113,7 @@ typedef que<int> qi;
 typedef vec<pii> vpii;
 typedef vec<pdd> vpdd;
 
-//常用常量:int的最大值;lli的最大值;db的误差相关常数;欧拉常数;圆周率;移动向量;取模使用的除数
+//常用常量:int的最大值;lli的最大值;db的误差相关常数;欧拉常数;圆周率;移动向量;取模使用的除数;
 int oo=(~0u)>>1;
 lli ooll=(~0ull)>>1;
 db inf=1e+10;
@@ -157,23 +157,22 @@ inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
-//初始化
-struct Initializer
-{
+//初始化;
+struct Initializer{
 #ifndef DEBUG
-	Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
+Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #else
-	~Initializer(){runtime();}
+~Initializer(){runtime();}
 #endif
 }initializer;
 
-//非标准
-#define feach(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
+//非标准;
+#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
 #include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
-using __gnu_cxx::rope;
+typedef __gnu_cxx::rope<char> rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #define ctz __builtin_ctz
 #define clz __builtin_clz
