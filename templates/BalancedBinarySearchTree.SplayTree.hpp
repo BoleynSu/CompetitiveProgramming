@@ -48,10 +48,6 @@ void pushup(node x)
 void pushdown(node x)
 {
 }
-bool dir(node x)
-{
-	rtn x->p->c[1]==x;
-}
 
 void set(node x,bool d,node y)
 {
@@ -62,7 +58,7 @@ void rotate(node x,bool d)
 {
 	node y=x->p;
 	pushdown(y),pushdown(x);
-	set(y,d,x->c[!d]),set(y->p,dir(y),x),set(x,!d,y);
+	set(y,d,x->c[!d]),set(y->p,y->p->c[1]==y,x),set(x,!d,y);
 	pushup(y);
 }
 void splay(node x,node p=null)
