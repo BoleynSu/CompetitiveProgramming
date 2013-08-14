@@ -1,0 +1,4 @@
+#ifndef SCL_BALANCED_BINARY_SEARCH_TREE_ST
+#define SCL_BALANCED_BINARY_SEARCH_TREE_ST
+#include <BalancedBinarySearchTree.SplayTree.hpp>
+#endif

@@ -1,4 +1,5 @@
 #ifndef SCL_BALANCED_BINARY_SEARCH_TREE
 #define SCL_BALANCED_BINARY_SEARCH_TREE
 #include <BalancedBinarySearchTree.SizeBalancedTree>
+#include <BalancedBinarySearchTree.SplayTree>
 #endif
