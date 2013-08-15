@@ -57,7 +57,6 @@ void set(node x,bool d,node y)
 void rotate(node x,bool d)
 {
 	node y=x->p;
-	pushdown(y),pushdown(x);
 	set(y,d,x->c[!d]),set(y->p,y->p->c[1]==y,x),set(x,!d,y);
 	pushup(y);
 }
@@ -132,13 +131,13 @@ struct tree
 	node lower_bound(const type& k)
 	{
 		node x=SplayTree::lower_bound(rt,k);
-		if (x!=null) SplayTree::splay(x,null),rt=x;
+		if (x!=null) splay(x,null),rt=x;
 		rtn x;
 	}
 	node upper_bound(const type& k)
 	{
 		node x=SplayTree::upper_bound(rt,k);
-		if (x!=null) SplayTree::splay(x,null),rt=x;
+		if (x!=null) splay(x,null),rt=x;
 		rtn x;
 	}
 	node find(const type& k)
@@ -149,14 +148,13 @@ struct tree
 	node find_by_order(int cnt)
 	{
 		node x=SplayTree::find_by_order(rt,cnt);
-		if (x!=null) SplayTree::splay(x,null),rt=x;
+		if (x!=null) splay(x,null),rt=x;
 		rtn x;
 	}
 	int order_of_key(const type& k)
 	{
-		node x=SplayTree::lower_bound(rt,k);
-		if (x!=null) SplayTree::splay(x,null),rt=x;
-		rtn x==null?x->k.s:x->c[0]->k.s;
+		node x=lower_bound(k);
+		rtn x==null?size():x->c[0]->k.s;
 	}
 	node insert(const type& k)
 	{
@@ -168,25 +166,29 @@ struct tree
 		pushup(x),pushup(y),rt=y;
 		rtn rt;
 	}
-	node erase(const type& k)
+	void erase(node x)
 	{
-		node x=find(k);
 		if (x!=null)
 		{
+			splay(x,null),rt=x;
 			if (x->c[1]==null)
 			{
 				rt=x->c[0];
-				set(null,0,x->c[0]);
-				set(x,0,null);
+				set(null,0,x->c[0]),set(x,0,null);
 			}
 			else
 			{
-				node y=SplayTree::min(x->c[1]);
-				SplayTree::splay(y,x);
+				node y=min(x->c[1]);
+				splay(y,x);
 				set(null,1,y),set(y,0,x->c[0]),set(x,0,null),set(x,1,null);
 				pushup(y),rt=y;
 			}
 		}
+	}
+	node erase(const type& k)
+	{
+		node x=find(k);
+		erase(x);
 		rtn x;
 	}
 	int size()

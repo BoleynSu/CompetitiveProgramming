@@ -42,10 +42,7 @@ public:
 			else
 			{
 				node nvnc=top++;
-				memcpy(nvnc,vnc,sizeof(struct_node));
-				nvnc->len=v->len+1;
-				nvnc->isc=true;
-				vnc->lnk=nvnc;
+				*nvnc=*vnc,nvnc->len=v->len+1,nvnc->isc=true,vnc->lnk=nvnc;
 				whl(v&&v->n[c]==vnc) v->n[c]=nvnc,v=v->lnk;
 				u->lnk=nvnc;
 			}
