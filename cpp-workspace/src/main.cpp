@@ -196,6 +196,8 @@ struct data
 {
 	key_type k;//k用于lower_bound/upper_bound/find
 	int s;//s用于find_by_order/order_of_key/size
+	int delta,value;
+	lli sum;
 };
 const int MAXNODE=1000000;
 typedef struct struct_node* node;
@@ -208,15 +210,25 @@ node make(const key_type& k)
 {
 	rtn top->k=k,top->s=0,top->p=top->c[0]=top->c[1]=null,top++;
 }
-void apply(node x)
+void apply(node x,int delta)
 {
+	x->delta+=delta;
+	x->value+=delta;
+	x->sum+=lli(x->s)*lli(delta);
 }
 void pushup(node x)
 {
 	x->s=x->c[0]->s+x->c[1]->s+1;
+	x->sum=x->c[0]->sum+x->c[1]->sum+x->value;
 }
 void pushdown(node x)
 {
+	if (x->delta)
+	{
+		apply(x->c[0],x->delta);
+		apply(x->c[1],x->delta);
+		x->delta=0;
+	}
 }
 
 node stk[MAXNODE];
@@ -339,10 +351,9 @@ struct tree
 	node insert(const key_type& k)
 	{
 		node x=SplayTree::upper_bound(rt,k);
-		splay(x);
 		node y=make(k);
 		if (x==null) set(y,0,rt);
-		else set(y,0,x->c[0]),set(x,0,null),set(y,1,x),pushup(x);
+		else splay(x),set(y,0,x->c[0]),set(x,0,null),set(y,1,x),pushup(x);
 		pushup(y),rt=y;
 		rtn rt;
 	}
@@ -386,4 +397,40 @@ using namespace StandardCodeLibrary::BinarySearchTree::SplayTree;
 
 int main()
 {
+	int N,Q;
+	sf("%d%d",&N,&Q);
+	tree t;
+	t.ins(0),t.rt->value=0;
+	ft(i,1,N)
+	{
+		int a;
+		sf("%d",&a);
+		t.ins(i),t.rt->value=a;
+	}
+	t.ins(N+1),t.rt->value=0;
+	rep(i,Q)
+	{
+		char c;
+		sf(" %c",&c);
+		if (c=='C')
+		{
+			int a,b,c;
+			sf("%d%d%d",&a,&b,&c);
+			node x=lower_bound(t.rt,a-1);
+			splay(x,null),t.rt=x;
+			node y=lower_bound(x->c[1],b+1);
+			splay(y,x);
+			apply(y->c[0],c),pushup(y),pushup(x);
+		}
+		else
+		{
+			int a,b;
+			sf("%d%d",&a,&b);
+			node x=lower_bound(t.rt,a-1);
+			splay(x,null),t.rt=x;
+			node y=lower_bound(x->c[1],b+1);
+			splay(y,x);
+			pf("%I64d\n",y->c[0]->sum);
+		}
+	}
 }
