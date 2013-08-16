@@ -166,146 +166,98 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #endif
 }initializer;
 
-////非标准;
-//#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
-//#include <ext/rope>
-//#include <ext/pb_ds/assoc_container.hpp>
-//#include <ext/pb_ds/tree_policy.hpp>
-//#include <ext/pb_ds/tag_and_trait.hpp>
-//typedef __gnu_cxx::rope<char> rope;
-//template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-//#define ctz __builtin_ctz
-//#define clz __builtin_clz
-//#define bc __builtin_popcount
+//非标准;
+#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
+#include <ext/rope>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <ext/pb_ds/tag_and_trait.hpp>
+typedef __gnu_cxx::rope<char> rope;
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+#define ctz __builtin_ctz
+#define clz __builtin_clz
+#define bc __builtin_popcount
 
-/*
- * Package: StandardCodeLibrary.StringAlgorithms.SuffixAutomaton
- * Description:
- * 后缀自动机;
- * Usage:
- * MAXNODE:后缀自动机最多有多少个节点
- * MAXALPHABET:字母表大小
- * */
+const int MAXN=100000+2;
+int n,m,d;
+bool is[MAXN];
+si adj[MAXN];
+int size[MAXN];
+int maxs[MAXN];
+int dep[MAXN];
 
-namespace StandardCodeLibrary
+void dfs(int u,int p,vi& lst)
 {
-namespace StringAlgorithms
-{
-namespace SuffixAutomaton
-{
-
-const int MAXNODE=1000000;
-const int MAXALPHABET=26;
-typedef struct struct_node* node;
-struct struct_node{node n[MAXALPHABET];node lnk;vec<node> c;int sz;int len;bool isc;}pool[MAXNODE];
-node top;
-
-struct Initializer{Initializer(){top=pool,clr(pool);}}initializer;
-
-class SuffixAutomaton
-{
-protected:
-	node rt,lst;
-public:
-	SuffixAutomaton():rt(top++),lst(rt){rt->isc=true;}
-	void extend(int c)
-	{
-		node u=top++;
-		u->len=lst->len+1;
-		node v=lst;
-		whl(v&&!v->n[c]) v->n[c]=u,v=v->lnk;
-		if (v)
+	lst.pb(u);
+	size[u]=1,maxs[u]=0;
+	for (int v:adj[u])
+		if (v!=p)
 		{
-			node vnc=v->n[c];
-			if (v->len+1==vnc->len) u->lnk=vnc;
-			else
-			{
-				node nvnc=top++;
-				*nvnc=*vnc,nvnc->len=v->len+1,nvnc->isc=true,vnc->lnk=nvnc;
-				whl(v&&v->n[c]==vnc) v->n[c]=nvnc,v=v->lnk;
-				u->lnk=nvnc;
-			}
+			dfs(v,u,lst);
+			size[u]+=size[v];
+			cmax(maxs[u],size[v]);
 		}
-		else u->lnk=rt;
-		lst=u;
-	}
-};
-
-class SAM:public SuffixAutomaton
-{
-	int ans;
-	void calc_c()
-	{
-		for (node i=pool;i!=top;++i) if (i->lnk) i->lnk->c.pb(i);
-	}
-	int dfs_sz(node u)
-	{
-		u->sz=1;
-		ft(i,0,10) if (u->n[i]) u->sz+=dfs_sz(u->n[i]);
-		rtn u->sz;
-	}
-	void dfs_ans(node u,int x=2)
-	{
-		if (!u->isc) prt(x);
-		rep(i,sz(u->c)) dfs_ans(u->c[i],x);
-		ft(i,0,10) if (u->n[i]) dfs_ans(u->n[i],x*10+i);
-	}
-	void dfs_str(node u,vi s)
-	{
-		prt(s);
-		ft(i,0,10) if (u->n[i])
-		{
-			vi ns=s;
-			ns.pb(i);
-			dfs_str(u->n[i],ns);
-		}
-	}
-public:
-	int solve()
-	{
-		calc_c();
-		rep(i,top-pool)
-		{
-			cout<<i;
-			if (pool[i].isc) cout<<"*";
-			cout<<":"<<endl;
-			if (pool[i].lnk) cout<<"lnk="<<pool[i].lnk-pool<<endl;
-			cout<<"nxt=";
-			ft(j,0,10) if (pool[i].n[j]) cout<<j<<":"<<pool[i].n[j]-pool<<", ";
-			cout<<endl;
-			cout<<"ch=";
-			rep(j,sz(pool[i].c)) cout<<pool[i].c[j]-pool<<", ";
-			cout<<endl;
-			if (pool[i].lnk) cout<<"rng=["<<pool[i].lnk->len+1<<","<<pool[i].len<<"]"<<endl;
-			cout<<endl;
-		}
-		dfs_str(rt,vi());
-		ans=0;
-		//dfs_ans(rt);
-		prt(dfs_sz(rt));
-		rtn ans;
-	}
-};
-
 }
+int dfs_d(int u,int p,int d=0)
+{
+	int ans=-oo;
+	dep[u]=d;
+	if (is[u]) cmax(ans,dep[u]);
+	for (int v:adj[u])
+		if (v!=p) cmax(ans,dfs_d(v,u,d+1));
+	rtn ans;
 }
+vi solve(int x)
+{
+	vi lst;
+	dfs(x,-1,lst);
+	int root=x;
+	int mins=maxs[x];
+	for (int u:lst)
+		if (cmin(mins,max(size[x]-size[u],maxs[u])))
+			root=u;
+	set<pii> s;
+	mii maxd;
+	if (is[root]) s.ins(mp(1,root));
+	for (int u:adj[root])
+	{
+		adj[u].ers(root);
+		maxd[u]=dfs_d(u,-1);
+		adj[u].ins(root);
+		s.ins(mp(maxd[u]+2,u));
+	}
+	vi ans;
+	for (int u:adj[root])
+	{
+		adj[u].ers(root);
+		vi get=solve(u);
+		dfs_d(u,-1);
+		adj[u].ins(root);
+		s.ers(mp(maxd[u]+2,u));
+		rep(i,sz(get)) if (!sz(s)||dep[get[i]]+s.rbegin()->x<=d) ans.pb(get[i]);
+		s.ins(mp(maxd[u]+2,u));
+	}
+	s.ers(mp(1,root));
+	if (!sz(s)||s.rbegin()->x-1<=d) ans.pb(root);
+	s.ins(mp(1,root));
+	rtn ans;
 }
 
 int main()
 {
-	MOD=2012;
-	int n;
-	whl(cin>>n)
+	oo/=4;
+	cin>>n>>m>>d;
+	rep(i,m)
 	{
-		vs s(n);
-		cin>>s;
-		StandardCodeLibrary::StringAlgorithms::SuffixAutomaton::Initializer();
-		StandardCodeLibrary::StringAlgorithms::SuffixAutomaton::SAM sam;
-		rep(i,n)
-		{
-			rep(j,sz(s[i])) sam.extend(s[i][j]-'0');
-			//sam.extend(10);
-		}
-		cout<<sam.solve()<<endl;
+		int x;
+		cin>>x;
+		is[x]=true;
 	}
+	rep(i,n-1)
+	{
+		int a,b;
+		cin>>a>>b;
+		adj[a].ins(b),adj[b].ins(a);
+	}
+	cout<<sz(solve(1))<<endl;
 }
