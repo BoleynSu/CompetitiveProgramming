@@ -16,7 +16,7 @@ namespace StringAlgorithms
 {
 
 //KMP算法
-void get_pi(const vi t,vi& pi)
+void get_pi(const vi& t,vi& pi)
 {
 	pi.resize(sz(t)),pi[0]=-1;
 	int j=-1;

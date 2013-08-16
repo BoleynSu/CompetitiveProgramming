@@ -12,47 +12,47 @@ namespace BinarySearchTree
 namespace SplayTree
 {
 
-struct type
+typedef int key_type;
+struct data
 {
-	int k;//k用于lower_bound/upper_bound/find
+	key_type k;//k用于lower_bound/upper_bound/find
 	int s;//s用于find_by_order/order_of_key/size
-	type(int k=0):k(k),s(0)
-	{
-	}
-	friend bool operator<(const type& a,const type& b)
-	{
-		rtn a.k<b.k;
-	}
 };
 const int MAXNODE=1000000;
 typedef struct struct_node* node;
-struct struct_node{type k;node p,c[2];}pool[MAXNODE];
+struct struct_node:data{node p,c[2];}pool[MAXNODE];
 node top,null;
 
 struct Initializer{Initializer(){top=pool,null=top++,null->p=null->c[0]=null->c[1]=null;}}initializer;
 
-node make(const type& k)
+node make(const key_type& k)
 {
-	rtn top->k=k,top->p=top->c[0]=top->c[1]=null,top++;
+	rtn top->k=k,top->s=0,top->p=top->c[0]=top->c[1]=null,top++;
 }
 void apply(node x)
 {
 }
 void pushup(node x)
 {
-	if (x!=null)
-	{
-		x->k.s=x->c[0]->k.s+x->c[1]->k.s+1;
-	}
+	x->s=x->c[0]->s+x->c[1]->s+1;
 }
 void pushdown(node x)
 {
 }
 
+node stk[MAXNODE];
+int stks;
+void pushdownto(node x)
+{
+	do stk[stks++]=x;
+	whl(x=x->p,x!=null);
+	whl(stks) pushdown(stk[--stks]);
+}
+
 void set(node x,bool d,node y)
 {
-	if (x!=null) x->c[d]=y;
-	if (y!=null) y->p=x;
+	x->c[d]=y;
+	y->p=x;
 }
 void rotate(node x,bool d)
 {
@@ -62,7 +62,6 @@ void rotate(node x,bool d)
 }
 void splay(node x,node p=null)
 {
-	pushdown(x);
 	whl(x->p!=p)
 	{
 		bool xd=x->p->c[1]==x,xpd=x->p->p->c[1]==x->p;
@@ -77,7 +76,7 @@ void splay(node x,node p=null)
 	pushup(x);
 }
 
-node lower_bound(node rt,const type& k)
+node lower_bound(node rt,const key_type& k)
 {
 	node l=rt,r=null;
 	whl(l!=null)
@@ -88,7 +87,7 @@ node lower_bound(node rt,const type& k)
 	}
 	rtn r;
 }
-node upper_bound(node rt,const type& k)
+node upper_bound(node rt,const key_type& k)
 {
 	node l=rt,r=null;
 	whl(l!=null)
@@ -105,22 +104,24 @@ node find_by_order(node rt,int cnt)
 	whl(x!=null)
 	{
 		pushdown(x);
-		if (x->c[0]->k.s==cnt) break;
-		else if (x->c[0]->k.s<cnt) cnt-=x->c[0]->k.s+1,x=x->c[1];
+		if (x->c[0]->s==cnt) break;
+		else if (x->c[0]->s<cnt) cnt-=x->c[0]->s+1,x=x->c[1];
 		else x=x->c[0];
 	}
 	rtn x;
 }
 node min(node rt)
 {
-	node x=rt;
-	whl(x->c[0]!=null) pushdown(x),x=x->c[0];
+	node x,y=rt;
+	do x=y,y=x->c[0],pushdown(x);
+	whl(y!=null);
 	rtn x;
 }
 node max(node rt)
 {
-	node x=rt;
-	whl(x->c[1]!=null) pushdown(x),x=x->c[1];
+	node x,y=rt;
+	do x=y,y=x->c[1],pushdown(x);
+	whl(y!=null);
 	rtn x;
 }
 
@@ -128,19 +129,19 @@ struct tree
 {
 	node rt;
 	tree():rt(null){}
-	node lower_bound(const type& k)
+	node lower_bound(const key_type& k)
 	{
 		node x=SplayTree::lower_bound(rt,k);
 		if (x!=null) splay(x,null),rt=x;
 		rtn x;
 	}
-	node upper_bound(const type& k)
+	node upper_bound(const key_type& k)
 	{
 		node x=SplayTree::upper_bound(rt,k);
 		if (x!=null) splay(x,null),rt=x;
 		rtn x;
 	}
-	node find(const type& k)
+	node find(const key_type& k)
 	{
 		node x=lower_bound(k);
 		rtn x==null||k<x->k?null:x;
@@ -151,25 +152,25 @@ struct tree
 		if (x!=null) splay(x,null),rt=x;
 		rtn x;
 	}
-	int order_of_key(const type& k)
+	int order_of_key(const key_type& k)
 	{
 		node x=lower_bound(k);
-		rtn x==null?size():x->c[0]->k.s;
+		rtn x==null?size():x->c[0]->s;
 	}
-	node insert(const type& k)
+	node insert(const key_type& k)
 	{
 		node x=SplayTree::upper_bound(rt,k);
-		splay(x);
 		node y=make(k);
 		if (x==null) set(y,0,rt);
-		else set(y,0,x->c[0]),set(x,0,null),set(y,1,x);
-		pushup(x),pushup(y),rt=y;
+		else splay(x),set(y,0,x->c[0]),set(x,0,null),set(y,1,x),pushup(x);
+		pushup(y),rt=y;
 		rtn rt;
 	}
 	void erase(node x)
 	{
 		if (x!=null)
 		{
+			pushdownto(x);
 			splay(x,null),rt=x;
 			if (x->c[1]==null)
 			{
@@ -185,7 +186,7 @@ struct tree
 			}
 		}
 	}
-	node erase(const type& k)
+	node erase(const key_type& k)
 	{
 		node x=find(k);
 		erase(x);
@@ -193,7 +194,7 @@ struct tree
 	}
 	int size()
 	{
-		rtn rt->k.s;
+		rtn rt->s;
 	}
 };
 
