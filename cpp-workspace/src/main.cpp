@@ -146,8 +146,8 @@ template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));r
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
-template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
-template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,const vec<type>& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
+template<typename istream,typename type>inline istream& operator>>(istream& cin,type& x){rep(i,sz(x))cin>>x[i];rtn cin;}
+template<typename ostream,typename type>inline ostream& operator<<(ostream& cout,const type& x){rep(i,sz(x))cout<<x[i]<<(i+1==sz(x)?"":" ");rtn cout;}
 inline ostream& pdb(int prcs,db x){rtn cout<<setprecision(prcs)<<fixed<<(sgn(x)?(x):0);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
@@ -166,98 +166,18 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #endif
 }initializer;
 
-//非标准;
-#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
-#include <ext/rope>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/tag_and_trait.hpp>
-typedef __gnu_cxx::rope<char> rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#define ctz __builtin_ctz
-#define clz __builtin_clz
-#define bc __builtin_popcount
-
-const int MAXN=100000+2;
-int n,m,d;
-bool is[MAXN];
-si adj[MAXN];
-int size[MAXN];
-int maxs[MAXN];
-int dep[MAXN];
-
-void dfs(int u,int p,vi& lst)
-{
-	lst.pb(u);
-	size[u]=1,maxs[u]=0;
-	for (int v:adj[u])
-		if (v!=p)
-		{
-			dfs(v,u,lst);
-			size[u]+=size[v];
-			cmax(maxs[u],size[v]);
-		}
-}
-int dfs_d(int u,int p,int d=0)
-{
-	int ans=-oo;
-	dep[u]=d;
-	if (is[u]) cmax(ans,dep[u]);
-	for (int v:adj[u])
-		if (v!=p) cmax(ans,dfs_d(v,u,d+1));
-	rtn ans;
-}
-vi solve(int x)
-{
-	vi lst;
-	dfs(x,-1,lst);
-	int root=x;
-	int mins=maxs[x];
-	for (int u:lst)
-		if (cmin(mins,max(size[x]-size[u],maxs[u])))
-			root=u;
-	set<pii> s;
-	mii maxd;
-	if (is[root]) s.ins(mp(1,root));
-	for (int u:adj[root])
-	{
-		adj[u].ers(root);
-		maxd[u]=dfs_d(u,-1);
-		adj[u].ins(root);
-		s.ins(mp(maxd[u]+2,u));
-	}
-	vi ans;
-	for (int u:adj[root])
-	{
-		adj[u].ers(root);
-		vi get=solve(u);
-		dfs_d(u,-1);
-		adj[u].ins(root);
-		s.ers(mp(maxd[u]+2,u));
-		rep(i,sz(get)) if (!sz(s)||dep[get[i]]+s.rbegin()->x<=d) ans.pb(get[i]);
-		s.ins(mp(maxd[u]+2,u));
-	}
-	s.ers(mp(1,root));
-	if (!sz(s)||s.rbegin()->x-1<=d) ans.pb(root);
-	s.ins(mp(1,root));
-	rtn ans;
-}
+////非标准;
+//#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
+//#include <ext/rope>
+//#include <ext/pb_ds/assoc_container.hpp>
+//#include <ext/pb_ds/tree_policy.hpp>
+//#include <ext/pb_ds/tag_and_trait.hpp>
+//typedef __gnu_cxx::rope<char> rope;
+//template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+//#define ctz __builtin_ctz
+//#define clz __builtin_clz
+//#define bc __builtin_popcount
 
 int main()
 {
-	oo/=4;
-	cin>>n>>m>>d;
-	rep(i,m)
-	{
-		int x;
-		cin>>x;
-		is[x]=true;
-	}
-	rep(i,n-1)
-	{
-		int a,b;
-		cin>>a>>b;
-		adj[a].ins(b),adj[b].ins(a);
-	}
-	cout<<sz(solve(1))<<endl;
 }
