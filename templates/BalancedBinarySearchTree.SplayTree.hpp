@@ -40,6 +40,7 @@ void pushdown(node x)
 {
 }
 
+//pushdown rt到x这条链上的所有节点 如果不是用的自带pushdown的函数(如lower_bound)获得的x 则可能会用到此函数
 node stk[MAXNODE];
 int stks;
 void pushdownto(node x)
@@ -166,11 +167,11 @@ struct tree
 		pushup(y),rt=y;
 		rtn rt;
 	}
+	//注意:需要保证rt到x这条链上的所有节点都被pushdown过
 	void erase(node x)
 	{
 		if (x!=null)
 		{
-			pushdownto(x);
 			splay(x,null),rt=x;
 			if (x->c[1]==null)
 			{
