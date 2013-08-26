@@ -98,20 +98,25 @@ typedef const char* cstr;
 typedef string str;
 typedef vec<int> vi;
 typedef vec<vi> vvi;
+typedef vec<lli> vl;
+typedef vec<vl> vvl;
 typedef vec<bool> vb;
 typedef vec<vb> vvb;
+typedef vec<char> vc;
+typedef vec<vc> vvc;
 typedef vec<str> vs;
 typedef pr<int,int> pii;
 typedef pr<lli,lli> pll;
 typedef pr<db,db> pdd;
+typedef vec<pii> vpii;
+typedef vec<pll> vpll;
+typedef vec<pdd> vpdd;
 typedef map<int,int> mii;
 typedef map<str,int> msi;
 typedef map<char,int> mci;
 typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
-typedef vec<pii> vpii;
-typedef vec<pdd> vpdd;
 
 //常用常量:int的最大值;lli的最大值;db的误差相关常数;欧拉常数;圆周率;移动向量;取模使用的除数;
 int oo=(~0u)>>1;
@@ -144,6 +149,7 @@ template<typename type>inline type cross(const pr<type,type>& a,const pr<type,ty
 template<typename type>inline type dot(const pr<type,type>& a,const pr<type,type>& b){rtn a.x*b.x+a.y*b.y;}
 template<typename type>inline type gcd(type a,type b){if(b)whl((a%=b)&&(b%=a));rtn a+b;}
 template<typename type>inline type lcm(type a,type b){rtn a*b/gcd(a,b);}
+inline lli bin_pow(lli x,lli y){lli z=1;whl(y){if(y&1)z=mod(z*x);x=mod(sqr(x)),y>>=1;}rtn z;}
 template<typename istream,typename first_type,typename second_type>inline istream& operator>>(istream& cin,pr<first_type,second_type>& x){rtn cin>>x.x>>x.y;}
 template<typename ostream,typename first_type,typename second_type>inline ostream& operator<<(ostream& cout,const pr<first_type,second_type>& x){rtn cout<<x.x<<" "<<x.y;}
 template<typename istream,typename type>inline istream& operator>>(istream& cin,vec<type>& x){rep(i,sz(x))cin>>x[i];rtn cin;}
@@ -155,6 +161,9 @@ template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
+inline void make_set(vpii& st){rep(i,sz(st))st[i]=mp(i,1);}
+inline int find_set(vpii& st,int x){int y=x,z;whl(y!=st[y].x)y=st[y].x;whl(x!=st[x].x)z=st[x].x,st[x].x=y,x=z;rtn y;}
+inline bool union_set(vpii& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?(st[a].y>st[b].y?st[a].x=b,st[a].y+=st[b].y:st[b].x=a,st[b].y+=st[a].y),true:false;}
 template<typename type>inline void merge(type& a,type& b){if(sz(a)<sz(b))swap(a,b);whl(sz(b))a.ins(*b.begin()),b.ers(b.begin());}
 
 //初始化;
