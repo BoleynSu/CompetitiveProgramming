@@ -4,4 +4,5 @@
 #include <GraphTheory.Dinic'sAlgorithm>
 #include <GraphTheory.MinCostMaxFlow>
 #include <GraphTheory.ShortestPath>
+#include <GraphTheory.StronglyConnectedComponents>
 #endif
