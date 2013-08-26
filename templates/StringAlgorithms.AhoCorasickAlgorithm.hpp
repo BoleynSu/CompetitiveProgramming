@@ -17,9 +17,9 @@ namespace AhoCorasickAlgorithm
 
 const int MAXNODE=1000000;
 const int MAXALPHABET=26;
-typedef bool info;
+typedef bool data;
 typedef struct struct_node* node;
-struct struct_node{node n[MAXALPHABET];node f;info i;int v;}pool[MAXNODE];
+struct struct_node{node n[MAXALPHABET];node f;data d;int v;}pool[MAXNODE];
 node top;
 int cnt;
 
@@ -29,11 +29,11 @@ class ACAutomaton
 {
 protected:
 	node rt;
-	virtual void update(info&,const info&)=0;
-	virtual void calculate(const info&)=0;
+	virtual void update(data&,const data&)=0;
+	virtual void calculate(const data&)=0;
 public:
 	ACAutomaton():rt(top++){}
-	void insert(vi s,const info& i)
+	void insert(vi s,const data& d)
 	{
 		node u=rt;
 		rep(i,sz(s))
@@ -41,7 +41,7 @@ public:
 			if (!u->n[s[i]]) u->n[s[i]]=top++;
 			u=u->n[s[i]];
 		}
-		update(u->i,i);
+		update(u->d,d);
 	}
 	void build()
 	{
@@ -75,7 +75,7 @@ public:
 			if (u->n[s[i]]) u=u->n[s[i]];
 			node v=u;
 			whl(v!=rt&&v->v!=cnt)
-				calculate(v->i),v->v=cnt,v=v->f;
+				calculate(v->d),v->v=cnt,v=v->f;
 		}
 	}
 };
