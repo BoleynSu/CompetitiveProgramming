@@ -4,6 +4,7 @@
  * KMP算法 Knuth-Morris-Pratt Algorithm;
  * Z Algorithm;
  * 最长回文子串 Manacher's Algorithm;
+ * 字符串的最小表示法 求 旋转后得到的最小字符串
  * */
 #include <Core>
 #include <StringAlgorithms.AhoCorasickAlgorithm>
@@ -88,6 +89,25 @@ void longest_palindromic_substring(const vi& str,vi& ans_str,int split=0)
 	ans_str.clear();
 	ft(i,ansi-ans,ansi+ans)
 		if (S[i]!=split) ans_str.pb(S[i]);
+}
+
+//字符串的最小表示法 求 旋转后得到的最小字符串
+str lexicographically_minimal_string_rotation(str s)
+{
+	int i=0,j=1;
+	whl(i<sz(s)&&j<sz(s))
+	{
+		int k=0;
+		whl(k<sz(s)&&s[(i+k)%sz(s)]==s[(j+k)%sz(s)]) k++;
+		if (s[(i+k)%sz(s)]>s[(j+k)%sz(s)]) i+=k+1;
+		else if (s[(i+k)%sz(s)]<s[(j+k)%sz(s)]) j+=k+1;
+		else break;
+		if (i==j) j++;
+	}
+	int b=min(i,j);
+	str ans;
+	rep(d,sz(s)) ans.pb(s[(b+d)%sz(s)]);
+	rtn ans;
 }
 
 }

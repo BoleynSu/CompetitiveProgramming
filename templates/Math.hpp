@@ -7,6 +7,11 @@
 #include <Math.BigInteger>
 #include <Math.NumberTheory>
 
+namespace StandardCodeLibrary
+{
+namespace Math
+{
+
 //Simpson's rule实现数值积分计算
 //integrate(a,b)=f(x)在[a,b]上的定积分
 template<typename func>
@@ -22,4 +27,7 @@ db integrate(db a,db b,func f)
 	db r=simpson(c,b,f);
 	db t=simpson(a,b,f);
 	rtn sgn(l+r-t)?integrate(a,c,f)+integrate(c,b,f):t;
+}
+
+}
 }

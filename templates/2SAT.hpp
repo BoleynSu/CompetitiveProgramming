@@ -5,6 +5,13 @@
  * */
 #include <GraphTheory.StronglyConnectedComponents>
 
+namespace StandardCodeLibrary
+{
+namespace TwoSAT
+{
+
+using namespace StandardCodeLibrary::GraphTheory::StronglyConnectedComponents;
+
 #define T(x) (x)
 #define F(x) ((x)+N)
 int N;
@@ -32,4 +39,7 @@ bool possible_2sat()
 	tarjan();
 	rep(i,N) if (bl[T(i)]==bl[F(i)]) rtn false;
 	rtn true;
+}
+
+}
 }
