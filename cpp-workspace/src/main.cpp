@@ -188,6 +188,7 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 #define clz __builtin_clz
 #define bc __builtin_popcount
 #else
+//上面部分的代码生成的Precompiled Headers
 #include <Core>
 #endif
 
