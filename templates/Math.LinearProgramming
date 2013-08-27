@@ -1,0 +1,4 @@
+#ifndef SCL_MATH_LP
+#define SCL_MATH_LP
+#include <Math.LinearProgramming.hpp>
+#endif

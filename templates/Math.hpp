@@ -6,6 +6,7 @@
 #include <Core>
 #include <Math.BigInteger>
 #include <Math.NumberTheory>
+#include <Math.LinearProgramming>
 
 namespace StandardCodeLibrary
 {
