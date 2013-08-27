@@ -1,3 +1,6 @@
 My codes for ACM-ICPC and OI
 ======
-Templates is in folder [/templates](https://github.com/boleynsu/acmicpc-codes/tree/master/templates) you can use them freely but please report me if you find any bug in them.
+
+Templates is in folder [/templates](https://github.com/boleynsu/acmicpc-codes/tree/master/templates).
+
+You can use them in your projects freely but please report the bugs if you find any.
