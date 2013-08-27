@@ -22,7 +22,7 @@ pii decode(const char* s)
 	else if (s[0]=='K') x.x=11;
 	else if (s[0]=='A') x.x=12;
 	x.y=s[1];
-	return x;
+	rtn x;
 }
 /*
  * pii 用x表示牌的种类 用y来判断同种牌的大小 (x,y)越大牌越好
@@ -62,22 +62,22 @@ pii get(vpii cards)
 		rep(i,sz(cards)-1) if (cards[i].x!=i) isStraight=false;
 		if (cards.back().x!=12) isStraight=false;
 	}
-	if (isFlush&&isStraight) return pii(9,cards[4].x*13+cards[3].x);
-	else if (quadCnt) return pii(8,cards[2].x);
-	else if (tripleCnt&&pairCnt) return pii(7,cards[2].x);
-	else if (isFlush) return pii(6,singleEncode);
-	else if (isStraight) return pii(5,cards[4].x*13+cards[3].x);
-	else if (tripleCnt) return pii(4,cards[2].x);
-	else if (pairCnt==2) return pii(3,pairEncode*13+singleEncode);
+	if (isFlush&&isStraight) rtn pii(9,cards[4].x*13+cards[3].x);
+	else if (quadCnt) rtn pii(8,cards[2].x);
+	else if (tripleCnt&&pairCnt) rtn pii(7,cards[2].x);
+	else if (isFlush) rtn pii(6,singleEncode);
+	else if (isStraight) rtn pii(5,cards[4].x*13+cards[3].x);
+	else if (tripleCnt) rtn pii(4,cards[2].x);
+	else if (pairCnt==2) rtn pii(3,pairEncode*13+singleEncode);
 	else if (pairCnt)
 	{
-		if (sz(cards)==5) return pii(2,pairEncode*13*13*13+singleEncode);
-		else return pii(2,pairEncode*13*13*13+singleEncode*13*13-1);
+		if (sz(cards)==5) rtn pii(2,pairEncode*13*13*13+singleEncode);
+		else rtn pii(2,pairEncode*13*13*13+singleEncode*13*13-1);
 	}
 	else
 	{
-		if (sz(cards)==5) return pii(1,singleEncode);
-		else return pii(1,singleEncode*13*13-1);
+		if (sz(cards)==5) rtn pii(1,singleEncode);
+		else rtn pii(1,singleEncode*13*13-1);
 	}
 }
 

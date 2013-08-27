@@ -62,13 +62,13 @@ bool relabel()
 //递归增广
 flow_type augment(int u,flow_type e)
 {
-	if (u==T) return e;
+	if (u==T) rtn e;
 	flow_type f=0;
 	for (edge i=adj[u];i&&e;i=i->n)
 		if (i->c&&d[u]==d[i->v]+1)
 			if (flow_type df=augment(i->v,min(e,i->c)))
 				i->c-=df,i->b->c+=df,e-=df,f+=df;
-	return f;
+	rtn f;
 }
 //非递归增广
 int st,us[MAXV];
@@ -94,7 +94,7 @@ flow_type dinic()
 {
 	flow_type f=0;
 	while (relabel()) f+=improved_augment(S,oo);
-	return f;
+	rtn f;
 }
 
 }

@@ -84,7 +84,7 @@ int point_in_polygon(const Point& p,const vec<Segment>& e)
 		if ((dbcmp(e[i].x.y,p.y)>0)!=(dbcmp(e[i].y.y,p.y)>0)
 			&&dbcmp(p.x,(e[i].y.x-e[i].x.x)/(e[i].y.y-e[i].x.y)*(p.y-e[i].x.y)+e[i].x.x)<0)
 			in=!in;
-	return in?1:0;
+	rtn in?1:0;
 }
 
 //判断直线是否相交
@@ -156,8 +156,8 @@ bool halfplane_intersection_compare(const Halfplane& a,const Halfplane& b)
 {
 	Vector u=a.y-a.x,v=b.y-b.x;
 	db du=atan2(u.y,u.x),dv=atan2(v.y,v.x);
-	if (dbcmp(du,dv)) return dbcmp(du,dv)<0;
-	else return sgn(cross(a.x,a.y,b.x))<0;
+	if (dbcmp(du,dv)) rtn dbcmp(du,dv)<0;
+	else rtn sgn(cross(a.x,a.y,b.x))<0;
 }
 bool halfplane_intersection_judge(const Halfplane& a,const Halfplane& b,const Halfplane& c)
 {
@@ -168,11 +168,11 @@ bool halfplane_intersection_judge(const Halfplane& a,const Halfplane& b,const Ha
 		if (sgn(cross(a.y-a.x,b.y-b.x)))
 		{
 			Point ab=line_intersection(a,b);
-			return sgn(cross(c.x,c.y,ab))<=0;//如果交集可以退化成线或者点 <=变<
+			rtn sgn(cross(c.x,c.y,ab))<=0;//如果交集可以退化成线或者点 <=变<
 		}
-		else return false;
+		else rtn false;
 	}
-	else return true;
+	else rtn true;
 }
 bool halfplane_intersection(Polygon& CH,vec<Halfplane>& AHP,vec<Halfplane> HP)
 {
@@ -198,14 +198,14 @@ bool halfplane_intersection(Polygon& CH,vec<Halfplane>& AHP,vec<Halfplane> HP)
 	do t=q.back(),q.pop_back();
 	whl(sz(q)&&halfplane_intersection_judge(q.back(),t,q.front()));
 	q.pb(t);
-	if (sz(q)<3) return false;
+	if (sz(q)<3) rtn false;
 	else
 	{
 		CH.resize(sz(q)),AHP.resize(sz(q));
 		rep(i,sz(q)) AHP[i]=q[i];
 		for (int i=0,j=sz(AHP)-1;i<sz(AHP);j=i++)
 			CH[i]=line_intersection(AHP[i],AHP[j]);
-		return true;
+		rtn true;
 	}
 }
 
@@ -230,8 +230,8 @@ struct QuadEdge
 	Edge n;
 	Vertex v;
 //	Face f;
-	inline Edge Rot(){return idx<3?this+1:this-3;}
-	inline Edge InvRot(){return idx>0?this-1:this+3;}
+	inline Edge Rot(){rtn idx<3?this+1:this-3;}
+	inline Edge InvRot(){rtn idx>0?this-1:this+3;}
 	inline Edge Sym(){rtn idx<2?this+2:this-2;}
 	inline Edge Onext(){rtn n;}
 	inline Edge Oprev(){rtn Rot()->Onext()->Rot();}

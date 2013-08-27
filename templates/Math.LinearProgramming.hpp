@@ -63,7 +63,7 @@ db simplex()
 	}
 	rep(j,n) X[j]=0;
 	ft(i,1,m) if (basis[i]>=0) X[basis[i]]=A[i][n];
-	return A[0][n];
+	rtn A[0][n];
 }
 
 }
