@@ -26,8 +26,8 @@ namespace MinCostMaxFlow
 {
 
 const int oo=0x7f7f7f7f;
-const int MAXE=1000000;
-const int MAXV=10000;
+const int MAXV=1;
+const int MAXE=2;
 typedef int flow_type;
 typedef int cost_type;
 typedef struct struct_edge* edge;

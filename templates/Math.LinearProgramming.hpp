@@ -22,8 +22,8 @@ namespace Math
 namespace LinearProgramming
 {
 
-const int MAXN=1000;
-const int MAXM=1000;
+const int MAXN=1;
+const int MAXM=1;
 int n,m;
 db A[MAXM+1][MAXN+1],X[MAXN];
 int basis[MAXM+1],out[MAXN+1];

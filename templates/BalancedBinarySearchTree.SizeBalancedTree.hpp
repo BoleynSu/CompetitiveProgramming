@@ -13,7 +13,7 @@ namespace SizeBalancedTree
 {
 
 typedef int type;
-const int MAXNODE=1000000;
+const int MAXNODE=1;
 typedef struct struct_node* node;
 struct struct_node{type k;int s;node c[2];}pool[MAXNODE];
 node top,null;

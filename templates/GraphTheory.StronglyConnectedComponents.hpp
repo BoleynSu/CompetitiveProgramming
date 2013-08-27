@@ -21,8 +21,8 @@ namespace GraphTheory
 namespace StronglyConnectedComponents
 {
 
-const int MAXV=1000;
-const int MAXE=1000000;
+const int MAXV=1;
+const int MAXE=1;
 typedef struct struct_edge* edge;
 struct struct_edge{int v;edge n;}pool[MAXE];
 edge top;

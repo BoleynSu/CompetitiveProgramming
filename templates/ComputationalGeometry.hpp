@@ -4,7 +4,7 @@
  * Ray Casting Algorithm 射线法判断点是否在简单多边形内
  * Andrew's Monotone Chain算法 求凸包
  * 半品面交 O(nlogn)算法
- * Delaunay三角剖分 O(nlogn)分治法(离线)和O(n^2)增量法(在线)
+ * Delaunay三角剖分 O(nlogn)分治法(离线)和O(n^2)增量法(在线) MAXV为最大点数 使用在线算法时要额外增加3个点
  * */
 #include <Core>
 
@@ -210,7 +210,7 @@ bool halfplane_intersection(Polygon& CH,vec<Halfplane>& AHP,vec<Halfplane> HP)
 }
 
 //Delaunay三角剖分 O(nlogn)分治法(离线)和O(n^2)增量法(在线)
-const int MAXV=100000;
+const int MAXV=3;
 const int MAXE=3*MAXV-6;
 struct Vertex:Point
 {

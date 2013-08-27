@@ -23,8 +23,8 @@ namespace DinicsAlgorithm
 {
 
 const int oo=0x7f7f7f7f;
-const int MAXV=1000000;
-const int MAXE=1000000;
+const int MAXV=1;
+const int MAXE=2;
 typedef int flow_type;
 typedef struct struct_edge* edge;
 struct struct_edge{int v;flow_type c;edge n,b;}pool[MAXE];

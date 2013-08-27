@@ -15,7 +15,7 @@ namespace StringAlgorithms
 namespace AhoCorasickAlgorithm
 {
 
-const int MAXNODE=1000000;
+const int MAXNODE=1;
 const int MAXALPHABET=26;
 typedef bool data;
 typedef struct struct_node* node;

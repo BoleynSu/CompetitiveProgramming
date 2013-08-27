@@ -15,7 +15,7 @@ namespace StringAlgorithms
 namespace SuffixAutomaton
 {
 
-const int MAXNODE=1000000;
+const int MAXNODE=1;
 const int MAXALPHABET=26;
 typedef struct struct_node* node;
 struct struct_node{node n[MAXALPHABET];node lnk;int len;bool isc;}pool[MAXNODE];

@@ -18,7 +18,7 @@ struct data
 	key_type k;//k用于lower_bound/upper_bound/find
 	int s;//s用于find_by_order/order_of_key/size
 };
-const int MAXNODE=1000000;
+const int MAXNODE=1;
 typedef struct struct_node* node;
 struct struct_node:data{node p,c[2];}pool[MAXNODE];
 node top,null;

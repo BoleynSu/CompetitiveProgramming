@@ -12,7 +12,7 @@ namespace StringAlgorithms
 namespace SuffixArray
 {
 
-const int LOG2_MAXLENGTH=20;
+const int LOG2_MAXLENGTH=0;
 const int MAXLENGTH=1<<LOG2_MAXLENGTH;
 typedef char string[MAXLENGTH];
 string s;

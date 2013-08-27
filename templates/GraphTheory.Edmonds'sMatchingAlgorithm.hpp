@@ -26,7 +26,7 @@ namespace GraphTheory
 namespace EdmondssMatchingAlgorithm
 {
 
-const int MAXV=100;
+const int MAXV=1;
 const int MAXE=MAXV*MAXV*2;
 const int NOT_NODE=-1;
 typedef struct struct_edge* edge;

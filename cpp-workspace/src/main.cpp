@@ -1,3 +1,4 @@
+#ifndef DEBUG
 /*
  * Package: StandardCodeLibrary.Core
  * */
@@ -98,20 +99,25 @@ typedef const char* cstr;
 typedef string str;
 typedef vec<int> vi;
 typedef vec<vi> vvi;
+typedef vec<lli> vl;
+typedef vec<vl> vvl;
 typedef vec<bool> vb;
 typedef vec<vb> vvb;
+typedef vec<char> vc;
+typedef vec<vc> vvc;
 typedef vec<str> vs;
 typedef pr<int,int> pii;
 typedef pr<lli,lli> pll;
 typedef pr<db,db> pdd;
+typedef vec<pii> vpii;
+typedef vec<pll> vpll;
+typedef vec<pdd> vpdd;
 typedef map<int,int> mii;
 typedef map<str,int> msi;
 typedef map<char,int> mci;
 typedef set<int> si;
 typedef set<str> ss;
 typedef que<int> qi;
-typedef vec<pii> vpii;
-typedef vec<pdd> vpdd;
 
 //常用常量:int的最大值;lli的最大值;db的误差相关常数;欧拉常数;圆周率;移动向量;取模使用的除数;
 int oo=(~0u)>>1;
@@ -181,28 +187,10 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 #define ctz __builtin_ctz
 #define clz __builtin_clz
 #define bc __builtin_popcount
-
-//字符串的最小表示法 求 旋转后得到的最小字符串
-str lexicographically_minimal_string_rotation(str s)
-{
-	int i=0,j=1;
-	whl(i<sz(s)&&j<sz(s))
-	{
-		int k=0;
-		whl(k<sz(s)&&s[(i+k)%sz(s)]==s[(j+k)%sz(s)]) k++;
-		if (s[(i+k)%sz(s)]>s[(j+k)%sz(s)]) i+=k+1;
-		else if (s[(i+k)%sz(s)]<s[(j+k)%sz(s)]) j+=k+1;
-		else break;
-		if (i==j) j++;
-	}
-	int b=min(i,j);
-	str ans;
-	rep(d,sz(s)) ans.pb(s[(b+d)%sz(s)]);
-	rtn ans;
-}
+#else
+#include <Core>
+#endif
 
 int main()
 {
-	str s;
-	whl (cin>>s) prt(lexicographically_minimal_string_rotation(s));
 }
