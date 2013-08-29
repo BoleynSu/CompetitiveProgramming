@@ -58,9 +58,9 @@ solveQuestion naby maby = solve naby $ trans (-oo) maby
 
 printAnswer::[(Int,Int,Int)]->IO()
 printAnswer answer = do
-  printf "%d" (length answer)
-  mapM_ (\(a,b,y)->printf " %d %d %d" a b y) answer
-  printf "\n"
+  putStr $ printf "%d" (length answer)
+  mapM_ (\(a,b,y)->putStr $ printf " %d %d %d" a b y) answer
+  putStr $ printf "\n"
 
 main::IO()
 main = do
