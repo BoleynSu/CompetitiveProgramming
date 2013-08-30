@@ -192,6 +192,130 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 #include <Core>
 #endif
 
+namespace LinkCutTree
+{
+
+typedef int key_type;
+struct data
+{
+	int id,s;
+};
+const int MAXNODE=10000;
+typedef struct struct_node* node;
+struct struct_node:data{node p,c[2];}pool[MAXNODE];
+node top,null;
+
+struct Initializer{Initializer(){top=pool,null=top++,null->p=null->c[0]=null->c[1]=null;}}initializer;
+
+node make(int id)
+{
+	rtn top->id=id,top->p=top->c[0]=top->c[1]=null,top++;
+}
+void apply(node x)
+{
+}
+void pushup(node x)
+{
+	x->s=x->c[0]->s+1+x->c[1]->s;
+}
+void pushdown(node x)
+{
+}
+
+void set(node x,bool d,node y)
+{
+	x->c[d]=y;
+	y->p=x;
+}
+void rotate(node x,bool d)
+{
+	node y=x->p;
+	set(y,d,x->c[!d]),set(y->p,y->p->c[1]==y,x),set(x,!d,y);
+	pushup(y);
+}
+void splay(node x,node p=null)
+{
+	whl(x->p!=p)
+	{
+		bool xd=x->p->c[1]==x,xpd=x->p->p->c[1]==x->p;
+		if(x->p->p==p) rotate(x,xd);
+		else
+		{
+			if(xpd==xd) rotate(x->p,xpd);
+			else rotate(x,xd);
+			rotate(x,xpd);
+		}
+	}
+	pushup(x);
+}
+
+node head(node rt)
+{
+	node x,y=rt;
+	do x=y,y=x->c[0],pushdown(x);
+	while (y!=null);
+	rtn x;
+}
+node tail(node rt)
+{
+	node x,y=rt;
+	do x=y,y=x->c[1],pushdown(x);
+	whl(y!=null);
+	rtn x;
+}
+//让x到它所在的树的根的路径上的边变为实边 并且存在同一颗splay里
+void expose(node x)
+{
+	for (node y=null;x!=null;x=x->p)
+		splay(x),x->c[0]=y,pushup(x),y=x;
+}
+
+//连接x和y x为它所在的树的根 连接后y为x的父亲
+void link(node x,node y)
+{
+	expose(x),splay(x),x->p=y;
+}
+void cut(node x)
+{
+	expose(x),splay(x),x->c[1]->p=null,x->c[1]=x->p=null,pushup(x);
+}
+void evert(node x)
+{
+	//TODO
+}
+
+}
+using namespace LinkCutTree;
+
 int main()
 {
+	const int MAXN=100;
+	node nds[MAXN];
+	rep(i,MAXN) nds[i]=make(i),pushup(nds[i]);
+	char cmd;
+	whl(cin>>cmd)
+	{
+		if (cmd=='L')
+		{
+			int l,r;
+			cin>>l>>r;
+			link(nds[l],nds[r]);
+		}
+		else if (cmd=='H')
+		{
+			int x;
+			cin>>x;
+			expose(nds[x]);
+			splay(nds[x]);
+			node y=tail(nds[x]);
+			splay(y);
+			cout<<y->s<<endl;
+		}
+		else if (cmd=='C')
+		{
+			int x;
+			cin>>x;
+			cut(nds[x]);
+		}
+	}
 }
