@@ -193,6 +193,145 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 #include <Core>
 #endif
 
+#define str rope
+
+const int MAXN=100000;
+
+int n,m;
+vi adj[MAXN];
+vi cir;
+int par[MAXN];
+bool fnd;
+bool onc[MAXN];
+vec<pr<str,lli> > info;
+vl f;
+int rpt;
+lli rptf;
+
+void circle(int u,int p)
+{
+	if (par[u]!=-1)
+	{
+		if (cmax(fnd,true))
+		{
+			par[u]=p;
+			cir.clear();
+			int v=u;
+			do cir.pb(v=par[v]);
+			whl(v!=u);
+		}
+	}
+	else
+	{
+		par[u]=p;
+		rep(i,sz(adj[u]))
+		{
+			int v=adj[u][i];
+			if (v!=p) circle(v,u);
+		}
+	}
+}
+lli C(lli n,lli m)
+{
+	if (n<m) rtn 0;
+	else
+	{
+		lli ans=1;
+		ft(i,1,m) ans=mod(ans*mod((n-i+1)*bin_pow(lli(i),MOD-2)));
+		rtn ans;
+	}
+}
+pr<str,lli> calc(int u,int p)
+{
+	vec<pr<str,lli> > lst;
+	rep(i,sz(adj[u]))
+	{
+		int v=adj[u][i];
+		if (v!=p&&!onc[v])
+			lst.pb(calc(v,u));
+	}
+	srt(lst);
+	pr<str,lli> ans;
+	rep(i,sz(lst)) ans.x+=lst[i].x;
+	ans.x=str("(")+ans.x+str(")");
+	ans.y=1;
+	rep(i,sz(lst))
+	{
+		int b=i,e=i+1;
+		whl(e<sz(lst)&&lst[e]==lst[b]) e++;
+		lli ttl=e-b;
+		lli cnt=(m-1)*lst[b].y;
+		ans.y*=C(cnt+ttl-1,ttl);
+		ans.y%=MOD;
+		i=e-1;
+	}
+	rtn ans;
+}
+int match()
+{
+	vi pi(sz(info));
+	{
+		pi[0]=-1;
+		int j=-1;
+		repf(i,1,sz(info))
+		{
+			whl(j!=-1&&info[j+1]!=info[i]) j=pi[j];
+			if (info[j+1]==info[i]) j++;
+			pi[i]=(j!=-1&&i+1<sz(info)&&info[j+1]==info[i+1])?pi[j]:j;
+		}
+	}
+	{
+		int j=-1;
+		repf(i,1,sz(info)*2)
+		{
+			whl(j!=-1&&info[j+1]!=info[i%sz(info)]) j=pi[j];
+			if (info[j+1]==info[i%sz(info)]) j++;
+			if (j==sz(info)-1) rtn i-j;
+		}
+	}
+}
+int solve()
+{
+	lli ans=0;
+	int tim=sz(cir)/rpt;
+	ft(i,1,tim)
+	{
+		int j=gcd(tim,i);
+		ans=mod(ans+bin_pow(lli(rptf),j)*f[rpt*j]);
+	}
+	ans=mod(ans*bin_pow(lli(tim),MOD-2));
+//	prt(cir);
+//	rep(i,sz(cir)) prt(info[i]);
+//	prt(f);
+//	prt(rpt);
+//	prt(rptf);
+	if (ans<0) ans+=MOD;
+	rtn ans;
+}
+
 int main()
 {
+	whl(~sf("%d%d",&n,&m))
+	{
+		rep(i,n) adj[i].clear();
+		rep(i,n)
+		{
+			int p;
+			sf("%d",&p),--p;
+			adj[i].pb(p),adj[p].pb(i);
+		}
+		fl(par,-1),fnd=false;
+		circle(0,-1);
+		clr(onc);
+		rep(i,sz(cir)) onc[cir[i]]=true;
+		info.clear();
+		rep(i,sz(cir)) info.pb(calc(cir[i],-1));
+		f=vl(sz(cir)+1);
+		f[1]=0;
+		ft(i,2,sz(cir)) f[i]=(bin_pow(lli(m-1),i-1)*m-f[i-1]%MOD);
+		rpt=match();
+		rptf=1;
+		rep(i,rpt) rptf=mod(rptf*info[i].y);
+		pf("%d\n",solve());
+	}
 }
