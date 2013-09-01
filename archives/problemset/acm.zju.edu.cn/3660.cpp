@@ -277,16 +277,6 @@ int solve()
 		ans=mod(ans+bin_pow(lli(rptf),j)*f[rpt*j]);
 	}
 	ans=mod(ans*bin_pow(lli(tim),MOD-2));
-//	prt(cir);
-//	rep(i,sz(cir))
-//	{
-//		prt(info[i]);
-//		rep(j,info[i].x.x) cerr<<((info[i].x.y>>j)&1);
-//		cerr<<endl;
-//	}
-//	prt(f);
-//	prt(rpt);
-//	prt(rptf);
 	if (ans<0) ans+=MOD;
 	rtn ans;
 }
@@ -301,14 +291,12 @@ int main()
 			sf("%d",&par[i]),--par[i];
 			adj[par[i]].pb(i);
 		}
-
 		clr(vis),clr(onc),cir.clear();
 		int u;
 		vis[u=0]=true;
 		whl(cmax(vis[u=par[u]],true));
 		onc[u]=true,cir.pb(u);
 		whl(cmax(onc[u=par[u]],true)) cir.pb(u);
-
 		info.clear();
 		rep(i,sz(cir)) info.pb(calc(cir[i],-1));
 		f=vl(sz(cir)+1);
