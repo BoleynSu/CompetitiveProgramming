@@ -198,39 +198,18 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 const int MAXN=100000;
 
 int n,m;
-vi adj[MAXN];
-vi cir;
 int par[MAXN];
-bool fnd;
+vi adj[MAXN];
+
+bool vis[MAXN];
 bool onc[MAXN];
+vi cir;
+
 vec<pr<str,lli> > info;
 vl f;
 int rpt;
 lli rptf;
 
-void circle(int u,int p)
-{
-	if (par[u]!=-1)
-	{
-		if (cmax(fnd,true))
-		{
-			par[u]=p;
-			cir.clear();
-			int v=u;
-			do cir.pb(v=par[v]);
-			whl(v!=u);
-		}
-	}
-	else
-	{
-		par[u]=p;
-		rep(i,sz(adj[u]))
-		{
-			int v=adj[u][i];
-			if (v!=p) circle(v,u);
-		}
-	}
-}
 lli C(lli n,lli m)
 {
 	if (n<m) rtn 0;
@@ -316,14 +295,17 @@ int main()
 		rep(i,n) adj[i].clear();
 		rep(i,n)
 		{
-			int p;
-			sf("%d",&p),--p;
-			adj[i].pb(p),adj[p].pb(i);
+			sf("%d",&par[i]),--par[i];
+			adj[par[i]].pb(i);
 		}
-		fl(par,-1),fnd=false;
-		circle(0,-1);
-		clr(onc);
-		rep(i,sz(cir)) onc[cir[i]]=true;
+
+		clr(vis),clr(onc),cir.clear();
+		int u;
+		vis[u=0]=true;
+		whl(cmax(vis[u=par[u]],true));
+		onc[u]=true,cir.pb(u);
+		whl(cmax(onc[u=par[u]],true)) cir.pb(u);
+
 		info.clear();
 		rep(i,sz(cir)) info.pb(calc(cir[i],-1));
 		f=vl(sz(cir)+1);
