@@ -299,7 +299,7 @@ void Swap(Edge e)
 	Splice(e,a->Lnext()),Splice(e->Sym(),b->Lnext());
 	e->Org()=a->Dest(),e->Dest()=b->Dest();
 }
-Edge Locate(Vertex X)
+Edge Locate(const Vertex& X)
 {
 	Edge e=stk[rand()%stks];
 	lp
