@@ -30,7 +30,7 @@ int basis[MAXM+1],out[MAXN+1];
 
 void pivot(int a,int b)
 {
-	ft(i,0,m) ft(j,0,n) if (i!=a&&j!=b) A[i][j]-=A[a][j]*A[i][b]/A[a][b];
+	ft(i,0,m) if (i!=a&&sgn(A[i][b])) ft(j,0,n) if (j!=b) A[i][j]-=A[a][j]*A[i][b]/A[a][b];
 	ft(j,0,n) if (j!=b) A[a][j]/=A[a][b];
 	ft(i,0,m) if (i!=a) A[i][b]/=-A[a][b];
 	A[a][b]=1/A[a][b];
