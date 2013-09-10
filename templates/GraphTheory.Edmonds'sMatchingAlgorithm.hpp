@@ -91,7 +91,7 @@ void blossom_contraction(int s,int u,int v)
 		if (ib[base[u]])
 		{
 			base[u]=lca;
-			if (!inq[u]) inq[q[++qt]=u]=true;
+			if (cmax(inq[u],true)) q[++qt]=u;
 		}
 }
 int find_augmenting_path(int s)
@@ -113,7 +113,7 @@ int find_augmenting_path(int s)
 				{
 					father[v]=u;
 					if (match[v]==NOT_NODE) rtn v;
-					else if (!inq[match[v]]) inq[q[++qt]=match[v]]=true;
+					else if (cmax(inq[match[v]],true)) q[++qt]=match[v];
 				}
 			}
 		}

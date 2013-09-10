@@ -63,7 +63,7 @@ void spfa()
 			if (cmin(d[i->v],d[u]+i->d))
 			{
 				pre[i->v]=u;
-				if (!vis[i->v]) Q.push(i->v),vis[i->v]=true;
+				if (cmax(vis[i->v],true)) Q.push(i->v);
 			}
 	}
 }
@@ -76,13 +76,10 @@ void dijkstra()
 	{
 		int u=Q.top().y;
 		Q.pop();
-		if (!vis[u])
-		{
-			vis[u]=true;
+		if (cmax(vis[u],true))
 			for (edge i=adj[u];i;i=i->n)
 				if (!vis[i->v]&&cmin(d[i->v],d[u]+i->d))
 					pre[i->v]=u,Q.push(mp(-d[i->v],i->v));
-		}
 	}
 }
 int V=MAXV;
@@ -98,8 +95,8 @@ void johnson_spfa()
 		vis[u]=false;
 		Q.pop();
 		for (edge i=adj[u];i;i=i->n)
-			if (cmin(h[i->v],h[u]+i->d)&&!vis[i->v])
-				Q.push(i->v),vis[i->v]=true;
+			if (cmin(h[i->v],h[u]+i->d)&&cmax(vis[i->v],true))
+				Q.push(i->v);
 	}
 }
 void johnson_dijkstra()
@@ -111,13 +108,10 @@ void johnson_dijkstra()
 	{
 		int u=Q.top().y;
 		Q.pop();
-		if (!vis[u])
-		{
-			vis[u]=true;
+		if (cmax(vis[u],true))
 			for (edge i=adj[u];i;i=i->n)
 				if (!vis[i->v]&&cmin(d[i->v],d[u]+i->d+h[u]-h[i->v]))
 					pre[i->v]=u,Q.push(mp(-d[i->v],i->v));
-		}
 	}
 	rep(i,V) d[i]+=h[i]-h[S];
 }
