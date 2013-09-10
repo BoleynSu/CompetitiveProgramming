@@ -7,8 +7,8 @@
  * MAXE:需要为边分配多少空间,一条边对应一条正向边和一条反向边，即MAXE要等于实际最大边数*2
  * build_graph:构图,详细见函数内的注释
  * add_edge:
- * 输入int u,v;flow_type c;
- * add_edge(u,v,c) 加一条u到v的容量为c的有向边,加一条v到u的容量为0的有向边
+ * 输入int u,v;flow_type c,bc;
+ * add_edge(u,v,c,bc=0) 加一条u到v的容量为c的有向边,加一条v到u的容量为bc的有向边
  * dinic:
  * 输出flow_type
  * dinic()=最大流
@@ -22,10 +22,11 @@ namespace GraphTheory
 namespace DinicsAlgorithm
 {
 
-const int oo=0x7f7f7f7f;
+const int MAX_DIST=0x7f7f7f7f;
 const int MAXV=1;
 const int MAXE=2;
 typedef int flow_type;
+const int MAX_FLOW=oo;
 typedef struct struct_edge* edge;
 struct struct_edge{int v;flow_type c;edge n,b;}pool[MAXE];
 edge top;
@@ -37,10 +38,10 @@ void build_graph(int s,int t)
 	S=s,T=t;//源,汇
 	//add_edge(u,v,c);
 }
-void add_edge(int u,int v,flow_type c)
+void add_edge(int u,int v,flow_type c,flow_type bc=0)
 {
 	top->v=v,top->c=c,top->n=adj[u],adj[u]=top++;
-	top->v=u,top->c=0,top->n=adj[v],adj[v]=top++;
+	top->v=u,top->c=bc,top->n=adj[v],adj[v]=top++;
 	adj[u]->b=adj[v],adj[v]->b=adj[u];
 	if (u==v) adj[u]->n->b=adj[u],adj[v]->b=adj[v]->n;//防止add_edge(u,u,c)时出现RE
 }
@@ -49,7 +50,7 @@ int q[MAXV];
 int qh,qt;
 bool relabel()
 {
-	fl(d,oo),d[q[qh=qt=0]=T]=0;
+	fl(d,MAX_DIST),d[q[qh=qt=0]=T]=0;
 	whl(qh<=qt)
 	{
 		int u=q[qh++];
@@ -59,41 +60,24 @@ bool relabel()
 	}
 	rtn false;
 }
-//递归增广
+edge cur[MAXV];
 flow_type augment(int u,flow_type e)
 {
 	if (u==T) rtn e;
 	flow_type f=0;
-	for (edge i=adj[u];i&&e;i=i->n)
+	for (edge& i=cur[u];i;i=i->n)
+	{
 		if (i->c&&d[u]==d[i->v]+1)
 			if (flow_type df=augment(i->v,min(e,i->c)))
 				i->c-=df,i->b->c+=df,e-=df,f+=df;
-	rtn f;
-}
-//非递归增广
-int st,us[MAXV];
-flow_type es[MAXV],fs[MAXV],f,df;
-edge is[MAXV],cur[MAXV];
-#define push(nu,ne) u=nu,e=ne,st++,us[st]=u,es[st]=e,fs[st]=0,is[st]=cur[u]
-#define pop() df=fs[st],st--,st>=0?is[st]->c-=df,is[st]->b->c+=df,es[st]-=df,is[st]=is[st]->n,fs[st]+=df:f+=df
-flow_type improved_augment(int u,flow_type e)
-{
-	f=0,st=-1,cpy(cur,adj),push(u,e);
-	whl(st>=0)
-	{
-		if (us[st]==T) fs[st]=es[st],pop();
-		else if (!is[st]||!es[st]) pop();
-		else if (is[st]->c&&d[us[st]]==d[is[st]->v]+1) cur[us[st]]=is[st],push(is[st]->v,min(es[st],is[st]->c));
-		else is[st]=is[st]->n;
+		if (!e) break;
 	}
 	rtn f;
 }
-#undef pop
-#undef push
 flow_type dinic()
 {
 	flow_type f=0;
-	while (relabel()) f+=improved_augment(S,oo);
+	while (relabel()) cpy(cur,adj),f+=augment(S,MAX_FLOW);
 	rtn f;
 }
 

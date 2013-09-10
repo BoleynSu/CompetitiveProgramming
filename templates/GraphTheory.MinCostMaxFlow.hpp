@@ -25,11 +25,12 @@ namespace GraphTheory
 namespace MinCostMaxFlow
 {
 
-const int oo=0x7f7f7f7f;
 const int MAXV=1;
 const int MAXE=2;
 typedef int flow_type;
 typedef int cost_type;
+const int MAX_FLOW=oo;
+const int MAX_COST=0x7f7f7f7f;
 typedef struct struct_edge* edge;
 struct struct_edge{int v;flow_type c;cost_type d;edge n,b;}pool[MAXE];
 edge top;
@@ -58,7 +59,7 @@ void min_cost_max_flow(flow_type& flow,cost_type& cost)
 	flow=0,cost=0;
 	lp
 	{
-		fl(d,oo),inq[q[qh=qt=0]=S]=true,d[S]=0,p[S]=0;
+		fl(d,MAX_COST),inq[q[qh=qt=0]=S]=true,d[S]=0,p[S]=0;
 		whl(qh<=qt)
 		{
 			int u=q[(qh++)%MAXV];
@@ -70,10 +71,10 @@ void min_cost_max_flow(flow_type& flow,cost_type& cost)
 					if (!inq[i->v]) inq[q[(++qt)%MAXV]=i->v]=true;
 				}
 		}
-		if (d[T]==oo) break;
+		if (d[T]==MAX_COST) break;
 		else
 		{
-			flow_type delta=oo;
+			flow_type delta=MAX_FLOW;
 			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
 			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
 			flow+=delta;
@@ -87,7 +88,7 @@ void min_cost_max_flow_faster(flow_type& flow,cost_type& cost,bool has_negative_
 	flow=0,cost=0;
 	if (has_negative_edges)
 	{
-		fl(h,oo),fl(inq,false),qh=0,qt=-1;
+		fl(h,MAX_COST),fl(inq,false),qh=0,qt=-1;
 		rep(i,V) h[i]=0,q[++qt]=i,inq[i]=true;
 		whl(qh<=qt)
 		{
@@ -104,7 +105,7 @@ void min_cost_max_flow_faster(flow_type& flow,cost_type& cost,bool has_negative_
 	else clr(h);
 	lp
 	{
-		fl(d,oo),fl(inq,false);
+		fl(d,MAX_COST),fl(inq,false);
 		prq<pr<cost_type,int> > Q;
 		d[S]=0,p[S]=0,Q.push(mp(-d[S],S));
 		whl(sz(Q))
@@ -121,10 +122,10 @@ void min_cost_max_flow_faster(flow_type& flow,cost_type& cost,bool has_negative_
 				}
 			}
 		}
-		if (d[T]==oo) break;
+		if (d[T]==MAX_COST) break;
 		else
 		{
-			flow_type delta=oo;
+			flow_type delta=MAX_FLOW;
 			for (edge i=p[T];i;i=p[i->b->v]) cmin(delta,i->c);
 			for (edge i=p[T];i;i=p[i->b->v]) i->c-=delta,i->b->c+=delta,cost+=delta*i->d;
 			flow+=delta;

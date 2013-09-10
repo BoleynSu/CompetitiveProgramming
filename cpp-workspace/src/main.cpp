@@ -33,11 +33,11 @@ using namespace std;
 //用于减少代码量的宏;
 #define lp for(;;)
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
-#define rrepf(i,a,b) for (int i=(a)-1;i>=(b);--i)
-#define rep(i,n) repf(i,0,n)
-#define rrep(i,n) rrepf(i,n,0)
 #define ft(i,a,b) for (int i=(a);i<=(b);++i)
 #define fdt(i,a,b) for (int i=(a);i>=(b);--i)
+#define rrepf(i,a,b) fdt(i,(a)-1,b)
+#define rep(i,n) repf(i,0,n)
+#define rrep(i,n) rrepf(i,n,0)
 #define for_nonempty_subsets(subset,set) for (int subset=set;subset;subset=(subset-1)&(set))
 #define for_in_charset(i,charset) for (cstr i=(charset);*i;i++)
 #define whl while
@@ -159,7 +159,7 @@ template<typename ostream,typename type>inline ostream& operator<<(ostream& cout
 inline ostream& pdb(int prcs,db x){rtn cout<<setprecision(prcs)<<fixed<<(sgn(x)?(x):0);}
 template<typename type>inline void bit_inc(vec<type>& st,int x,type inc){whl(x<sz(st))st[x]+=inc,x|=x+1;}
 template<typename type>inline type bit_sum(const vec<type>& st,int x){type s=0;whl(x>=0)s+=st[x],x=(x&(x+1))-1;rtn s;}
-template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<=sz(st));fdt(i,y-1,0){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
+template<typename type>inline type bit_kth(const vec<type>& st,int k){int x=0,y=0,z=0;whl((1<<(++y))<=sz(st));rrep(i,y){if((x+=1<<i)>sz(st)||z+st[x-1]>k)x-=1<<i;else z+=st[x-1];}rtn x;}
 inline void make_set(vi& st){rep(i,sz(st))st[i]=i;}
 inline int find_set(vi& st,int x){int y=x,z;whl(y!=st[y])y=st[y];whl(x!=st[x])z=st[x],st[x]=y,x=z;rtn y;}
 inline bool union_set(vi& st,int a,int b){a=find_set(st,a),b=find_set(st,b);rtn a!=b?st[a]=b,true:false;}
@@ -193,131 +193,6 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #include <Core>
 #endif
 
-#pragma comment(linker, "/STACK:31457280")
-
-const int MAXN=100000;
-lli inv[MAXN];
-int n,m;
-int par[MAXN];
-vi adj[MAXN];
-int tv;
-int vis[MAXN];
-int onc[MAXN];
-vi cir;
-vec<pr<pll,lli> > info;
-vl f;
-int rpt;
-lli rptf;
-
-lli C(lli n,lli m)
-{
-	if (n<m) rtn 0;
-	else
-	{
-		lli ans=inv[m];
-		ft(i,n-m+1,n) ans=(ans*i)%MOD;
-		rtn ans;
-	}
-}
-pr<pll,lli> calc(int u)
-{
-	vec<pr<pll,lli> > lst;
-	rep(i,sz(adj[u]))
-	{
-		int v=adj[u][i];
-		if (onc[v]!=tv) lst.pb(calc(v));
-	}
-	srt(lst);
-	pr<pll,lli> ans=mp(mp(lli(1),lli(1)),1);
-	rep(i,sz(lst))
-	{
-		ans.x.y=(ans.x.y*bin_pow(2,lst[i].x.x)+lst[i].x.y)%MOD;
-		ans.x.x+=lst[i].x.x;
-	}
-	ans.x.y=(ans.x.y*2+0)%MOD;
-	ans.x.x+=1;
-	rep(i,sz(lst))
-	{
-		int b=i,e=i+1;
-		whl(e<sz(lst)&&lst[e]==lst[b]) e++;
-		lli ttl=e-b;
-		lli cnt=(lli(m-1)*lst[b].y)%MOD;
-		ans.y=(ans.y*C(cnt+ttl-1,ttl))%MOD;
-		i=e-1;
-	}
-	rtn ans;
-}
-int match()
-{
-	vi pi(sz(info));
-	{
-		pi[0]=-1;
-		int j=-1;
-		repf(i,1,sz(info))
-		{
-			whl(j!=-1&&info[j+1]!=info[i]) j=pi[j];
-			if (info[j+1]==info[i]) j++;
-			pi[i]=(j!=-1&&i+1<sz(info)&&info[j+1]==info[i+1])?pi[j]:j;
-		}
-	}
-	{
-		int j=-1;
-		repf(i,1,sz(info)*2)
-		{
-			whl(j!=-1&&info[j+1]!=info[i%sz(info)]) j=pi[j];
-			if (info[j+1]==info[i%sz(info)]) j++;
-			if (j==sz(info)-1) rtn i-j;
-		}
-	}
-}
-
 int main()
 {
-	lli fac=1;
-	repf(i,1,MAXN) fac=(fac*i)%MOD;
-	inv[MAXN-1]=bin_pow(fac,MOD-2);
-	rrep(i,MAXN-1) inv[i]=(inv[i+1]*(i+1))%MOD;
-	whl(~sf("%d%d",&n,&m))
-	{
-		rep(i,n) sf("%d",&par[i]),--par[i],adj[par[i]].pb(i);
-
-		int u;
-		++tv;
-		vis[u=0]=tv;
-		whl(cmax(vis[u=par[u]],tv));
-		onc[u]=tv,cir.pb(u);
-		whl(cmax(onc[u=par[u]],tv)) cir.pb(u);
-
-		rep(i,sz(cir)) info.pb(calc(cir[i]));
-
-		f=vl(sz(cir)+1);
-		f[1]=0;
-		lli g=m;
-		ft(i,2,sz(cir))
-		{
-			g=(g*(m-1))%MOD;
-			f[i]=(g-f[i-1])%MOD;
-		}
-
-		rpt=match();
-
-		rptf=1;
-		rep(i,rpt) rptf=(rptf*info[i].y)%MOD;
-
-		lli ans=0;
-		int tim=sz(cir)/rpt;
-		ft(i,1,tim)
-		{
-			int j=gcd(tim,i);
-			ans=(ans+bin_pow(rptf,j)*f[rpt*j])%MOD;
-		}
-		ans=(ans*bin_pow(tim,MOD-2))%MOD;
-		if (ans<0) ans+=MOD;
-
-		pf("%d\n",int(ans));
-
-		rep(i,n) adj[i].clear();
-		cir.clear();
-		info.clear();
-	}
 }
