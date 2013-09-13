@@ -193,6 +193,50 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #include <Core>
 #endif
 
+void read(vvi& c,cstr path)
+{
+	FILE* file=fopen(path,"r");
+
+	char header[54];
+	fread(header,sizeof (char),54,file);
+
+	int w=*(int*)&header[18],h=*(int*)&header[22],noc=*(int*)&header[46];
+	int p=(4-w%4)%4;
+	prt(noc);
+
+	char tab[1024];
+	fread(tab,sizeof (char),1024,file);
+	int f[256];
+	rep(i,256)
+	{
+		int a,b,c,d;
+		a=(unsigned char)tab[i*4+0];
+		b=(unsigned char)tab[i*4+1];
+		c=(unsigned char)tab[i*4+2];
+		d=(unsigned char)tab[i*4+3];
+		f[i]=a+b+c;
+		cerr<<i<<":"<<a<<" "<<b<<" "<<c<<" "<<d<<endl;
+	}
+	char data[w*h];
+	fread(data,sizeof (char),w*h,file);
+	c=vvi(h,vi(w));
+	rep(i,h) rep(j,w) c[h-1-i][j]=(unsigned char)data[i*w+j];
+}
+
+bool is_black(int c)
+{
+	rtn c<=128;
+}
+
 int main()
 {
+	freopen("test.txt","w",stdout);
+	vvi c;
+	read(c,"data-1/000.bmp");
+	prt(c[0][0]),prt(c[0][1]);
+	rep(i,sz(c))
+	{
+		rep(j,sz(c[i])) cout<<c[i][j]<<" ";//(is_black(c[i][j])?'*':' ');
+		cout<<endl;
+	}
 }
