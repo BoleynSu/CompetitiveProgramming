@@ -193,50 +193,207 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #include <Core>
 #endif
 
-void read(vvi& c,cstr path)
+#define X first.first
+#define Y first.second
+#define Z second
+typedef pr<pii,int> pt;
+
+void upd(pii& a,pii b)
 {
-	FILE* file=fopen(path,"r");
-
-	char header[54];
-	fread(header,sizeof (char),54,file);
-
-	int w=*(int*)&header[18],h=*(int*)&header[22],noc=*(int*)&header[46];
-	int p=(4-w%4)%4;
-	prt(noc);
-
-	char tab[1024];
-	fread(tab,sizeof (char),1024,file);
-	int f[256];
-	rep(i,256)
-	{
-		int a,b,c,d;
-		a=(unsigned char)tab[i*4+0];
-		b=(unsigned char)tab[i*4+1];
-		c=(unsigned char)tab[i*4+2];
-		d=(unsigned char)tab[i*4+3];
-		f[i]=a+b+c;
-		cerr<<i<<":"<<a<<" "<<b<<" "<<c<<" "<<d<<endl;
-	}
-	char data[w*h];
-	fread(data,sizeof (char),w*h,file);
-	c=vvi(h,vi(w));
-	rep(i,h) rep(j,w) c[h-1-i][j]=(unsigned char)data[i*w+j];
+	if (cmax(a.x,b.x))
+		a.y=0;
+	if (a.x==b.x)
+		a.y+=b.y;
+	if (a.x==0) a.y=1;
 }
 
-bool is_black(int c)
+typedef int key_type;
+struct data
 {
-	rtn c<=128;
+	key_type k;//k用于lower_bound/upper_bound/find
+	pii v;
+	pii b;
+};
+const int MAXNODE=900000;
+typedef struct struct_node* node;
+struct struct_node:data{node p,c[2];}pool[MAXNODE];
+node top,null;
+
+node make(const key_type& k,const pii& v)
+{
+	rtn top->k=k,top->v=v,top->p=top->c[0]=top->c[1]=null,top++;
+}
+void pushup(node x)
+{
+	x->b=x->v;
+	upd(x->b,x->c[0]->b);
+	upd(x->b,x->c[1]->b);
+}
+
+void setc(node x,bool d,node y)
+{
+	x->c[d]=y;
+	y->p=x;
+}
+void rotate(node x,bool d)
+{
+	node y=x->p;
+	setc(y,d,x->c[!d]),setc(y->p,y->p->c[1]==y,x),setc(x,!d,y);
+	pushup(y);
+}
+void splay(node x,node p=null)
+{
+	whl(x->p!=p)
+	{
+		bool xd=x->p->c[1]==x,xpd=x->p->p->c[1]==x->p;
+		if(x->p->p==p) rotate(x,xd);
+		else
+		{
+			if(xpd==xd) rotate(x->p,xpd);
+			else rotate(x,xd);
+			rotate(x,xpd);
+		}
+	}
+	pushup(x);
+}
+
+node lower_bound(node rt,const key_type& k)
+{
+	node l=rt,r=null;
+	whl(l!=null)
+	{
+		if (l->k<k) l=l->c[1];
+		else r=l,l=l->c[0];
+	}
+	rtn r;
+}
+node upper_bound(node rt,const key_type& k)
+{
+	node l=rt,r=null;
+	whl(l!=null)
+	{
+		if (k<l->k) r=l,l=l->c[0];
+		else l=l->c[1];
+	}
+	rtn r;
+}
+
+#define idx(l,r) (l+r)|(l!=r)
+#define rt st[idx(l,r)]
+#define lc st[idx(l,m)]
+#define rc st[idx(m+1,r)]
+const int MAXN=100000;
+node st[(MAXN<<1)-1];
+pii qry(int l,int r,int y,int z)
+{
+	if (r<0||y<l) rtn mp(0,1);
+	else if (0<=l&&r<=y)
+	{
+		node t=upper_bound(rt,z);
+		pii ans;
+		if (t!=null)
+		{
+			rt=t;
+			splay(rt);
+			ans=rt->c[0]->b;
+		}
+		else ans=rt->b;
+		rtn ans;
+	}
+	else
+	{
+		int m=(l+r)>>1;
+		pii ans=mp(0,1);
+		upd(ans,qry(l,m,y,z));
+		upd(ans,qry(m+1,r,y,z));
+		rtn ans;
+	}
+}
+void upd(int l,int r,int y,int z,pii v)
+{
+	if (r<y||y<l) ;
+	else if (y<=l&&r<=y)
+	{
+		node t=lower_bound(rt,z);
+		if (t!=null)
+		{
+			rt=t;
+			splay(rt);
+			if (rt->k!=z)
+			{
+				node t=make(z,v);
+				setc(t,0,rt->c[0]);
+				setc(rt,0,null);
+				setc(t,1,rt);
+				rt=t;
+			}
+			else upd(rt->v,v);
+		}
+		else
+		{
+			node t=make(z,v);
+			setc(t,0,rt);
+			rt=t;
+		}
+		pushup(rt);
+	}
+	else if (l<=y&&y<=r)
+	{
+		int m=(l+r)>>1;
+		upd(l,m,y,z,v);
+		upd(m+1,r,y,z,v);
+		node t=lower_bound(rt,z);
+		if (t!=null)
+		{
+			rt=t;
+			splay(rt);
+			if (rt->k!=z)
+			{
+				node t=make(z,v);
+				setc(t,0,rt->c[0]);
+				setc(rt,0,null);
+				setc(t,1,rt);
+				rt=t;
+			}
+			else upd(rt->v,v);
+		}
+		else
+		{
+			node t=make(z,v);
+			setc(t,0,rt);
+			rt=t;
+		}
+		pushup(rt);
+	}
 }
 
 int main()
 {
-	freopen("test.txt","w",stdout);
-	vvi c;
-	read(c,"data-1/000.bmp");
-	prt(c[0][0]),prt(c[0][1]);
-	rep(i,sz(c))
+	int T;
+	cin>>T;
+	whl(T--)
 	{
-		rep(j,sz(c[i])) cout<<c[i][j]<<" ";//(is_black(c[i][j])?'*':' ');
-		cout<<endl;
+		top=pool,null=top++,null->b=null->v=mp(0,1),null->p=null->c[0]=null->c[1]=null;
+		int n;
+		cin>>n;
+		vec<pt> p(n);
+		cin>>p;
+		srt(p);
+		mii ys;
+		rep(i,n) ys[p[i].Y];
+		int cnt=0;
+		for (mii::itr it=ys.begin();it!=ys.end();it++) it->y=cnt++;
+		rep(i,n) p[i].Y=ys[p[i].Y];
+		rep(i,(cnt<<1)-1) st[i]=null;
+		pii ans=mp(0,1);
+		rep(i,n)
+		{
+			pii get=qry(0,cnt-1,p[i].Y,p[i].Z);
+			get.x++;
+			upd(0,cnt-1,p[i].Y,p[i].Z,get);
+			upd(ans,get);
+		}
+		ans.y&=(1<<30)-1;
+		cout<<ans<<endl;
 	}
 }

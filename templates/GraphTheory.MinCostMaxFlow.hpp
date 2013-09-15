@@ -23,8 +23,8 @@ namespace GraphTheory
 namespace MinCostMaxFlow
 {
 
-const int MAXV=1000;
-const int MAXE=200000;
+const int MAXV=1;
+const int MAXE=2;
 typedef int flow_type;
 typedef int cost_type;
 const int MAX_FLOW=oo;
