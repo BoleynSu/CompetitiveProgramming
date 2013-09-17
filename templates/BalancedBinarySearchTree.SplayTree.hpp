@@ -66,10 +66,10 @@ void splay(node x,node p=null)
 	whl(x->p!=p)
 	{
 		bool xd=x->p->c[1]==x,xpd=x->p->p->c[1]==x->p;
-		if(x->p->p==p) rotate(x,xd);
+		if (x->p->p==p) rotate(x,xd);
 		else
 		{
-			if(xpd==xd) rotate(x->p,xpd);
+			if (xpd==xd) rotate(x->p,xpd);
 			else rotate(x,xd);
 			rotate(x,xpd);
 		}

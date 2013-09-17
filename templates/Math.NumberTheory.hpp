@@ -41,7 +41,7 @@ void make_prime_table()
 		for (int j=0;p[j]*i<=MAXP;j++)
 		{
 			isp[p[j]*i]=false,fac[p[j]*i]=p[j];
-			if(i%p[j]==0) break;
+			if (i%p[j]==0) break;
 		}
 	}
 }
