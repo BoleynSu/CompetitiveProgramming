@@ -51,7 +51,7 @@ void add_edge(int u,int v,cost_type d)
 }
 void spfa()
 {
-	fl(d,MAX_COST),fl(vis,false);
+	fl(d,MAX_COST),clr(vis);
 	qi Q;
 	d[S]=0,pre[S]=-1,Q.push(S),vis[S]=true;
 	whl(sz(Q))
@@ -69,7 +69,7 @@ void spfa()
 }
 void dijkstra()
 {
-	fl(d,MAX_COST),fl(vis,false);
+	fl(d,MAX_COST),clr(vis);
 	prq<pr<cost_type,int> > Q;
 	d[S]=0,pre[S]=-1,Q.push(mp(-d[S],S));
 	whl(sz(Q))
@@ -86,7 +86,7 @@ int V=MAXV;
 cost_type h[MAXV];
 void johnson_spfa()
 {
-	fl(h,0),fl(vis,false);
+	fl(h,0),clr(vis);
 	qi Q;
 	rep(i,V) h[i]=0,Q.push(i),vis[i]=true;
 	whl(sz(Q))
@@ -101,7 +101,7 @@ void johnson_spfa()
 }
 void johnson_dijkstra()
 {
-	fl(d,MAX_COST),fl(vis,false);
+	fl(d,MAX_COST),clr(vis);
 	prq<pr<cost_type,int> > Q;
 	d[S]=0,pre[S]=-1,Q.push(mp(-d[S],S));
 	whl(sz(Q))
