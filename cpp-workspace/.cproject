@@ -49,8 +49,8 @@
 								</option>
 								<option id="gnu.cpp.link.option.libs.1078980526" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="curl"/>
-									<listOptionValue builtIn="false" value="boost_system-mgw46-mt-1_52"/>
-									<listOptionValue builtIn="false" value="boost_filesystem-mgw46-mt-1_52"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="boost_system-mgw48-mt-1_52"/>
+									<listOptionValue builtIn="false" srcPrefixMapping="" srcRootPath="" value="boost_filesystem-mgw48-mt-1_52"/>
 								</option>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.775928019" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
 									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
