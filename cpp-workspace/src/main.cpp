@@ -1,122 +1,153 @@
-#include<cstdio>
-#include<cstdlib>
-#include<cstring>
-#include<algorithm>
-#include<cmath>
-#include<iostream>
-#include<cmath>
-#include<map>
-#define mp make_pair
-#define pb push_back
-#define x first
-#define y second
-using namespace std;
+#include <Core>
 
-const int MAXN=20000+2;
-typedef double db;
-db a,b,c,l,r;
-int n;
-db x[MAXN],y[MAXN];
-int cnt;
-db xs[MAXN*2];
-const db eps=1e-6;
-int sgn(db x)
+#include <boost/filesystem.hpp>
+
+#include <curl/curl.h>
+#include <curl/easy.h>
+
+str USER,USERID,PASS;
+
+size_t write_data(char *data,size_t size,size_t num,string* buffer)
 {
-	if (x<-eps) return -1;
-	else if (x>eps) return 1;
-	else return 0;
+    buffer->append(data,size*num);
+    return size*num;
 }
-bool check(db x1,db y1,db x2,db y2,db x3,db y3)
+
+str page_url;
+str page_content;
+size_t page_count;
+str file_url;
+str file_content;
+str contest_url;
+str contest_content;
+void save_file(str filename)
 {
-	db x=x1;
-	db fk=2*a*x+b;
-	db fb=a*x*x+b*x+c-fk*x;
-	db Y2=fk*x2+fb;
-	db Y3=fk*x3+fb;
-	return (Y2>=y2&&Y3<=y3)||(y2>=Y2&&y3<=Y3);
-}
-void add(db x1,db y1,db x2,db y2,db x3,db y3)
-{
-	if (sgn(x1-x2))
+	cerr<<"save()"<<endl;
+	str id=filename;
+	str type=file_url.substr(file_url.find_last_of('.'),sz(file_url)-(file_url.find_last_of('.')));
+	if (!boost::filesystem::exists(id+".java")
+		&&!boost::filesystem::exists(id+".c")
+		&&!boost::filesystem::exists(id+".pas")
+		&&!boost::filesystem::exists(id+".cpp"))
 	{
-		db fk=(y1-y2)/(x1-x2);
-		db fb=y1-fk*x1;
-		//y=fkx+fb=ax^2+bx+c
-		db A=a,B=b-fk,C=c-fb;
-		db delta=B*B-4*A*C;
-		if (sgn(delta)>=0)
-		{
-			db x;
-			x=(-B+sqrt(delta))/(2*A);
-			if ((sgn(x-x1)>0&&sgn(x2-x)>0)||(sgn(x-x2)>0&&sgn(x1-x)>0))
-			{
-				xs[cnt++]=x;
-			}
-			else if (((sgn(x-x1)==0&&sgn(x2-x)>0)||(sgn(x-x2)>0&&sgn(x1-x)==0))&&check(x1,y1,x2,y2,x3,y3))
-			{
-				xs[cnt++]=x;
-			}
-			x=(-B-sqrt(delta))/(2*A);
-			if ((sgn(x-x1)>0&&sgn(x2-x)>0)||(sgn(x-x2)>0&&sgn(x1-x)>0))
-			{
-				xs[cnt++]=x;
-			}
-			else if (((sgn(x-x1)==0&&sgn(x2-x)>0)||(sgn(x-x2)>0&&sgn(x1-x)==0))&&check(x1,y1,x2,y2,x3,y3))
-			{
-				xs[cnt++]=x;
-			}
-		}
+		str output;
+		rep(i,sz(file_content)) if (file_content[i]!='\r') output.pb(file_content[i]);
+		ofstream file(id+type);
+		file<<output;
 	}
-	else
+	cerr<<"/save()"<<endl;
+}
+void download_file(str filename)
+{
+	cerr<<"download_file()"<<endl;
+	string buffer;
+	CURL *curl=curl_easy_init();
+	curl_easy_setopt(curl,CURLOPT_URL,file_url.c_str());
+	curl_easy_setopt(curl,CURLOPT_POST,1);
+	str post="Action=getsubmit&JudgeID="+USER+"&Password="+PASS;
+    curl_easy_setopt(curl,CURLOPT_POSTFIELDS,post.c_str());
+	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
+	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
+	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
+	curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+	buffer.swap(file_content);
+	save_file(filename);
+	cerr<<"/download_file()"<<endl;
+}
+void get_contest_filename(str& filename)
+{
+	cerr<<"get_contest_filename()"<<endl;
+	string buffer;
+	CURL *curl=curl_easy_init();
+	curl_easy_setopt(curl,CURLOPT_URL,contest_url.c_str());
+	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
+	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
+	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
+	curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+	buffer.swap(contest_content);
+	size_t p=contest_content.find("To submit the solution for this problem go to the Problem set:");
+	p=contest_content.find("<nobr>",p)+sz(str("<nobr>"));
+	size_t q=contest_content.find(".",p);
+	filename=contest_content.substr(p,q-p);
+	cerr<<"/get_contest_filename()"<<endl;
+}
+void get_file_url()
+{
+	size_t p=0;
+	lp
 	{
-		db y=a*x1*x1+b*x1+c;
-		if ((sgn(y-y1)>0&&sgn(y2-y)>0)||(sgn(y-y2)>0&&sgn(y1-y)>0))
+		p=page_content.find("getsubmit.aspx/",p);
+		if (p==str::npos) break;
+		size_t q=page_content.find('"',p);
+		file_url="http://acm.timus.ru/"+page_content.substr(p,q-p);
+		q=page_content.find("<SPAN CLASS=\"problemname\">",p);
+		p=q;
+		whl(page_content[p-1]!='>') p--;
+		str filename=page_content.substr(p,q-p);
+		bool isNumber=true;
+		rep(i,sz(filename)) if (filename[i]>'9'||filename[i]<'0') isNumber=false;
+		if (!isNumber)
 		{
-			xs[cnt++]=x1;
+			q=p-2;
+			p=q;
+			whl(page_content[p-1]!='"') p--;
+			str suffix=page_content.substr(p,q-p);
+			whl(suffix.find("amp;")!=str::npos)
+				suffix.erase(suffix.find("amp;"),sz(str("amp;")));
+			contest_url="http://acm.timus.ru/"+suffix;
+			get_contest_filename(filename);
 		}
-		else if (((sgn(y-y1)==0&&sgn(y2-y)>0)||(sgn(y-y2)>0&&sgn(y1-y)==0))&&check(x1,y1,x2,y2,x3,y3))
-		{
-			xs[cnt++]=x1;
-		}
+		download_file(filename);
 	}
 }
-db f(db x)
+void download_page()
 {
-	return sqrt((2*a*x+b)*(2*a*x+b)+1);
+	cerr<<"Page "<<++page_count<<": "<<page_url<<endl;
+	cerr<<"download_page()"<<endl;
+	string buffer;
+	CURL *curl=curl_easy_init();
+	curl_easy_setopt(curl,CURLOPT_URL,page_url.c_str());
+	curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,1);
+	curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,write_data);
+	curl_easy_setopt(curl,CURLOPT_WRITEDATA,&buffer);
+	curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+	buffer.swap(page_content);
+	get_file_url();
+	cerr<<"/download_page()"<<endl;
 }
-db simpson(db a,db b)
+bool has_next_page()
 {
-	return (f(a)+4*f((a+b)/2)+f(b))*(b-a)/6;
-}
-db integrate(db a,db b)
-{
-	db c=(a+b)/2;
-	db l=simpson(a,c);
-	db r=simpson(c,b);
-	db t=simpson(a,b);
-	return sgn(l+r-t)?integrate(a,c)+integrate(c,b):t;
+	size_t p=page_content.find("Next 10");
+	if (p==str::npos) rtn false;
+	size_t q=page_content.find("\">Next 10</A>");
+	p=q;
+	whl(page_content[p-1]!='"') p--;
+	str suffix=page_content.substr(p,q-p);
+	whl(suffix.find("amp;")!=str::npos)
+		suffix.erase(suffix.find("amp;"),sz(str("amp;")));
+	page_url="http://acm.timus.ru/"+suffix;
+	rtn true;
 }
 
 int main()
 {
-	while (~scanf("%d%lf%lf%lf%lf%lf",&n,&a,&b,&c,&l,&r))
-	{
-		for (int i=0;i<n;i++)
-			scanf("%lf%lf",&x[i],&y[i]);
-		x[n]=x[0],y[n]=y[0];
-		x[n+1]=x[1],y[n+1]=y[1];
-		cnt=0;
-		for (int i=1;i<=n;i++)
-		{
-			add(x[i],y[i],x[i-1],y[i-1],x[i+1],y[i+1]);
-		}
-		sort(xs,xs+cnt);
-		db ans=0;
-		for (int i=0;i<cnt;i+=2)
-		{
-			db L=max(l,xs[i]),R=min(r,xs[i+1]);
-			if (L<R) ans+=integrate(L,R);
-		}
-		printf("%.2f\n",ans);
-	}
+	cout<<"Username:"<<flush;
+	cin>>USER;
+	cout<<"PASSWORD:"<<flush;
+	cin>>PASS;
+	curl_global_init(CURL_GLOBAL_ALL);
+	stringstream sin(USER);
+	int getuserid;
+	sin>>getuserid;
+	stringstream sout;
+	sout<<getuserid;
+	USERID=sout.str();
+	page_url="http://acm.timus.ru/status.aspx?author="+USERID+"&status=accepted";
+	do download_page();
+	whl(has_next_page());
+	cout<<"Enter 'q' to quit."<<endl<<flush;;
+	whl(cin.get()!='q');
 }
