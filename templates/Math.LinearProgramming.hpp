@@ -1,4 +1,3 @@
-
 /*
  * Package: StandardCodeLibrary.Math.LinearProgramming
  * Description:
