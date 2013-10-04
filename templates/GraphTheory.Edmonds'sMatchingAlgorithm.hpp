@@ -138,9 +138,7 @@ int edmonds()
 {
 	int matchc=0;
 	fl(match,NOT_NODE);
-	for (int u=0;u<V;u++)
-		if (match[u]==NOT_NODE)
-		matchc+=augment_path(u,find_augmenting_path(u));
+	rep(u,V) if (match[u]==NOT_NODE) matchc+=augment_path(u,find_augmenting_path(u));
 	rtn matchc;
 }
 
