@@ -15,7 +15,8 @@ library
                    base >= 4,
                    array,
                    time,
-                   bytestring
+                   bytestring,
+                   random >=1.0.1 && <1.1
   hs-source-dirs:  src
   ghc-options:     -Wall
 

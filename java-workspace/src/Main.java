@@ -1,78 +1,48 @@
-import java.awt.Point;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
-import java.util.Arrays;
+import java.io.BufferedInputStream;
+import java.math.BigInteger;
+import java.util.Scanner;
 
 public class Main {
-
-	public static class Scanner {
-
-		private InputStream in;
-
-		public Scanner(InputStream in) {
-			this.in = in;
-		}
-
-		public int nextInt() {
-			try {
-				int c = in.read(), flag, x;
-				while (!Character.isDigit(c) && c != '-')
-					c = in.read();
-				if (c == '-') {
-					flag = -1;
-					x = 0;
-				} else {
-					flag = 1;
-					x = c - '0';
-				}
-				c = in.read();
-				while (Character.isDigit(c)) {
-					x = x * 10 + c - '0';
-					c = in.read();
-				}
-				return flag * x;
-			} catch (IOException e) {
-				return 0;
-			}
-		}
-	}
-
 	public static void main(String[] args) {
-		Scanner in = new Scanner(System.in);
-		PrintWriter out = new PrintWriter(System.out);
-		int n = in.nextInt(), m = in.nextInt(), k = in.nextInt();
-		int[] a = new int[k];
-		for (int i = 0; i < k; i++)
-			a[i] = in.nextInt();
-		if (k == n || m > (n - 3) * (n - 2) / 2 + (n - 1))
-			out.println(-1);
-		else {
-			int core = 0;
-			for (int i = 1; i <= n; i++) {
-				boolean found = false;
-				for (int j = 0; j < k; j++)
-					if (a[j] == i)
-						found = true;
-				if (!found)
-					core = i;
-			}
-			int left = 0, right = 0;
-			for (int i = n; i >= 1; i--)
-				if (i != core)
-					left = i;
-			for (int i = 1; i <= n; i++)
-				if (i != core)
-					right = i;
-			int cnt = 0;
-			for (int i = 1; i <= n && cnt < m - 1; i++)
-				for (int j = i + 1; j <= n && cnt < m - 1; j++)
-					if (i != left && j != left) {
-						out.println(i + " " + j);
-						cnt++;
+		Scanner in = new Scanner(new BufferedInputStream(System.in));
+		long[] f = new long[256];
+		for (int i = '0'; i <= '9'; i++)
+			f[i] = i - '0';
+		for (int i = 'A'; i <= 'Z'; i++)
+			f[i] = i - 'A' + 10;
+		for (int i = 'a'; i <= 'z'; i++)
+			f[i] = i - 'a' + 36;
+		String s;
+		long y;
+		while (in.hasNext()) {
+			s = in.next();
+			y = in.nextLong();
+			long x = 0;
+			for (int i = 0; i < s.length(); i++)
+				x = x * y + f[s.charAt(i)];
+			long t = y;
+			BigInteger ans = null;
+			for (long i = 2; i <= t; i++)
+				if (t % i == 0) {
+					while (t % i == 0)
+						t /= i;
+					long p = 0;
+					long b = i;
+					while (y % b == 0) {
+						p++;
+						b *= i;
 					}
-			out.println(left + " " + core);
+					BigInteger get = BigInteger.ZERO;
+					long a = x;
+					while (a != 0) {
+						get = get.add(BigInteger.valueOf(a / i));
+						a /= i;
+					}
+					get = get.divide(BigInteger.valueOf(p));
+					if (ans == null || ans.compareTo(get) > 0)
+						ans = get;
+				}
+			System.out.println(ans);
 		}
-		out.close();
 	}
 }
