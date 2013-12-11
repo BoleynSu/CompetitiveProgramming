@@ -1,6 +1,4 @@
-/cpp-workspace/src
-/cpp-workspace/bin
-/java-workspace/src
-/java-workspace/bin
-/haskell-workspace/src
-/haskell-workspace/.dist-buildwrapper
+/cpp-workspace/src/*.*
+/cpp-workspace/bin/*.*
+/java-workspace/src/*.*
+/java-workspace/bin/*.*
