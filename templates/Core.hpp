@@ -28,11 +28,6 @@
 #include <climits>
 using namespace std;
 
-namespace StandardCodeLibrary
-{
-namespace Core
-{
-
 //用于减少代码量的宏;
 #define lp for(;;)
 #define repf(i,a,b) for (int i=(a);i<(b);++i)
@@ -191,6 +186,3 @@ template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,v
 #define ctz __builtin_ctz
 #define clz __builtin_clz
 #define bc __builtin_popcount
-
-}
-}
