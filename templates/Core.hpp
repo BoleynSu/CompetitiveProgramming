@@ -36,6 +36,7 @@ using namespace std;
 #define rrepf(i,a,b) fdt(i,(a)-1,b)
 #define rep(i,n) repf(i,0,n)
 #define rrep(i,n) rrepf(i,n,0)
+#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
 #define for_nonempty_subsets(subset,set) for (int subset=set;subset;subset=(subset-1)&(set))
 #define for_in_charset(i,charset) for (cstr i=(charset);*i;i++)
 #define whl while
@@ -60,6 +61,9 @@ using namespace std;
 #define ub upper_bound
 #define rnk order_of_key
 #define sel find_by_order
+#define ctz __builtin_ctz
+#define clz __builtin_clz
+#define bc __builtin_popcount
 #define sz(x) (int((x).size()))
 #define all(x) (x).begin(),(x).end()
 #define srt(x) sort(all(x))
@@ -176,13 +180,9 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 }initializer;
 
 //非标准;
-#define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
 #include <ext/rope>
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <ext/pb_ds/tag_and_trait.hpp>
 typedef __gnu_cxx::rope<char> rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
-#define ctz __builtin_ctz
-#define clz __builtin_clz
-#define bc __builtin_popcount
