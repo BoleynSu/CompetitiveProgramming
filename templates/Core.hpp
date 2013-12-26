@@ -26,11 +26,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <climits>
-//非标准;
-#include <ext/rope>
-#include <ext/pb_ds/assoc_container.hpp>
-#include <ext/pb_ds/tree_policy.hpp>
-#include <ext/pb_ds/tag_and_trait.hpp>
 using namespace std;
 
 namespace StandardCodeLibrary
@@ -187,11 +182,15 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 
 //非标准;
 #define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
+#include <ext/rope>
+#include <ext/pb_ds/assoc_container.hpp>
+#include <ext/pb_ds/tree_policy.hpp>
+#include <ext/pb_ds/tag_and_trait.hpp>
+typedef __gnu_cxx::rope<char> rope;
+template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 #define ctz __builtin_ctz
 #define clz __builtin_clz
 #define bc __builtin_popcount
-typedef __gnu_cxx::rope<char> rope;
-template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
 
 }
 }
