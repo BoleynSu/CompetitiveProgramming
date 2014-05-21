@@ -1,7 +1,10 @@
+//https://github.com/boleynsu/acmicpc-codes/blob/master/templates/Core.hpp
 #include <Core>
 
+//http://www.boost.org/
 #include <boost/filesystem.hpp>
 
+//http://curl.haxx.se/
 #include <curl/curl.h>
 #include <curl/easy.h>
 
