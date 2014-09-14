@@ -14,6 +14,7 @@ namespace SuffixArray
 
 const int LOG2_MAXLENGTH=0;
 const int MAXLENGTH=1<<LOG2_MAXLENGTH;
+const int MAXALPHABET=256;
 typedef char string[MAXLENGTH];
 string s;
 int len;
@@ -28,7 +29,7 @@ void get_SA()
 	srt=Trnk;
 	rep(i,len) srt[i]=0;
 	rep(i,len) srt[s[i]]++;
-	repf(i,1,len) srt[i]+=srt[i-1];
+	repf(i,1,MAXALPHABET) srt[i]+=srt[i-1];
 	rep(i,len) SA[--srt[s[i]]]=i;
 	rnk[SA[0]]=0;
 	repf(i,1,len)
