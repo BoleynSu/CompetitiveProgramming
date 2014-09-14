@@ -27,7 +27,7 @@ int* Trnk=_d;
 void get_SA()
 {
 	srt=Trnk;
-	rep(i,len) srt[i]=0;
+	rep(i,MAXALPHABET) srt[i]=0;
 	rep(i,len) srt[s[i]]++;
 	repf(i,1,MAXALPHABET) srt[i]+=srt[i-1];
 	rep(i,len) SA[--srt[s[i]]]=i;
