@@ -137,7 +137,7 @@ Point line_intersection(const Line& a,const Line& b)
 void convex_hull(Polygon& CH,Polygon& PO)
 {
 	CH.clear();
-	srt(PO);
+	uniq(PO);
 	rep(i,sz(PO))
 	{
 		whl(sz(CH)>=2&&sgn(cross(CH[sz(CH)-2],CH[sz(CH)-1],PO[i]))<=0) CH.pop_back();//如果要将在凸包上的非顶点也放入凸包内 <=变<
