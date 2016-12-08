@@ -1,4 +1,4 @@
-Source code for ACM-ICPC
+Source code for ACM-ICPC and OI
 ======
 
 Templates are in folder [/templates](https://github.com/boleynsu/acmicpc/tree/master/templates).
