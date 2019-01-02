@@ -301,9 +301,8 @@ void Swap(Edge e)
 	Splice(e,a->Lnext()),Splice(e->Sym(),b->Lnext());
 	e->Org()=a->Dest(),e->Dest()=b->Dest();
 }
-Edge Locate(const Vertex& X)
+Edge Locate(const Vertex& X, Edge e)
 {
-	Edge e=stk[rand()%stks];
 	lp
 	{
 		if (Equal(X,e->Org())||Equal(X,e->Dest())) rtn e;
@@ -384,7 +383,7 @@ pr<Edge,Edge> Delaunay(int l,int r)
 		rtn mp(ldo,rdo);
 	}
 }
-void InitializeInsertSite()
+Edge InitializeInsertSite()
 {
 	stks=0;
 	rep(i,MAXE) stk[i]=pool[i];
@@ -393,11 +392,12 @@ void InitializeInsertSite()
 	Edge a=MakeEdge(),b=MakeEdge();
 	Splice(a->Sym(),b),a->Org()=s1,a->Dest()=b->Org()=s2,b->Dest()=s3;
 	Connect(b,a);
+	return a;
 }
-void InsertSite(const Vertex& X)
+Edge InsertSite(const Vertex& X, Edge e)
 {
-	Edge e=Locate(X);
-	if (Equal(X,e->Org())||Equal(X,e->Dest())) rtn;
+	e=Locate(X, e);
+	if (Equal(X,e->Org())||Equal(X,e->Dest())) rtn e;
 	else if (On(X,e))
 	{
 		Edge t=e->Oprev();
@@ -414,7 +414,7 @@ void InsertSite(const Vertex& X)
 		Edge t=e->Oprev();
 		if (RightOf(t->Dest(),e)&&InCircle(e->Org(),t->Dest(),e->Dest(),X))
 			Swap(e),e=e->Oprev();
-		else if (Equal(e->Org(),first)) rtn;
+		else if (Equal(e->Org(),first)) rtn e;
 		else e=e->Onext()->Lprev();
 	}
 }
