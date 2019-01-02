@@ -210,6 +210,8 @@ bool halfplane_intersection(Polygon& CH,vec<Halfplane>& AHP,vec<Halfplane> HP)
 }
 
 //Delaunay三角剖分 O(nlogn)分治法(离线)和O(n^2)增量法(在线)
+//https://dl.acm.org/citation.cfm?doid=282918.282923
+//Primitives for the manipulation of general subdivisions and the computation of Voronoi
 const int MAXV=3;
 const int MAXE=3*MAXV-6;
 struct Vertex:Point
