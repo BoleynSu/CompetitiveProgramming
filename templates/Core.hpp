@@ -39,7 +39,7 @@ using namespace std;
 #define for_each(e,s) for (__typeof__((s).begin()) e=(s).begin();e!=(s).end();++e)
 #define for_nonempty_subsets(subset,set) for (int subset=set;subset;subset=(subset-1)&(set))
 #define for_in_charset(i,charset) for (cstr i=(charset);*i;i++)
-#define whl while
+#define whl(x) while(x)
 #define rtn return
 #define fl(x,y) memset((x),char(y),sizeof(x))
 #define clr(x) fl(x,char(0))
