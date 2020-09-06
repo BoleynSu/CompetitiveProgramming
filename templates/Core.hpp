@@ -186,3 +186,4 @@ Initializer(){ios::sync_with_stdio(false);cin.tie(0);cout.tie(0);}
 #include <ext/pb_ds/tag_and_trait.hpp>
 typedef __gnu_cxx::rope<char> rope;
 template<typename key,typename value>class ext_map:public __gnu_pbds::tree<key,value,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
+template<typename key>class ext_set:public __gnu_pbds::tree<key,__gnu_pbds::null_type,less<key>,__gnu_pbds::rb_tree_tag,__gnu_pbds::tree_order_statistics_node_update>{};
