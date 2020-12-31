@@ -87,7 +87,7 @@ void download_file()
 void get_file_url()
 {
 	static const str subbegin(" data-submission-id=\""),subend("\"");
-	static const str idbegin("<a href=\"/problemset/problem/"),idend("/");
+	static const str idbegin("<a href=\"/contest/"),idend("/");
 	static const str gym("<a href=\"/problemset/gymProblem");
 
 	size_t p=0;
